@@ -112,6 +112,44 @@ toolbar), `wf-body`, `wf-row`, `wf-grow`, `wf-card`, `wf-btn` (`primary`), `wf-i
 is fine for an additive change. Use several for a flow, one per state (empty, loading,
 error, success).
 
+## Screenshot with numbered marks
+
+A real screenshot of the UI with numbered frames on the elements that matter and a legend
+under it. Use it in a recap whenever rendered UI changed (and in a spec or plan to show the
+current state). It shows the reader exactly where on the screen to look, which a wireframe
+can't. Take the image with `vdoc.py shot` (see authoring.md) and save it next to the page in
+`img/`, named after the page: `docs/visual/recap/img/2026-10-25-export-csv-1.png`.
+
+```html
+<figure class="shot">
+  <div class="shot-img">
+    <img src="img/2026-10-25-export-csv-1.png" alt="Lista raportów z nowym przyciskiem eksportu">
+    <span class="mark new" data-n="1" style="left:71%; top:18%; width:14%; height:7%"></span>
+    <span class="mark" data-n="2" style="left:4%; top:30%; width:92%; height:9%"></span>
+  </div>
+  <ol class="shot-legend">
+    <li class="new" data-n="1"><div><b>Eksportuj CSV</b>: nowy przycisk; pobiera bieżący raport z filtrami</div></li>
+    <li data-n="2"><div><b>Wiersz raportu</b>: liczba wierszy liczy się teraz po filtrach</div></li>
+  </ol>
+  <figcaption>Raporty po zmianie</figcaption>
+</figure>
+```
+
+- A `mark` is placed in **percent of the image** (`left`, `top`, `width`, `height`), so it
+  stays on its element at any page width. Read the box off the screenshot (open the PNG and
+  look), or from the browser's element bounds divided by the viewport size when a browser
+  tool gives them. Then shoot the rendered page itself and check that every frame sits on
+  its element.
+- `new` (green) marks what was added, `gone` (red, dashed) what was removed, and a plain mark
+  (orange) what changed. Each `li` of the legend has the same `data-n` and class as its mark.
+- Number the marks in reading order (top-left to bottom-right, or the order of the
+  interaction), at most ~6 per image. Frame the element itself with a little margin, not a
+  whole region.
+- Before/after: two figures in a `<div class="shot-pair">`, the before state with `gone`
+  and changed marks, the after state with `new` and changed marks, numbered the same where
+  they show the same element.
+- A flow of several screens: one figure per step, in order, each with its own legend.
+
 ## File map
 
 ```html

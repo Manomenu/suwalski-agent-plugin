@@ -6,6 +6,7 @@
     vdoc.py open PATH                             open the local page in the default browser
     vdoc.py links PATH                            the page's published artifact URL and its sibling documents
     vdoc.py register PATH URL                     record the published artifact in KIND/claude-artifacts.md
+    vdoc.py shot URL|PATH OUT.png [--size WxH]    screenshot a page with an installed headless browser
 
 Standard library only, so it runs wherever python3 does.
 """
@@ -15,7 +16,9 @@ import datetime
 import html
 import json
 import re
+import shutil
 import subprocess
+import tempfile
 import sys
 import webbrowser
 from pathlib import Path
@@ -28,6 +31,14 @@ RAW_RE = re.compile(r'<script type="text/x-(code|mermaid)"([^>]*)>(.*?)</script>
 ATTR_RE = re.compile(r'([\w-]+)=(?:"([^"]*)"|\'([^\']*)\')')
 ROW_RE = re.compile(r"^\| (?P<title>.*?) \| \[(?P<file>[^\]]+)\]\([^)]*\) \| <?(?P<url>https://[^ >|]+)>? \| (?P<date>[^|]*?) \|$")
 ARTIFACT_URL_RE = re.compile(r"^https://claude\.ai/(?:code/)?artifact/[\w-]+$")
+IMG_RE = re.compile(r'<img\b[^>]*\bsrc="([^"]+)"')
+CHROMES = ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "chrome", "microsoft-edge", "msedge",
+           "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+           "/Applications/Chromium.app/Contents/MacOS/Chromium",
+           "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+           r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+           r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe")
+FIREFOXES = ("firefox", "/Applications/Firefox.app/Contents/MacOS/firefox", r"C:\Program Files\Mozilla Firefox\firefox.exe")
 
 # Sections each kind is expected to have, matched against <section data-role="...">.
 EXPECTED = {
@@ -148,12 +159,23 @@ def cmd_check(a):
     for q in re.findall(r"<fieldset\b.*?</fieldset>", body, re.S):
         if "<legend" not in q:
             errors.append("a question <fieldset> has no <legend>")
+    images = []
+    for src in IMG_RE.findall(body):
+        if src.startswith(("data:", "http://", "https://")):
+            continue
+        if not (path.parent / src).is_file():
+            errors.append(f"image {src} does not exist next to the page")
+        else:
+            images.append(src)
     if re.search(r"<(?:html|head|body|style)[\s>]", body, re.I):
         errors.append("the content area contains <html>, <head>, <body> or <style>; use the template's classes")
     for e in errors:
         print("ERROR", e)
     for w in warns:
         print("WARN ", w)
+    if images:
+        files = {src: str(path.parent / src) for src in images}
+        print("IMAGES publish them with the page, as the Artifact tool's files:", json.dumps(files, ensure_ascii=False))
     print("OK" if not errors else f"{len(errors)} error(s)")
     sys.exit(1 if errors else 0)
 
@@ -168,6 +190,44 @@ def cmd_open(a):
     except OSError:
         webbrowser.open(url)
     print(url)
+
+
+def find_browser(choice):
+    """An installed headless-capable browser as (kind, executable); kind is chrome or firefox."""
+    names = {"chrome": [("chrome", n) for n in CHROMES], "firefox": [("firefox", n) for n in FIREFOXES]}
+    for kind, name in names.get(choice) or names["chrome"] + names["firefox"]:
+        exe = shutil.which(name) or (name if Path(name).is_file() else None)
+        if exe:
+            return kind, exe
+    sys.exit("no Chrome, Chromium, Edge or Firefox found; install one, or take the screenshot with a browser tool")
+
+
+def cmd_shot(a):
+    out = Path(a.out).resolve()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    url = a.target if "://" in a.target else Path(a.target).resolve().as_uri()
+    w, h = (int(x) for x in a.size.lower().split("x"))
+    kind, exe = find_browser(a.browser)
+    with tempfile.TemporaryDirectory() as tmp:
+        if kind == "chrome":
+            # --screenshot writes screenshot.png into the working directory (Chrome Headless CLI reference).
+            cmd = [exe, "--headless", "--disable-gpu", "--hide-scrollbars", f"--user-data-dir={tmp}/profile",
+                   f"--window-size={w},{h}", f"--virtual-time-budget={a.wait * 1000}", "--screenshot", url]
+            made = Path(tmp) / "screenshot.png"
+        else:
+            # A fresh profile, so it runs next to the user's open Firefox.
+            cmd = [exe, "--headless", "--profile", f"{tmp}/profile", f"--window-size={w},{h}", "--screenshot", str(out), url]
+            (Path(tmp) / "profile").mkdir()
+            made = out
+        try:
+            subprocess.run(cmd, cwd=tmp, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=120)
+        except subprocess.TimeoutExpired:
+            sys.exit(f"{Path(exe).name} did not finish in 120 s")
+        if not made.is_file():
+            sys.exit(f"{Path(exe).name} made no screenshot of {url}")
+        if made != out:
+            shutil.move(made, out)
+    print(f"{out} ({w}x{h}, {Path(exe).name})")
 
 
 def cmd_links(a):
@@ -224,6 +284,13 @@ def main():
     r.add_argument("path")
     r.add_argument("url")
     r.set_defaults(fn=cmd_register)
+    sh = sub.add_parser("shot")
+    sh.add_argument("target", help="a URL (http://localhost:5173/reports) or a local .html file")
+    sh.add_argument("out", help="the PNG to write, such as docs/visual/recap/img/2026-10-25-export-csv-1.png")
+    sh.add_argument("--size", default="1280x800", help="viewport WxH; 1280x800 for desktop, 390x844 for a phone")
+    sh.add_argument("--browser", choices=("chrome", "firefox"), help="default: the first one found, Chrome-family first")
+    sh.add_argument("--wait", type=int, default=3, help="seconds of page time for scripts to render (Chrome)")
+    sh.set_defaults(fn=cmd_shot)
     a = p.parse_args()
     a.fn(a)
 

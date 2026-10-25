@@ -59,6 +59,18 @@ The helper is `${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py` (Python 3, standard librar
 2. **Write the body.** With the Edit tool, replace the empty line between
    `<!-- CONTENT START -->` and `<!-- CONTENT END -->` with the document. Touch nothing else
    in the file: the CSS and JS above and below render every block in `components.md`.
+   **Screenshots** for the "Screenshot with numbered marks" block: start the app (the
+   project's dev server, or the `run` skill), then shoot each screen into the page's `img/`
+   folder and open the PNG to place the marks:
+   ```bash
+   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" shot http://localhost:5173/reports docs/visual/recap/img/2026-10-25-export-csv-1.png --size 1280x800
+   ```
+   It uses a headless Chrome, Chromium, Edge or Firefox that is installed (`--browser` picks
+   one) and also takes a local `.html` path, which is how you check the marks on your own
+   page. A screen that needs a login, a click or a filled form first: take it with this
+   session's browser tool (Claude in Chrome, the built-in browser, Playwright) and save the
+   PNG to the same place. Never shoot screens with real customer data or secrets for a page
+   that gets published; use test data, or keep the page `local`.
 3. **Check it**, and fix every ERROR:
    ```bash
    python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" check docs/visual/plan/2026-10-25-export-csv.html
@@ -71,6 +83,8 @@ The helper is `${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py` (Python 3, standard librar
       - **Already published**: update **that** artifact by passing its URL as `url`, so the
         link stays the same. If the tool requires a read of the artifact first, read it, then
         publish the local file.
+      - **The page has screenshots**: `check` lists them. Pass each one in `files`, keyed by
+        the path the page uses: `{"img/2026-10-25-export-csv-1.png": "docs/visual/recap/img/2026-10-25-export-csv-1.png"}`.
    3. **Register it. This is mandatory**: without the entry, the artifact is lost to the
       project and the next update would create a duplicate:
       ```bash
@@ -121,7 +135,8 @@ Whichever way it comes:
 - **Ground everything in the codebase.** Read the real files first. Name real paths, symbols,
   tables and endpoints. Mark anything inferred rather than read as a `callout assumption`.
 - **One picture per real relationship.** Use a Mermaid diagram for flows, states, sequences
-  and architecture, and a wireframe for UI. Don't draw a diagram that a sentence explains
+  and architecture, and for UI a screenshot with numbered marks when the app runs (a
+  wireframe when it doesn't or doesn't exist yet). Don't draw a diagram that a sentence explains
   better, and don't draw a chain A→B→C that is just a list.
 - **Decisions are explicit.** Every non-obvious choice gets a `callout decision` with its
   reason. When alternatives were weighed, show them side by side (`cols`) with the chosen one

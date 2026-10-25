@@ -81,9 +81,14 @@ a tiny change that is clearer described in one sentence.
      its responsibility, inputs/outputs and what it talks to, in plain words;
    - a **walkthrough** of one or two real scenarios ("what happens when…") through those
      elements, including what happens on the main failure path.
-5. `ui`: only if rendered UI changed. Before/after wireframes of the entry point, the changed
-   interaction and the resulting state, grounded in the components and labels in the code.
-   Mark them as reconstructed from code when they weren't captured.
+5. `ui`: only if rendered UI changed. **Prefer real screenshots with numbered marks** (the
+   "Screenshot with numbered marks" block) over diagrams here: they show the reader where on
+   the screen each change is. Shoot the running app with `vdoc.py shot` (or a browser tool
+   of this session): the entry point, the changed interaction and the resulting state, and
+   the before state too when you can still reach it (the base branch, or a deployed
+   version). Frame every changed element, number it, and explain it in the legend. Fall back
+   to before/after wireframes, grounded in the components and labels in the code, only when
+   the app can't be run here, and then mark them as reconstructed from code.
 6. `data`: only if a schema, API or file format changed. The new shape as a table or an
    `erDiagram`, and what stays compatible.
 6b. `decisions`: only when the work ran under autopilot. **Decisions made without you**: a

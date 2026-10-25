@@ -184,6 +184,23 @@ table.code tr.note-row td { white-space: normal; font-family: var(--sans); font-
 .diagram figcaption, figure figcaption { color: var(--muted); font-size: .84rem; margin-top: 8px; text-align: center; }
 figure { margin: 14px 0; }
 
+/* screenshots with numbered marks */
+.shot-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin: 14px 0; }
+.shot-pair .shot { margin: 0; }
+.shot-img { position: relative; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; line-height: 0; background: var(--paper); }
+.shot-img img { width: 100%; height: auto; display: block; }
+.shot .mark { position: absolute; border: 2.5px solid var(--warn); border-radius: 6px; box-shadow: 0 0 0 2px rgb(255 255 255 / 70%); }
+.shot .mark::before { content: attr(data-n); position: absolute; top: -11px; left: -11px; min-width: 22px; height: 22px; padding: 0 5px; box-sizing: border-box; border-radius: 99px; background: var(--warn); color: #fff; font: 700 .75rem/22px var(--mono); text-align: center; box-shadow: 0 1px 3px rgb(0 0 0 / 35%); }
+.shot .mark.new { border-color: var(--ok); }
+.shot .mark.new::before { background: var(--ok); }
+.shot .mark.gone { border-color: var(--bad); border-style: dashed; }
+.shot .mark.gone::before { background: var(--bad); }
+.shot-legend { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; font-size: .9rem; }
+.shot-legend li { display: flex; gap: 8px; align-items: flex-start; }
+.shot-legend li::before { content: attr(data-n); flex: none; min-width: 22px; height: 22px; padding: 0 5px; box-sizing: border-box; border-radius: 99px; background: var(--warn); color: #fff; font: 700 .75rem/22px var(--mono); text-align: center; }
+.shot-legend li.new::before { background: var(--ok); }
+.shot-legend li.gone::before { background: var(--bad); }
+
 /* wireframes */
 .wire-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 14px 0; }
 .wire { border: 1.5px solid var(--ink); border-radius: 12px; background: var(--paper); overflow: hidden; font-size: .88rem; margin: 14px 0; }
