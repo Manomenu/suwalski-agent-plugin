@@ -39,12 +39,18 @@ feedback for the agent** and paste it into the chat. The agent updates the same 
 same artifact.
 
 **The plugin also gives the agent a standing working agreement.** A `SessionStart` hook
-adds three short rules to Claude's context, and each one can be switched off in `/plugin`
-→ suwagent → Configure:
+adds what Claude Code must know when working with its owner. The first part is always on:
+replies in Polish, short, pictures over prose, no raw code to explain work, the proper way
+over the familiar one, and an honest status. Edit `plugins/suwagent/hooks/context/working-with-user.md`
+to make it yours. Each other part can be switched off in `/plugin` → suwagent → Configure:
 
 - **Spec → plan → recap.** Before a larger change, the agent offers a spec and then a plan,
   writes code only after the plan is approved, and offers a recap at the end. Small changes
   are done directly.
+- **The right way of working.** When a larger task starts, the agent recommends in one line
+  `autopilot` (you'll leave it alone), `orchestrate` (mostly reading, testing and mechanical
+  edits) or nothing (an ordinary task). It uses `plan-judge` by itself when there are several
+  plans. You start autopilot and orchestrate yourself.
 - **Status line.** Every finished piece of work ends with one line: 🟢 done, 🟡 something
   specific pending, or 🔴 waiting for you.
 - **Docs before code.** Before using a library, framework, CLI or provider API, the agent
@@ -99,7 +105,7 @@ plugins/suwagent/
   shared/components.md              the block catalog (HTML snippets)
   scripts/vdoc.py                   new / check / open / links / register
   hooks/hooks.json                  SessionStart → scripts/session-context.sh
-  hooks/context/*.md                the parts of the working agreement added to Claude's context
+  hooks/context/*.md                the working agreement: how to work with the owner, documents and modes, status line, docs
 docs/visual/                        visual documents of this repository (a real recap example)
 ```
 

@@ -285,12 +285,12 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
 <section data-role="tldr">
   <h2>TL;DR</h2>
   <div class="tldr">
-    <p>🟡 <b>suwagent</b> to plugin Claude Code z <b>8 skillami</b> i <b>3 stałymi zasadami</b>. Zamiast ścian tekstu dostajesz strony: spec, plan i recap, publikowane jako artefakty z linkiem w <code>claude-artifacts.md</code>. Do tego tryby pracy na dłuższe zadania: autopilot, orchestrate i limit-guard, a sędzia planów porównuje plany kilku agentów.</p>
+    <p>🟡 <b>suwagent</b> to plugin Claude Code z <b>9 skillami</b> (w tym alias) i <b>umową roboczą</b>, którą hook podaje agentowi w każdej sesji: jak z Tobą pracować, kiedy proponować dokumenty i tryby pracy, linia statusu i docs przed kodem. Zamiast ścian tekstu dostajesz strony: spec, plan i recap, publikowane jako artefakty z linkiem w <code>claude-artifacts.md</code>. Do tego tryby pracy na dłuższe zadania: autopilot, orchestrate i limit-guard, a sędzia planów porównuje plany kilku agentów.</p>
     <p>Wszystko przechodzi walidator i testy lokalne. Zostało: merge, instalacja i sprawdzenie w prawdziwej sesji.</p>
   </div>
   <div class="stats">
-    <div><b>8</b><span>skilli</span></div>
-    <div><b>3</b><span>stałe zasady (hook)</span></div>
+    <div><b>9</b><span>skilli (z aliasem)</span></div>
+    <div><b>4</b><span>części umowy w hooku</span></div>
     <div><b>4</b><span>przełączniki w Configure</span></div>
     <div><b>0</b><span>kont i zewnętrznych usług</span></div>
   </div>
@@ -302,7 +302,8 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
 flowchart TB
   subgraph Zawsze["🔵 Zawsze: hook SessionStart"]
     direction LR
-    Z1["spec → plan → recap<br/>przy większej zmianie"]
+    Z0["po polsku, krótko,<br/>obraz zamiast tekstu"]
+    Z1["spec → plan → recap<br/>+ dobór trybu pracy"]
     Z2["linia statusu<br/>🟢 🟡 🔴"]
     Z3["docs przed kodem"]
   end
@@ -329,6 +330,7 @@ flowchart TB
   <h2>Ściągawka: co, kiedy, jak wywołać</h2>
   <table>
     <tr><th>Co</th><th>Wywołanie</th><th>Kiedy po to sięgasz</th><th>Co dostajesz</th></tr>
+    <tr><td><b>jak ze mną pracować</b></td><td><span class="tag note">zawsze</span></td><td>każda odpowiedź</td><td>po polsku, krótko, obraz zamiast tekstu, bez surowego kodu</td></tr>
     <tr><td><b>spec → plan → recap</b></td><td><span class="tag note">zawsze</span></td><td>agent sam proponuje przy większej zmianie</td><td>jedno zdanie propozycji zamiast kodowania w ciemno</td></tr>
     <tr><td><b>linia statusu</b></td><td><span class="tag note">zawsze</span></td><td>każda zakończona praca</td><td>🟢 gotowe · 🟡 coś czeka · 🔴 czekam na Ciebie</td></tr>
     <tr><td><b>docs przed kodem</b></td><td><span class="tag note">zawsze</span></td><td>biblioteka, framework, CLI, API dostawcy</td><td>kod według docs zainstalowanej wersji, ze źródłami</td></tr>
@@ -336,15 +338,15 @@ flowchart TB
     <tr><td><code>visual-plan</code></td><td><span class="tag ok">agent proponuje</span> <span class="tag accent">ręcznie</span></td><td>przed kodem, kilka plików albo podejść</td><td>strona: decyzje, architektura, kroki, ryzyka</td></tr>
     <tr><td><code>visual-recap</code></td><td><span class="tag ok">agent proponuje</span> <span class="tag accent">ręcznie</span></td><td>po robocie, przed merge</td><td>strona: jak działa, kryteria ✓/✗, gdzie patrzeć</td></tr>
     <tr><td><code>plan-judge</code></td><td><span class="tag ok">sam</span> <span class="tag accent">ręcznie</span></td><td>masz 2+ planów (Claude vs Codex, dwie sesje)</td><td>werdykt + zwycięski plan jako visual-plan</td></tr>
-    <tr><td><code>autopilot</code></td><td><span class="tag accent">tylko ręcznie</span></td><td>zostawiasz agenta samego z zadaniem</td><td>skończona praca + recap z decyzjami bez Ciebie</td></tr>
-    <tr><td><code>orchestrate</code><br><span class="wf-muted">alias: <code>efficient-frontier</code></span></td><td><span class="tag accent">tylko ręcznie</span></td><td>duże zadanie: dużo czytania, testów, mechanicznych zmian</td><td>ta sama jakość, mniej drogich tokenów</td></tr>
+    <tr><td><code>autopilot</code></td><td><span class="tag ok">agent proponuje</span> <span class="tag accent">uruchamiasz Ty</span></td><td>zostawiasz agenta samego z zadaniem</td><td>skończona praca + recap z decyzjami bez Ciebie</td></tr>
+    <tr><td><code>orchestrate</code><br><span class="wf-muted">alias: <code>efficient-frontier</code></span></td><td><span class="tag ok">agent proponuje</span> <span class="tag accent">uruchamiasz Ty</span></td><td>duże zadanie: dużo czytania, testów, mechanicznych zmian</td><td>ta sama jakość, mniej drogich tokenów</td></tr>
     <tr><td><code>limit-guard</code></td><td><span class="tag ok">sam w autopilot / orchestrate</span> <span class="tag accent">ręcznie</span></td><td>długa praca na planie Pro/Max</td><td>pauza przy 90% (5h) / 95% (tydzień), zapas dla Ciebie</td></tr>
     <tr><td><code>mandatory-docs</code></td><td><span class="tag ok">sam</span> <span class="tag accent">ręcznie</span></td><td>pełna procedura „docs przed kodem”</td><td>wersja → oficjalne docs → fakty → kod → źródła</td></tr>
   </table>
-  <p class="wf-muted">„tylko ręcznie” znaczy <code>disable-model-invocation</code>: agent nie włączy tego trybu sam, bo zmienia on zasady gry (autonomia, wydatki na subagenty).</p>
+  <p class="wf-muted">„uruchamiasz Ty” znaczy <code>disable-model-invocation</code>: agent nie włączy autopilota ani orchestrate sam, bo zmieniają zasady gry (autonomia, wydatki na subagenty). Może je tylko zaproponować w jednym zdaniu, a komendę wpisujesz Ty.</p>
 
   <h3>Którego użyć?</h3>
-  <script type="text/x-mermaid" data-caption="Decyzja w kilku pytaniach">
+  <script type="text/x-mermaid" data-caption="Decyzja w kilku pytaniach. Agent ma ten sam schemat w hooku i sam proponuje tryb na starcie większego zadania">
 flowchart TB
   A{"Duże zadanie?"} -->|nie| X["zrób od razu<br/>+ linia statusu"]
   A -->|tak| B{"Wymagania jasne?"}
@@ -390,13 +392,25 @@ sequenceDiagram
 
 <section data-role="rules">
   <h2>Stałe zasady z hooka</h2>
-  <p>Plugin nie może dać „domyślnego CLAUDE.md”, bo Claude Code go nie ładuje. Zamiast tego hook <code>SessionStart</code> (start sesji, <code>/clear</code>, kompakcja) dopisuje agentowi do kontekstu do trzech krótkich części. Każdą wyłączasz osobno.</p>
-  <div class="cols">
+  <p>Plugin nie może dać „domyślnego CLAUDE.md”, bo Claude Code go nie ładuje. Zamiast tego hook <code>SessionStart</code> (start sesji, <code>/clear</code>, kompakcja) dopisuje agentowi do kontekstu Twoją umowę roboczą z czterech części. Pierwsza jest zawsze włączona, pozostałe wyłączasz osobno.</p>
+  <div class="callout note" data-label="Zawsze: jak ze mną pracować"><ul>
+    <li><b>Po polsku</b>: odpowiedzi i dokumenty; kod, nazwy i commity w języku projektu.</li>
+    <li><b>Krótko</b>: najpierw wynik. Wszystko dłuższe niż ekran trafia na stronę wizualną, nie do czatu.</li>
+    <li><b>Obraz zamiast prozy</b>: diagram, tabela albo wireframe, gdy chodzi o relację, przepływ lub porównanie.</li>
+    <li><b>Bez surowego kodu</b> do wyjaśniania pracy. Kod tylko jako krótki kontrakt.</li>
+    <li><b>Porządnie, nie po staremu</b>: według aktualnych oficjalnych docs, nie kopiując z Twoich starszych projektów.</li>
+    <li><b>Uczciwy status</b>: co sprawdzone, a co nie, powiedziane wprost.</li>
+  </ul></div>
+  <div class="cols two">
     <div><h4>spec → plan → recap</h4><p>Przy większej zmianie agent proponuje spec, potem plan, koduje po zatwierdzeniu planu i proponuje recap. Drobiazgi robi od razu. Jedno „nie” wystarcza na całe zadanie.</p></div>
     <div><h4>Linia statusu</h4><p>Ostatnia linia każdej zakończonej pracy, do 100 znaków. „Testy nieuruchomione” to 🟡, nie 🟢.</p></div>
     <div><h4>Docs przed kodem</h4><p>Przed użyciem zewnętrznego API agent czyta oficjalne docs zainstalowanej wersji. Szczegóły są w skillu <code>mandatory-docs</code>.</p></div>
+    <div><h4>Dobór trybu pracy</h4><p>Na starcie większego zadania (albo po zatwierdzeniu planu) agent poleca w jednym zdaniu, z powodem: <code>autopilot</code>, gdy zostawiasz go samego, <code>orchestrate</code>, gdy zadanie to głównie czytanie i testy, albo nic przy zwykłej pracy. <code>plan-judge</code> używa sam przy kilku planach. Ten punkt włącza ten sam przełącznik co spec → plan → recap.</p></div>
   </div>
-  <div class="term"><span class="dim">…koniec odpowiedzi agenta</span>
+  <div class="term"><span class="dim">…agent na starcie większego zadania</span>
+Proponuję tryb <b>/suwagent:orchestrate</b>: 40 plików testów do przepisania, głównie mechanicznie.
+
+<span class="dim">…koniec odpowiedzi agenta</span>
 <b>🟢 Eksport CSV gotowy, testy przechodzą</b>
 <b>🟡 Kod gotowy, ustaw EXPORT_BUCKET przed testem na stagingu</b>
 <b>🔴 Potrzebuję hasła do bazy stagingowej, żeby iść dalej</b></div>
