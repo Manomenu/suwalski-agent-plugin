@@ -337,7 +337,7 @@ flowchart TB
     <tr><td><code>visual-recap</code></td><td><span class="tag ok">agent proponuje</span> <span class="tag accent">ręcznie</span></td><td>po robocie, przed merge</td><td>strona: jak działa, kryteria ✓/✗, gdzie patrzeć</td></tr>
     <tr><td><code>plan-judge</code></td><td><span class="tag ok">sam</span> <span class="tag accent">ręcznie</span></td><td>masz 2+ planów (Claude vs Codex, dwie sesje)</td><td>werdykt + zwycięski plan jako visual-plan</td></tr>
     <tr><td><code>autopilot</code></td><td><span class="tag accent">tylko ręcznie</span></td><td>zostawiasz agenta samego z zadaniem</td><td>skończona praca + recap z decyzjami bez Ciebie</td></tr>
-    <tr><td><code>orchestrate</code></td><td><span class="tag accent">tylko ręcznie</span></td><td>duże zadanie: dużo czytania, testów, mechanicznych zmian</td><td>ta sama jakość, mniej drogich tokenów</td></tr>
+    <tr><td><code>orchestrate</code><br><span class="wf-muted">alias: <code>efficient-frontier</code></span></td><td><span class="tag accent">tylko ręcznie</span></td><td>duże zadanie: dużo czytania, testów, mechanicznych zmian</td><td>ta sama jakość, mniej drogich tokenów</td></tr>
     <tr><td><code>limit-guard</code></td><td><span class="tag ok">sam w autopilot / orchestrate</span> <span class="tag accent">ręcznie</span></td><td>długa praca na planie Pro/Max</td><td>pauza przy 90% (5h) / 95% (tydzień), zapas dla Ciebie</td></tr>
     <tr><td><code>mandatory-docs</code></td><td><span class="tag ok">sam</span> <span class="tag accent">ręcznie</span></td><td>pełna procedura „docs przed kodem”</td><td>wersja → oficjalne docs → fakty → kod → źródła</td></tr>
   </table>
@@ -469,7 +469,7 @@ stateDiagram-v2
       <div class="callout risk" data-label="Twarde stopy: pyta tylko o to"><p>brak sekretu lub dostępu · coś nieodwracalnego (dane, migracja, deploy, force push) · <b>merge, push, PR</b> · decyzja, którą zastrzegłeś dla siebie · powtarzająca się porażka testu</p></div>
     </div>
     <div data-tab="orchestrate">
-      <p><span class="tag accent">tylko ręcznie</span> <code>/suwagent:orchestrate przenieś testy na vitest</code>. Główny, drogi model planuje, rozstrzyga i recenzuje. Tanie subagenty robią objętość, w falach po maksymalnie 3.</p>
+      <p><span class="tag accent">tylko ręcznie</span> <code>/suwagent:orchestrate przenieś testy na vitest</code> (albo to samo przez alias <code>/suwagent:efficient-frontier</code>). Główny, drogi model planuje, rozstrzyga i recenzuje. Tanie subagenty robią objętość, w falach po maksymalnie 3.</p>
       <script type="text/x-mermaid" data-caption="Kto co robi">
 flowchart LR
   M["Główny model<br/>plan · decyzje · integracja · review"]

@@ -17,7 +17,7 @@ visual pages instead of reading walls of text.
 | Skill | Invoked | When | How it works |
 | :- | :- | :- | :- |
 | `/suwagent:autopilot` | only by you | you leave the agent alone with a task | no routine questions: it decides, logs every decision, stops only for real blockers (secrets, destructive steps, merge/push), and ends with a visual recap listing **decisions made without you** |
-| `/suwagent:orchestrate` | only by you | a big task with lots of reading, testing or mechanical edits | the main (expensive) model plans, decides and reviews; cheaper subagents (`haiku` for search, `sonnet` for edits and tests) do the volume, at most 3 at a time |
+| `/suwagent:orchestrate` (alias `/suwagent:efficient-frontier`) | only by you | a big task with lots of reading, testing or mechanical edits | the main (expensive) model plans, decides and reviews; cheaper subagents (`haiku` for search, `sonnet` for edits and tests) do the volume, at most 3 at a time |
 | `/suwagent:limit-guard` | by autopilot and orchestrate, or by you | long or parallel work on a Pro/Max plan | reads the real 5-hour and weekly usage between steps and pauses new work at 90% / 95%, so your own work keeps headroom. Needs a one-time status line tap (`/suwagent:limit-guard setup`) |
 | `/suwagent:mandatory-docs` | automatically | before code that uses a library, framework, CLI or provider API | reads the official docs **of the installed version** instead of coding from memory, and names its sources |
 
@@ -92,6 +92,7 @@ plugins/suwagent/
   skills/visual-{spec,plan,recap}/  the visual document skills (SKILL.md each)
   skills/mandatory-docs/            docs-before-code procedure
   skills/autopilot/ orchestrate/ plan-judge/ limit-guard/   ways of working
+  skills/efficient-frontier/        alias of orchestrate
   scripts/limits.py                 status line tap and usage check for limit-guard
   shared/template.html              the page: CSS + JS that render every block
   shared/authoring.md               rules shared by the three skills
