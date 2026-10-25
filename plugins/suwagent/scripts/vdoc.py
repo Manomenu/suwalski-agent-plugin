@@ -90,8 +90,9 @@ def cmd_new(a):
         sys.exit(f"{dest} already exists; edit it, or pass --force to start over")
     text = TEMPLATE.read_text(encoding="utf-8")
     text = text.replace("<title>TITLE</title>", f"<title>{html.escape(a.title)}</title>", 1)
-    text = text.replace('<html lang="en" data-lang="en" data-kind="plan">',
-                        f'<html lang="{a.lang}" data-lang="{a.lang}" data-kind="{a.kind}">', 1)
+    source = html.escape(dest.as_posix())
+    text = text.replace('<html lang="en" data-lang="en" data-kind="plan" data-source="">',
+                        f'<html lang="{a.lang}" data-lang="{a.lang}" data-kind="{a.kind}" data-source="{source}">', 1)
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(text, encoding="utf-8")
     print(f"created {dest}")

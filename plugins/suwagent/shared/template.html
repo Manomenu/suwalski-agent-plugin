@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-lang="en" data-kind="plan">
+<html lang="en" data-lang="en" data-kind="plan" data-source="">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -377,7 +377,9 @@ const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersectin
 secs.forEach(s => obs.observe(s));
 
 /* ---------- feedback ---------- */
-const key = "suwagent-feedback:" + location.pathname;
+/* the repository path set by vdoc.py: stable across artifact versions, unlike location.pathname */
+const source = root.dataset.source || decodeURIComponent(location.pathname);
+const key = "suwagent-feedback:" + source;
 const store = { load() { try { return JSON.parse(localStorage.getItem(key) || "{}"); } catch { return {}; } }, save(v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch { } } };
 const fb = Object.assign({ sections: {}, answers: {}, other: {}, general: "", verdict: "" }, store.load());
 const persist = () => { store.save(fb); updateCount(); };
@@ -419,7 +421,7 @@ updateCount();
 
 function feedbackText() {
   const kind = root.dataset.kind || "document";
-  const out = [`${S.fbTitle} ${kind}: "${document.title}"`, `${decodeURIComponent(location.pathname)}`, ""];
+  const out = [`${S.fbTitle} ${kind}: "${document.title}"`, source, ""];
   if (fb.verdict) out.push(fb.verdict === "approve" ? S.verdictOk : S.verdictChange, "");
   const qs = [...document.querySelectorAll(".questions fieldset")].filter(fs => fb.answers[fs.dataset.id] || fb.other[fs.dataset.id]);
   if (qs.length) {

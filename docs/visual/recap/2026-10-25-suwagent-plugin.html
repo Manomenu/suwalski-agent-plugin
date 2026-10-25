@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pl" data-lang="pl" data-kind="recap">
+<html lang="pl" data-lang="pl" data-kind="recap" data-source="docs/visual/recap/2026-10-25-suwagent-plugin.html">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -480,6 +480,7 @@ stateDiagram-v2
   Sprawdzenie --> Recap: kryteria spełnione
   Recap --> [*]
       </script>
+      <div class="callout decision"><p>Autopilot <b>commituje na branchu <code>feature/*</code></b> w stabilnych punktach, więc każdy krok da się cofnąć. Merge i push zawsze zostają dla Ciebie.</p></div>
       <div class="callout risk" data-label="Twarde stopy: pyta tylko o to"><p>brak sekretu lub dostępu · coś nieodwracalnego (dane, migracja, deploy, force push) · <b>merge, push, PR</b> · decyzja, którą zastrzegłeś dla siebie · powtarzająca się porażka testu</p></div>
     </div>
     <div data-tab="orchestrate">
@@ -513,6 +514,7 @@ flowchart LR
 OK 5h 34% (resets 11:41) · 7d 52% (resets Wed 10:41)
 <span class="dim">$</span> python3 limits.py status
 <b>PAUSE 5h 93% ≥ 90%; wait 3599 s, until 11:41</b> · 5h 93% · 7d 52%</div>
+      <div class="callout decision"><p>Progi: <b>5h 90%</b>, <b>tydzień 95%</b>. To maksimum pracy przy małym zapasie, a niższe progi podajesz w poleceniu, gdy chcesz zostawić sobie więcej.</p></div>
       <div class="callout warn" data-label="Jednorazowo"><p><code>/suwagent:limit-guard setup</code> pokaże zmianę <code>statusLine</code> w <code>~/.claude/settings.json</code> i zapisze ją dopiero po Twojej zgodzie. Działa tylko na planach Pro i Max.</p></div>
     </div>
   </div>
@@ -584,24 +586,6 @@ OK 5h 34% (resets 11:41) · 7d 52% (resets Wed 10:41)
     <li><p><code>/suwagent:limit-guard setup</code>, jeśli chcesz strażnika limitów.</p></li>
     <li><p>Później: <code>visual-audit</code> (niezależny audyt pracy innego agenta, idea z agent-watchdog) i evale pluginu.</p></li>
   </ol>
-</section>
-
-<section data-role="questions">
-  <h2>Otwarte pytania</h2>
-  <form class="questions">
-    <fieldset data-id="q1">
-      <legend>Progi limit-guard</legend>
-      <p class="why">Przy jakim zużyciu autopilot ma się zatrzymać i zostawić resztę limitu Tobie.</p>
-      <label data-recommended><input type="radio" value="90-95"><span><b>5h 90% · tydzień 95%</b><small>maksimum pracy, mały zapas</small></span></label>
-      <label><input type="radio" value="75-85"><span><b>5h 75% · tydzień 85%</b><small>zostaje więcej na Twoją bieżącą pracę</small></span></label>
-    </fieldset>
-    <fieldset data-id="q2">
-      <legend>Czy autopilot może commitować na branchu?</legend>
-      <p class="why">Commity w stabilnych punktach ułatwiają cofnięcie. Merge i push zostają zawsze zablokowane.</p>
-      <label data-recommended><input type="radio" value="commit"><span><b>Tak, na branchu feature/*</b><small>historia kroków, łatwy rollback</small></span></label>
-      <label><input type="radio" value="no-commit"><span><b>Nie, zostawia zmiany niezacommitowane</b><small>sam decydujesz, co wchodzi</small></span></label>
-    </fieldset>
-  </form>
 </section>
 <!-- CONTENT END -->
 </main>
@@ -709,7 +693,9 @@ const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersectin
 secs.forEach(s => obs.observe(s));
 
 /* ---------- feedback ---------- */
-const key = "suwagent-feedback:" + location.pathname;
+/* the repository path set by vdoc.py: stable across artifact versions, unlike location.pathname */
+const source = root.dataset.source || decodeURIComponent(location.pathname);
+const key = "suwagent-feedback:" + source;
 const store = { load() { try { return JSON.parse(localStorage.getItem(key) || "{}"); } catch { return {}; } }, save(v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch { } } };
 const fb = Object.assign({ sections: {}, answers: {}, other: {}, general: "", verdict: "" }, store.load());
 const persist = () => { store.save(fb); updateCount(); };
@@ -751,7 +737,7 @@ updateCount();
 
 function feedbackText() {
   const kind = root.dataset.kind || "document";
-  const out = [`${S.fbTitle} ${kind}: "${document.title}"`, `${decodeURIComponent(location.pathname)}`, ""];
+  const out = [`${S.fbTitle} ${kind}: "${document.title}"`, source, ""];
   if (fb.verdict) out.push(fb.verdict === "approve" ? S.verdictOk : S.verdictChange, "");
   const qs = [...document.querySelectorAll(".questions fieldset")].filter(fs => fb.answers[fs.dataset.id] || fb.other[fs.dataset.id]);
   if (qs.length) {
