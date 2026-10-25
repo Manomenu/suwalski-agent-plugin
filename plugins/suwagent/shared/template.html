@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-kind="plan">
+<html lang="en" data-lang="en" data-kind="plan">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -218,6 +218,14 @@ main details:not(.code-card) > summary { cursor: pointer; font-weight: 600; }
 main details:not(.code-card)[open] > summary { margin-bottom: 8px; }
 pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; }
 
+/* syntax colours for highlight.js, from the page tokens: claude.ai artifacts block CDN stylesheets */
+.hljs-keyword, .hljs-built_in, .hljs-selector-tag, .hljs-meta .hljs-keyword { color: var(--note); }
+.hljs-string, .hljs-regexp, .hljs-attr .hljs-string { color: var(--ok); }
+.hljs-number, .hljs-literal, .hljs-symbol { color: var(--warn); }
+.hljs-title, .hljs-title.function_, .hljs-section { color: var(--accent); }
+.hljs-comment, .hljs-quote { color: var(--muted); font-style: italic; }
+.hljs-type, .hljs-title.class_, .hljs-attr, .hljs-attribute, .hljs-variable, .hljs-property { color: var(--bad); }
+
 /* feedback */
 .sec-comment-btn { position: absolute; top: 16px; right: 18px; font: inherit; font-size: .78rem; background: var(--card); color: var(--muted); border: 1px solid var(--line); border-radius: 99px; padding: .2em .8em; cursor: pointer; }
 .sec-comment-btn.has { color: var(--note); border-color: var(--note); background: var(--note-soft); }
@@ -253,7 +261,8 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
 
 <script type="module">
 const root = document.documentElement;
-const lang = (root.lang || "en").slice(0, 2);
+/* data-lang survives when a host (a claude.ai artifact) wraps the page in its own <html> */
+const lang = (root.dataset.lang || root.lang || "en").slice(0, 2);
 const T = {
   en: { decision: "Decision", risk: "Risk", warn: "Watch out", note: "Note", ok: "Verified", assumption: "Assumption",
         chosen: " ✓ chosen", recommended: "recommended", donewhen: "Done when: ", contents: "Contents",
@@ -264,7 +273,7 @@ const T = {
         count: n => `${n} comment(s)/answer(s)`, fbTitle: "Feedback on", verdictOk: "APPROVED — go ahead.",
         verdictChange: "CHANGES REQUESTED — update the document before going further.", answers: "Answers to open questions",
         comments: "Comments on sections", general: "General feedback", recPick: "(recommended)", fallback: "Copy this text (Ctrl+C) and paste it into the chat:", close: "Close",
-        confirmClear: "Clear all your feedback on this page?" },
+        confirmClear: "Click again to clear" },
   pl: { decision: "Decyzja", risk: "Ryzyko", warn: "Uwaga", note: "Notatka", ok: "Zweryfikowane", assumption: "Założenie",
         chosen: " ✓ wybrane", recommended: "rekomendowane", donewhen: "Gotowe, gdy: ", contents: "Spis treści",
         comment: "💬 Skomentuj", commented: "💬 Skomentowane", commentPh: "Twój komentarz do tej sekcji dla agenta…",
@@ -274,7 +283,7 @@ const T = {
         count: n => `komentarze/odpowiedzi: ${n}`, fbTitle: "Feedback do", verdictOk: "ZATWIERDZAM — działaj dalej.",
         verdictChange: "POPRAWKI — popraw dokument, zanim pójdziesz dalej.", answers: "Odpowiedzi na otwarte pytania",
         comments: "Komentarze do sekcji", general: "Uwagi ogólne", recPick: "(rekomendowane)", fallback: "Skopiuj ten tekst (Ctrl+C) i wklej agentowi:", close: "Zamknij",
-        confirmClear: "Wyczyścić cały Twój feedback na tej stronie?" },
+        confirmClear: "Kliknij ponownie, aby wyczyścić" },
 };
 const S = T[lang] || T.en;
 for (const k of ["decision", "risk", "warn", "note", "ok", "assumption", "chosen", "recommended", "donewhen"]) {
@@ -420,7 +429,13 @@ bar.querySelector(".copy").onclick = async () => {
     box.querySelector("textarea").value = text; box.querySelector("button").onclick = () => box.remove(); document.body.append(box); box.querySelector("textarea").select();
   }
 };
-bar.querySelector(".clear").onclick = () => { if (confirm(S.confirmClear)) { try { localStorage.removeItem(key); } catch { } location.reload(); } };
+/* a second click confirms: confirm() is refused inside claude.ai artifacts */
+const clearBtn = bar.querySelector(".clear");
+clearBtn.onclick = () => {
+  if (clearBtn.dataset.armed) { try { localStorage.removeItem(key); } catch { } location.reload(); return; }
+  clearBtn.dataset.armed = "1"; clearBtn.textContent = S.confirmClear;
+  setTimeout(() => { delete clearBtn.dataset.armed; clearBtn.textContent = S.clear; }, 3000);
+};
 
 /* theme toggle: auto → light → dark */
 const themes = ["", "light", "dark"];
@@ -446,10 +461,8 @@ async function renderDiagrams() {
     }
   } catch (e) { console.warn("mermaid unavailable, showing source", e); }
 }
-const hlCss = el("link", { rel: "stylesheet" }); document.head.append(hlCss);
 let hljsReady = null;
 function highlight() {
-  hlCss.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/${isDark() ? "github-dark" : "github"}.min.css`;
   hljsReady = hljsReady || new Promise((res, rej) => { const s = el("script", { src: "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" }); s.onload = res; s.onerror = rej; document.head.append(s); });
   hljsReady.then(() => {
     document.querySelectorAll("td.cx[data-lang]:not([data-hl])").forEach(td => {

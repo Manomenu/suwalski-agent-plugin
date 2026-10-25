@@ -17,9 +17,14 @@ Before writing, read these two files. They hold the rules shared by all three vi
 and the HTML blocks:
 
 - `${CLAUDE_PLUGIN_ROOT}/shared/authoring.md`: where the file goes, the steps
-  (`vdoc.py new` → write → `check` → `open`), the review loop, and the quality bar
+  (`vdoc.py new` → write → `check` → publish + `register`), the review loop, and the quality bar
 - `${CLAUDE_PLUGIN_ROOT}/shared/components.md`: the block catalog, especially "Elements and
   their roles" and "Walkthrough"
+
+
+Publishing mode: **${user_config.publish_mode}**. It is `artifact` (publish as a claude.ai
+artifact and record it in `claude-artifacts.md`) or `local`; see "Publishing mode" in
+authoring.md. If a placeholder shows here instead of a value, use `artifact`.
 
 What to recap: $ARGUMENTS
 
@@ -33,9 +38,9 @@ What to recap: $ARGUMENTS
 - **A PR number.** Use `gh pr diff <n>` and `gh pr view <n>`. **A range or commit.** Use it as
   given.
 - Exclude `docs/visual/**` (the documents themselves).
-- Find the spec and plan of this work (`docs/visual/*/spec.html`, `plan.html`, matched by the
-  conversation or the slug). If they exist, put the recap in the same folder and read both:
-  the recap is checked against them.
+- Find the spec and plan of this work in `docs/visual/spec/` and `docs/visual/plan/`, matched by
+  the conversation or the slug. If they exist, create the recap with the **same slug** and read
+  both: the recap is checked against them.
 
 ## Understand it, once
 

@@ -13,19 +13,34 @@ spatial, real names (files, functions, fields) instead of vague nouns, and nothi
 
 ## Where the files go
 
-One folder per piece of work, so the spec, the plan and the recap of the same feature sit side
-by side and link to each other:
+One folder per kind. The spec, plan and recap of the same piece of work share one file name,
+so they find and link to each other:
 
 ```
-docs/visual/<YYYY-MM-DD>-<slug>/spec.html
-docs/visual/<YYYY-MM-DD>-<slug>/plan.html
-docs/visual/<YYYY-MM-DD>-<slug>/recap.html
+docs/visual/spec/2026-10-25-export-csv.html
+docs/visual/plan/2026-10-25-export-csv.html
+docs/visual/recap/2026-10-25-export-csv.html
+docs/visual/recap/claude-artifacts.md      ← links to the published artifacts of this folder
 ```
 
-- `<YYYY-MM-DD>` is the day the folder was created; `<slug>` is 2-5 kebab-case words.
-- If a folder for this piece of work already exists (a spec made earlier), reuse it.
-- If the project's CLAUDE.md / AGENTS.md names another location, use that.
+- `vdoc.py new KIND SLUG` picks the path. The slug is 2-5 kebab-case words. Reuse the slug of
+  an existing spec or plan for the same work, and `new` reuses its date too.
+- If the project's CLAUDE.md / AGENTS.md names another location, pass it as `--root`.
 - Don't commit these files on your own initiative; they go in when the user commits.
+
+## Publishing mode
+
+The SKILL.md that sent you here states the mode, which the user sets in `/plugin` →
+suwagent → Configure:
+
+- **`artifact`** (the default): the local `.html` is the source, and it is also published as a
+  claude.ai artifact. The user reviews it from a link on any device and can comment on it.
+- **`local`**: the file stays on this machine and opens in the browser. Use this mode for
+  client or confidential repositories.
+
+The project's CLAUDE.md / AGENTS.md, or the user in this conversation, can override the mode
+("tylko lokalnie", "don't publish"). In `artifact` mode, if this session has no Artifact
+tool (another agent, an API-key session), fall back to `local` and say so in one line.
 
 ## Steps
 
@@ -33,45 +48,69 @@ The helper is `${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py` (Python 3, standard librar
 
 1. **Create the page from the template**, never by writing the whole HTML yourself:
    ```bash
-   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" new plan docs/visual/2026-10-25-export-csv/plan.html --title "Eksport CSV raportów" --lang pl
+   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" new plan export-csv --title "Eksport CSV raportów" --lang pl
+   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" links docs/visual/plan/2026-10-25-export-csv.html
    ```
-   `--lang` is `pl` or `en` and sets the page's built-in labels; use the language the user
-   writes in, and write the document itself in that language too.
+   `--lang` is `pl` or `en`. It sets the page's built-in labels, so use the language the user
+   writes in, and write the document in it too. `--title` is a short **name** of 2-5 words,
+   because it also names the artifact: "Eksport CSV raportów", never "Plan: eksport CSV —
+   streaming…". The kind shows in the page's badge. `links` prints the `<a>` tags for the
+   header nav: sibling documents, pointing at their artifacts when they're published.
 2. **Write the body.** With the Edit tool, replace the empty line between
    `<!-- CONTENT START -->` and `<!-- CONTENT END -->` with the document. Touch nothing else
    in the file: the CSS and JS above and below render every block in `components.md`.
 3. **Check it**, and fix every ERROR:
    ```bash
-   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" check docs/visual/.../plan.html
+   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" check docs/visual/plan/2026-10-25-export-csv.html
    ```
-4. **Open it** in the user's browser. The command prints the `file://` URL:
+4. **Publish** (`artifact` mode). Do all three steps, every time the file changes:
+   1. Run `vdoc.py links <file>`. It says whether this file already has an artifact.
+   2. Publish the local file with the Artifact tool, using `file_path` = the local `.html`:
+      - **Not published yet**: give an `icon` (`list` for a spec, `map` for a plan, `report`
+        for a recap) and a one-sentence `description`.
+      - **Already published**: update **that** artifact by passing its URL as `url`, so the
+        link stays the same. If the tool requires a read of the artifact first, read it, then
+        publish the local file.
+   3. **Register it. This is mandatory**: without the entry, the artifact is lost to the
+      project and the next update would create a duplicate:
+      ```bash
+      python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" register docs/visual/plan/2026-10-25-export-csv.html https://claude.ai/artifact/<id>
+      ```
+      This adds or refreshes the row in `docs/visual/plan/claude-artifacts.md`.
+
+   In **`local`** mode, open the page instead:
    ```bash
-   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" open docs/visual/.../plan.html
+   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" open docs/visual/plan/2026-10-25-export-csv.html
    ```
-5. **Hand over in chat in at most 5 lines**: the path/URL, one sentence on what the document
-   proposes or reports, the number of open questions, and what you need from the user
-   (approval, answers). Never repeat the document's content in chat; the page is the
-   deliverable.
+5. **Hand over in chat in at most 5 lines**: the artifact link (or the local path), one
+   sentence on what the document proposes or reports, the number of open questions, and what
+   you need from the user (approval, answers). Never repeat the document's content in chat;
+   the page is the deliverable.
 
 ## The review loop
 
-The page has a feedback bar: the user answers the open questions, leaves a comment on any
-section, marks **Approve** or **Request changes**, and presses **Copy feedback for the agent**.
-They paste a block that starts with `Feedback on <kind>:` / `Feedback do <kind>:` followed
-by the page's path.
+Feedback arrives in one of three ways:
 
-When that block arrives:
+- **Comments on the artifact** (`artifact` mode). When the user comments on the page and sends
+  the comment to Claude, it reaches this session. Read the comments with the artifact
+  comments tool (load it through tool search if it's deferred).
+- **Pasted feedback.** The page's feedback bar collects answers to the open questions,
+  per-section comments and an Approve / Request changes verdict. **Copy feedback for the
+  agent** puts it on the clipboard as a block that starts with `Feedback on <kind>:` /
+  `Feedback do <kind>:`.
+- **Plain chat.**
 
-1. Treat it as a review of that file. Answers to open questions become decisions: move each
-   one out of the Open questions section and into the body as settled prose or a
-   `callout decision`.
-2. Edit the same file (the document is the source of truth, not the chat). Keep it standalone:
-   no "as discussed", "changed after feedback", "in the previous version".
+Whichever way it comes:
+
+1. Answers to open questions become decisions: move each one out of the Open questions
+   section and into the body as settled prose or a `callout decision`.
+2. Edit the **local file**, which is the source of truth. Never edit only the artifact. Keep
+   the document standalone: no "as discussed", "changed after feedback", "in the previous
+   version".
 3. Update the header `status`: `draft` → `approved` when the user approved; leave `draft`
    while changes are pending.
-4. Run `check`, then `open` again, and reply with a short list of what changed.
-
-If the user replies in plain chat instead, apply it the same way.
+4. Run `check`, then publish again to the **same** artifact and `register` (or `open` in
+   local mode). Reply with a short list of what changed.
 
 ## Quality bar (applies to all three)
 
@@ -114,9 +153,8 @@ If the user replies in plain chat instead, apply it the same way.
     <span><b>Zakres:</b> ~6 plików, 4 kroki</span>
   </div>
   <nav class="doc-nav">
-    <a href="spec.html">Spec</a>
-    <a href="plan.html" aria-current="page">Plan</a>
-    <a href="recap.html">Recap</a>   <!-- link only the documents that exist -->
+    <a href="https://claude.ai/artifact/…">Spec</a>      <!-- the lines `vdoc.py links` prints -->
+    <a aria-current="page">Plan</a>
   </nav>
 </header>
 ```

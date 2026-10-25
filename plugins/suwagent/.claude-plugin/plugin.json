@@ -15,6 +15,13 @@
       "title": "Suggest spec → plan → recap",
       "description": "At session start, tell Claude to offer a visual spec and plan before larger changes and a visual recap after them",
       "default": true
+    },
+    "publish_mode": {
+      "type": "string",
+      "title": "Where visual documents go",
+      "description": "artifact: keep the local HTML and also publish it as a claude.ai artifact, with its link in docs/visual/<kind>/claude-artifacts.md. local: keep it on this machine only (for client or confidential repositories)",
+      "options": ["artifact", "local"],
+      "default": "artifact"
     }
   }
 }

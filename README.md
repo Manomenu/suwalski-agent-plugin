@@ -9,14 +9,22 @@ visual pages instead of reading walls of text.
 | `/suwagent:visual-plan` | before writing code | **how**: decisions with the options weighed, an architecture diagram, a file map, planned code shapes, ordered steps with checks, verification, risks |
 | `/suwagent:visual-recap` | after the work is done | **what was built and how it works**, without code or diffs: the elements and their roles, a walkthrough of a real scenario, diagrams, acceptance criteria checked against the spec/plan with evidence, deviations, verification results, where to look carefully |
 
-Each page is one self-contained HTML file in `docs/visual/<date>-<slug>/` (`spec.html`,
-`plan.html`, `recap.html`, linked to each other). It opens in your browser and works in
-light and dark mode. Mermaid diagrams and syntax highlighting load from a CDN, and without
-network you see the source instead.
+Each page is one self-contained HTML file in `docs/visual/<spec|plan|recap>/<date>-<slug>.html`.
+The spec, plan and recap of the same work share a file name and link to each other. Pages
+work in light and dark mode, and Mermaid diagrams load from a CDN (offline you see their
+source).
 
-**Feedback goes back to the agent from the page.** Answer the open questions, comment on any
-section, choose ✅ Approve or ✏️ Request changes, press **Copy feedback for the agent** and
-paste the result into the chat. The agent updates the same page.
+**By default each page is also published as a claude.ai artifact**, so you open it from a link
+on any device and comment on it. The local file stays the source, and every published link
+is recorded in `docs/visual/<kind>/claude-artifacts.md`, so the next update goes to the same
+artifact. For client or confidential repositories, set *Where visual documents go* to
+`local` in `/plugin` → suwagent → Configure. Then nothing leaves the machine and the page
+opens in your browser.
+
+**Feedback goes back to the agent from the page.** Comment on the artifact, or answer the
+open questions, comment on sections, choose ✅ Approve or ✏️ Request changes, press **Copy
+feedback for the agent** and paste it into the chat. The agent updates the same page and the
+same artifact.
 
 **The plugin also tells the agent about the workflow.** A `SessionStart` hook adds a short
 working agreement to Claude's context: before a larger change, offer a spec and then a plan,
@@ -52,7 +60,7 @@ If you add a `version`, users only get an update when you bump it.
 ```bash
 claude --plugin-dir ./plugins/suwagent        # try local changes without installing
 claude plugin validate .                      # check the marketplace and the plugin
-python3 plugins/suwagent/scripts/vdoc.py check docs/visual/2026-10-25-visual-skills-plugin/recap.html
+python3 plugins/suwagent/scripts/vdoc.py check docs/visual/recap/2026-10-25-suwagent-plugin.html
 ```
 
 After editing the plugin in a running session, run `/reload-plugins`.
@@ -67,7 +75,7 @@ plugins/suwagent/
   shared/template.html              the page: CSS + JS that render every block
   shared/authoring.md               rules shared by the three skills
   shared/components.md              the block catalog (HTML snippets)
-  scripts/vdoc.py                   new / check / open
+  scripts/vdoc.py                   new / check / open / links / register
   hooks/hooks.json                  SessionStart → scripts/session-context.sh
   hooks/session-context.md          the working agreement added to Claude's context
 docs/visual/                        visual documents of this repository (a real recap example)

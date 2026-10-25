@@ -1,8 +1,8 @@
 ---
 name: visual-plan
 description: Write a visual implementation plan of HOW to build a change (approach and decisions, architecture diagram, file map, planned code shapes, ordered steps with checks, verification, risks, open questions) as an HTML page the user reviews and approves in the browser before any code is written. Use before implementing a larger or multi-file change, after a spec is approved, or when the user asks for a plan, "zaplanuj", "plan implementacji", or wants to turn an existing text plan into something reviewable.
-when_to_use: The change touches several files, adds a feature, changes an API or data shape, or has more than one reasonable approach; or an approved spec.html exists for this work; or the user says "visual plan", "plan", "zaplanuj", "jak to zrobisz", "plan implementacji".
-argument-hint: "[what to plan, or a path to spec.html / a text plan]"
+when_to_use: The change touches several files, adds a feature, changes an API or data shape, or has more than one reasonable approach; or an approved spec for this work exists in docs/visual/spec/; or the user says "visual plan", "plan", "zaplanuj", "jak to zrobisz", "plan implementacji".
+argument-hint: "[what to plan, or a path to a spec / a text plan]"
 ---
 
 # Visual plan
@@ -14,17 +14,23 @@ Before writing, read these two files. They hold the rules shared by all three vi
 and the HTML blocks:
 
 - `${CLAUDE_PLUGIN_ROOT}/shared/authoring.md`: where the file goes, the steps
-  (`vdoc.py new` → write → `check` → `open`), the review loop, and the quality bar
+  (`vdoc.py new` → write → `check` → publish + `register`), the review loop, and the quality bar
 - `${CLAUDE_PLUGIN_ROOT}/shared/components.md`: the block catalog
+
+
+Publishing mode: **${user_config.publish_mode}**. It is `artifact` (publish as a claude.ai
+artifact and record it in `claude-artifacts.md`) or `local`; see "Publishing mode" in
+authoring.md. If a placeholder shows here instead of a value, use `artifact`.
 
 What to plan: $ARGUMENTS (if empty, use the change being discussed in the conversation).
 
 ## Inputs
 
-- **A spec.** Look for `docs/visual/*/spec.html` for this work: the path in the arguments,
-  the folder the conversation used, or the newest folder whose slug matches. If one exists,
-  read it, write the plan in the same folder, link it in `doc-nav`, and plan to meet its
-  acceptance criteria. Don't restate the spec; refer to it.
+- **A spec.** Look in `docs/visual/spec/` for this work: the path in the arguments, the
+  slug the conversation used, or the newest file whose slug matches. If one exists, read it,
+  create the plan with the **same slug** (`vdoc.py new plan <slug>`), put the spec link from
+  `vdoc.py links` in `doc-nav`, and plan to meet its acceptance criteria. Don't restate the
+  spec; refer to it.
 - **An existing text plan.** If one exists (pasted, a file, or a plan from plan mode), treat it
   as source material. Keep its facts and decisions, and rewrite it as a standalone plan
   document.

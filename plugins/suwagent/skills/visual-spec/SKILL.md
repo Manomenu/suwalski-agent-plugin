@@ -15,8 +15,13 @@ Before writing, read these two files. They hold the rules shared by all three vi
 and the HTML blocks:
 
 - `${CLAUDE_PLUGIN_ROOT}/shared/authoring.md`: where the file goes, the steps
-  (`vdoc.py new` → write → `check` → `open`), the review loop, and the quality bar
+  (`vdoc.py new` → write → `check` → publish + `register`), the review loop, and the quality bar
 - `${CLAUDE_PLUGIN_ROOT}/shared/components.md`: the block catalog
+
+
+Publishing mode: **${user_config.publish_mode}**. It is `artifact` (publish as a claude.ai
+artifact and record it in `claude-artifacts.md`) or `local`; see "Publishing mode" in
+authoring.md. If a placeholder shows here instead of a value, use `artifact`.
 
 What to specify: $ARGUMENTS (if empty, use the change being discussed in the conversation).
 
@@ -64,6 +69,6 @@ Leave out a section that has nothing to say. Never write one that only says "N/A
 
 ## Hand-off
 
-Follow the hand-off step in authoring.md. End by asking the user to review in the browser
-and paste the feedback. Once the spec is approved (status `approved`), suggest
+Follow the hand-off step in authoring.md. End by asking the user to review the page and
+comment on it or paste the feedback. Once the spec is approved (status `approved`), suggest
 `/suwagent:visual-plan` as the next step. Don't start planning or coding before that.
