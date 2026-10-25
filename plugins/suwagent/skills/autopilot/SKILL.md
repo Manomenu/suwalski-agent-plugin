@@ -52,8 +52,8 @@ input needed, and the next command or file to look at.
 1. Pin the goal and its acceptance criteria. Write them at the top of the decision log.
 2. Read the real code, docs and tests before changing anything. Follow mandatory-docs for
    external libraries and APIs.
-3. Work in small coherent steps on a feature branch (follow the user's and the project's
-   branch conventions), committing at stable points.
+3. Work in small coherent steps on the branch the user's and the project's conventions call
+   for (the current branch unless they say otherwise), committing at stable points.
 4. After each step, run the relevant check and fix what it finds.
 5. For work longer than about an hour, or with parallel subagents, apply the `limit-guard`
    skill between steps.
