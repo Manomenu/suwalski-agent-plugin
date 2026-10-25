@@ -15,10 +15,11 @@ In a Claude Code session:
 Pick a scope (user scope gives it to you in every project), then type `/suwagent:` to see the skills.
 Requirements: `git` and `python3` (standard library only).
 
-> [!WARNING]
-> **The working agreement is the owner's: replies come in Polish.** If that isn't you, fork the
-> repository and edit [`working-with-user.md`](plugins/suwagent/hooks/context/working-with-user.md)
-> first ([Make it yours](#make-it-yours)).
+> [!NOTE]
+> **The working agreement is the owner's.** Replies come in the language you write in, Polish or
+> English, short, with pictures over prose. To change any of it, fork the repository and edit
+> [`working-with-user.md`](plugins/suwagent/hooks/context/working-with-user.md)
+> ([Make it yours](#make-it-yours)).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/visual/board/img/readme/why-dark.png">
