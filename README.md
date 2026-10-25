@@ -7,7 +7,7 @@ visual pages instead of reading walls of text.
 | :- | :- | :- |
 | `/suwagent:visual-spec` | before planning a larger change | **what** and **why**: problem, goals and non-goals, scenarios, behaviour and edge cases, UI sketches, acceptance criteria, open questions |
 | `/suwagent:visual-plan` | before writing code | **how**: decisions with the options weighed, an architecture diagram, a file map, planned code shapes, ordered steps with checks, verification, risks |
-| `/suwagent:visual-recap` | after the work is done | **what was built and how it works**: acceptance criteria checked against the spec/plan with evidence, deviations, diagrams, the file map with stats, annotated key diffs, verification results, where to look carefully |
+| `/suwagent:visual-recap` | after the work is done | **what was built and how it works**, without code or diffs: the elements and their roles, a walkthrough of a real scenario, diagrams, acceptance criteria checked against the spec/plan with evidence, deviations, verification results, where to look carefully |
 
 Each page is one self-contained HTML file in `docs/visual/<date>-<slug>/` (`spec.html`,
 `plan.html`, `recap.html`, linked to each other). It opens in your browser and works in
@@ -67,7 +67,7 @@ plugins/suwagent/
   shared/template.html              the page: CSS + JS that render every block
   shared/authoring.md               rules shared by the three skills
   shared/components.md              the block catalog (HTML snippets)
-  scripts/vdoc.py                   new / fill-diffs / check / open
+  scripts/vdoc.py                   new / check / open
   hooks/hooks.json                  SessionStart → scripts/session-context.sh
   hooks/session-context.md          the working agreement added to Claude's context
 docs/visual/                        visual documents of this repository (a real recap example)

@@ -15,7 +15,6 @@
   --line: #e3e3e0; --accent: #3b5bdb; --accent-soft: #e8edff;
   --ok: #2b8a3e; --ok-soft: #e6f4ea; --warn: #b8590b; --warn-soft: #fff1e0;
   --bad: #c92a2a; --bad-soft: #fde8e8; --note: #5f3dc4; --note-soft: #efe9ff;
-  --add: #e6f4ea; --add-ink: #1a6b2f; --del: #fde8e8; --del-ink: #a61e1e;
   --code-bg: #f4f4f2; --radius: 10px; --shadow: 0 1px 2px rgb(0 0 0 / 5%), 0 4px 16px rgb(0 0 0 / 4%);
   --mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
@@ -27,8 +26,7 @@
     --line: #34343a; --accent: #8ea6ff; --accent-soft: #252c47;
     --ok: #6fcf86; --ok-soft: #1c3324; --warn: #f0a35c; --warn-soft: #3a2a17;
     --bad: #ff8787; --bad-soft: #3d1f1f; --note: #b69cff; --note-soft: #2c2342;
-    --add: #17301f; --add-ink: #8fe0a3; --del: #3a1c1c; --del-ink: #ffa8a8;
-    --code-bg: #18181b; --shadow: 0 1px 2px rgb(0 0 0 / 30%);
+      --code-bg: #18181b; --shadow: 0 1px 2px rgb(0 0 0 / 30%);
     color-scheme: dark;
   }
 }
@@ -37,7 +35,6 @@
   --line: #34343a; --accent: #8ea6ff; --accent-soft: #252c47;
   --ok: #6fcf86; --ok-soft: #1c3324; --warn: #f0a35c; --warn-soft: #3a2a17;
   --bad: #ff8787; --bad-soft: #3d1f1f; --note: #b69cff; --note-soft: #2c2342;
-  --add: #17301f; --add-ink: #8fe0a3; --del: #3a1c1c; --del-ink: #ffa8a8;
   --code-bg: #18181b; --shadow: 0 1px 2px rgb(0 0 0 / 30%);
   color-scheme: dark;
 }
@@ -167,23 +164,17 @@ ul.checks .evidence { display: block; font-size: .84rem; color: var(--muted); }
 .code-card > summary::before { content: "▸"; color: var(--muted); transition: transform .15s; }
 .code-card[open] > summary::before { transform: rotate(90deg); }
 .code-card .fname { font-family: var(--mono); font-weight: 600; word-break: break-all; }
-.code-card .dstat { font-family: var(--mono); font-size: .78rem; } .dstat .p { color: var(--ok); } .dstat .m { color: var(--bad); }
 .code-card .summary { flex-basis: 100%; color: var(--muted); }
 .code-scroll { overflow-x: auto; }
 table.code { box-shadow: none; border-radius: 0; margin: 0; background: transparent; font: 12.5px/1.55 var(--mono); width: 100%; }
 table.code td { border: 0; padding: 0 10px; white-space: pre; }
 table.code td.ln { width: 1%; text-align: right; color: var(--muted); user-select: none; opacity: .7; padding: 0 6px; }
-table.code td.sg { width: 1%; user-select: none; padding: 0 4px; color: var(--muted); }
-table.code tr.add td { background: var(--add); } table.code tr.add td.sg { color: var(--add-ink); }
-table.code tr.del td { background: var(--del); } table.code tr.del td.sg { color: var(--del-ink); }
-table.code tr.hunk td { background: var(--accent-soft); color: var(--muted); padding: 2px 10px; }
 table.code tr.hl td { background: var(--warn-soft); }
 table.code tr.hl td.ln { box-shadow: inset 3px 0 0 var(--warn); }
 table.code tr.note-row td { white-space: normal; font-family: var(--sans); font-size: .86rem; padding: 6px 12px 8px; background: var(--paper); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .anno { display: flex; gap: 8px; align-items: flex-start; }
 .anno .pin { flex: none; background: var(--warn); color: var(--paper); font-weight: 700; font-size: .72rem; border-radius: 99px; padding: 0 .55em; font-family: var(--mono); }
 .anno b { font-weight: 600; }
-.loose-notes { padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--paper); font-size: .86rem; }
 
 /* diagrams */
 .diagram { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; margin: 14px 0; overflow-x: auto; text-align: center; }
@@ -292,9 +283,9 @@ for (const k of ["decision", "risk", "warn", "note", "ok", "assumption", "chosen
 
 const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const el = (tag, attrs = {}, html = "") => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (html) e.innerHTML = html; return e; };
-/* raw blocks write a literal </script> as <\/script> */
+/* raw blocks escape the closing script tag and the comment opener with a backslash; undo that here */
 const dedent = s => {
-  const lines = s.replace(/<\\\/script/gi, "</script").replace(/^\s*\n/, "").replace(/\s+$/, "").split("\n");
+  const lines = s.replace(/<\\\/script/gi, "<\/script").replace(/<\\!--/g, "<\x21--").replace(/^\s*\n/, "").replace(/\s+$/, "").split("\n");
   const ind = Math.min(...lines.filter(l => l.trim()).map(l => l.match(/^\s*/)[0].length));
   return lines.map(l => l.slice(Number.isFinite(ind) ? ind : 0)).join("\n");
 };
@@ -320,64 +311,6 @@ for (const src of document.querySelectorAll('script[type="text/x-code"]')) {
   const head = d.file || d.title ? `<div class="code-head">${d.file ? `<span class="fname">${esc(d.file)}</span>` : ""}${d.title ? `<span>${esc(d.title)}</span>` : ""}${d.summary ? `<span class="summary">${esc(d.summary)}</span>` : ""}</div>` : "";
   const card = el("div", { class: "code-card" }, `${head}<div class="code-scroll"><table class="code">${rows}</table></div>`);
   src.replaceWith(card);
-}
-
-/* diffs: <script type="text/x-diff" data-file data-summary data-notes data-collapsed> — raw `git diff` output */
-function parseDiff(text, fallbackFile) {
-  const files = []; let cur = null, hunk = null, o = 0, n = 0;
-  const startFile = path => { cur = { path, status: "modified", hunks: [], add: 0, del: 0 }; files.push(cur); hunk = null; };
-  for (const line of text.split("\n")) {
-    let m;
-    if ((m = line.match(/^diff --git a\/(.+?) b\/(.+)$/))) { startFile(m[2]); continue; }
-    if (!cur) { if (line.startsWith("--- ") || line.startsWith("@@")) startFile(fallbackFile || ""); else continue; }
-    if ((m = line.match(/^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/))) { o = +m[1]; n = +m[2]; hunk = { header: line, lines: [] }; cur.hunks.push(hunk); continue; }
-    if (!hunk) { /* file header lines */
-      if (line.startsWith("new file mode")) cur.status = "added";
-      else if (line.startsWith("deleted file mode")) cur.status = "deleted";
-      else if (line.startsWith("rename from ")) { cur.status = "renamed"; cur.from = line.slice(12); }
-      else if (line.startsWith("rename to ")) cur.path = line.slice(10);
-      else if (line === "--- /dev/null") cur.status = "added";
-      else if (line === "+++ /dev/null") cur.status = "deleted";
-      else if (line.startsWith("+++ ")) cur.path = line.slice(4).replace(/^b\//, "");
-      else if (line.startsWith("--- ") && !cur.path) cur.path = line.slice(4).replace(/^a\//, "");
-      continue;
-    }
-    const c = line[0];
-    if (c === "+") { hunk.lines.push({ t: "add", n: n++, text: line.slice(1) }); cur.add++; }
-    else if (c === "-") { hunk.lines.push({ t: "del", o: o++, text: line.slice(1) }); cur.del++; }
-    else if (c === " " || line === "") hunk.lines.push({ t: "ctx", o: o++, n: n++, text: line.slice(1) });
-    /* "\ No newline at end of file" and anything else is skipped */
-  }
-  for (const f of files) for (const h of f.hunks) while (h.lines.length && h.lines.at(-1).t === "ctx" && h.lines.at(-1).text === "") h.lines.pop();
-  return files;
-}
-for (const src of document.querySelectorAll('script[type="text/x-diff"]')) {
-  const d = src.dataset, notes = parseNotes(src);
-  const files = parseDiff(dedent(src.textContent), d.file);
-  const frag = document.createDocumentFragment();
-  for (const f of files) {
-    const lng = langOf(f.path, d.lang);
-    const mine = notes.map((x, j) => [x, j]).filter(([x]) => !x.file || x.file === f.path || f.path.endsWith(x.file));
-    const placed = new Set();
-    let rows = "";
-    for (const h of f.hunks) {
-      rows += `<tr class="hunk"><td class="ln"></td><td class="ln"></td><td class="sg"></td><td>${esc(h.header)}</td></tr>`;
-      for (const l of h.lines) {
-        const hit = mine.filter(([x]) => l.t === "del" ? x.old !== undefined && inRange(l.o, x.old) : x.line !== undefined && l.n !== undefined && inRange(l.n, x.line));
-        const sign = l.t === "add" ? "+" : l.t === "del" ? "−" : "";
-        rows += `<tr class="${l.t === "ctx" ? "" : l.t}${hit.length ? " hl" : ""}"><td class="ln">${l.o ?? ""}</td><td class="ln">${l.n ?? ""}</td><td class="sg">${sign}</td>${codeCell(l.text, lng)}</tr>`;
-        const ends = hit.filter(([x, j]) => { if (placed.has(j)) return false; const spec = String(l.t === "del" ? x.old : x.line); const last = Math.max(...spec.split(/[,-]/).map(Number)); const cur = l.t === "del" ? l.o : l.n; return last === cur; });
-        if (ends.length) { ends.forEach(([, j]) => placed.add(j)); rows += `<tr class="note-row"><td colspan="3"></td><td>${ends.map(([x, j]) => annoHTML(x, j)).join("")}</td></tr>`; }
-      }
-    }
-    const loose = mine.filter(([, j]) => !placed.has(j));
-    const summary = files.length === 1 ? d.summary : (notes.find(x => x.file && f.path.endsWith(x.file) && x.summary) || {}).summary;
-    const card = el("details", { class: "code-card" });
-    if (d.collapsed === undefined) card.open = true;
-    card.innerHTML = `<summary><span class="badge ${f.status}">${f.status}</span><span class="fname">${esc(f.from ? `${f.from} → ${f.path}` : f.path)}</span><span class="dstat"><span class="p">+${f.add}</span> <span class="m">−${f.del}</span></span>${summary ? `<span class="summary">${esc(summary)}</span>` : ""}</summary>${loose.length ? `<div class="loose-notes">${loose.map(([x, j]) => annoHTML(x, j)).join("")}</div>` : ""}<div class="code-scroll"><table class="code">${rows}</table></div>`;
-    frag.append(card);
-  }
-  src.replaceWith(frag);
 }
 
 /* mermaid sources: <script type="text/x-mermaid" data-caption> */

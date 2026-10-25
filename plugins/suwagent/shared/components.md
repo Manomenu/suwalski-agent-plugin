@@ -78,7 +78,9 @@ Pick the diagram type by the question it answers: `flowchart` (structure, data f
 `sequenceDiagram` (who calls whom, in what order), `stateDiagram-v2` (states and
 transitions), `erDiagram` (data model), `gantt` (only when timing matters). For before/after
 architecture, put two diagrams in `cols`. Keep labels short, and give each node a real
-component, file or table name.
+component, file or table name. Keep a diagram to about 10 nodes. For a long chain, use
+`flowchart TB` with `subgraph … direction LR … end` rows, so the diagram stays readable on
+one screen instead of becoming a thin, tiny strip.
 
 ## Wireframe
 
@@ -125,7 +127,7 @@ the line counts.
 
 ## Code with notes
 
-Raw code: no escaping, except that a literal `</script>` is written `<\/script>`. The
+Raw code: no escaping, except that a literal `</script>` is written `<\/script>` and `<!--` is written `<\!--`. The
 `data-notes` value is a JSON array inside **single quotes**. `lines` is `"12"`, `"12-18"` or
 `"3,7-9"`, counted from `data-start`.
 
@@ -144,34 +146,44 @@ export async function streamCsv(rows: AsyncIterable<Row>, out: Writable) {
 ```
 
 Optional: `data-lang` when the file extension doesn't say it, `data-title`, and `data-summary`
-(one line under the header). In a plan, show the planned shape (signatures, types, a stub with
-TODO comments), not a full implementation.
+(one line under the header). Use code sparingly. The user doesn't want to read code, so show
+only a contract the reader has to agree on (a new signature, type, schema or config shape),
+at most ~15 lines, and never a full implementation. Recaps show no code and no diffs.
 
-## Diff with notes (recaps)
+## Elements and their roles (recaps, plans)
 
-Leave the body empty and set `data-git` to the `git diff` arguments. `vdoc.py fill-diffs`
-pastes the real output in. One block per key file keeps each tab focused.
+Explain each moving part in plain words: what it is responsible for, what it takes in and
+gives out, and what it talks to. This replaces reading the code.
 
 ```html
-<script type="text/x-diff" data-git="main...HEAD -- src/reports/export.ts"
-  data-summary="Nowy writer CSV ze streamingiem"
-  data-notes='[{"line":14,"note":"backpressure: bez tego proces puchnie na dużych raportach"},{"old":30,"note":"usunięty bufor całego pliku"}]'></script>
+<div class="cols">
+  <div><h4>ExportController</h4><p>Przyjmuje żądanie eksportu, sprawdza uprawnienia i otwiera strumień.</p>
+    <p class="wf-muted">wejście: id raportu · wyjście: plik CSV · rozmawia z: ReportRepository</p></div>
+  <div><h4>CsvWriter</h4><p>Zamienia wiersze na linie CSV i pilnuje, żeby nie trzymać całego pliku w pamięci.</p></div>
+</div>
 ```
 
-- `line` / `lines` refer to line numbers in the **new** file, and `old` to a removed line in the
-  old file. Read them from the hunk headers (`@@ -a,b +c,d @@`) after filling.
-- With several files in one block, add `"file":"export.ts"` to each note, and the note goes to
-  that file's card.
-- `data-collapsed` starts the card folded. Use it for long, low-interest files.
-- You can also paste a diff by hand instead of `data-git`. The block takes raw unified-diff
-  text.
+## Walkthrough (recaps)
+
+A numbered "what happens when…" story of one real scenario through the new code. Reuses
+the `steps` list. Each step is one sentence of behaviour with the responsible element in
+`<code>`, and no code.
+
+```html
+<h3>Co się dzieje, gdy analityk klika „Eksportuj CSV”</h3>
+<ol class="steps">
+  <li><p><code>ReportsList</code> wysyła żądanie z id raportu i aktualnymi filtrami.</p></li>
+  <li><p><code>ExportController</code> sprawdza rolę; brak uprawnień kończy się komunikatem, a nie pustym plikiem.</p></li>
+  <li><p><code>CsvWriter</code> wysyła plik partiami; przeglądarka zaczyna pobieranie od razu.</p></li>
+</ol>
+```
 
 ## Tabs
 
 ```html
 <div class="tabs">
-  <div data-tab="export.ts">…a diff or code block…</div>
-  <div data-tab="routes.ts">…</div>
+  <div data-tab="Przed">…</div>
+  <div data-tab="Po">…</div>
 </div>
 ```
 

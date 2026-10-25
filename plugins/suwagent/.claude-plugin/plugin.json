@@ -1,7 +1,7 @@
 {
   "name": "suwagent",
   "displayName": "Suwalski Agent",
-  "description": "Review agent work visually instead of reading walls of text: /visual-spec, /visual-plan and /visual-recap write HTML pages with diagrams, wireframes, annotated diffs and an in-page feedback form, plus a session hook that suggests spec → plan → recap for larger changes.",
+  "description": "Review agent work visually instead of reading walls of text: /visual-spec, /visual-plan and /visual-recap write HTML pages with diagrams, wireframes and an in-page feedback form, plus a session hook that suggests spec → plan → recap for larger changes.",
   "author": {
     "name": "Piotr Gugnowski"
   },

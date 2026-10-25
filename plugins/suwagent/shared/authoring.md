@@ -40,19 +40,15 @@ The helper is `${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py` (Python 3, standard librar
 2. **Write the body.** With the Edit tool, replace the empty line between
    `<!-- CONTENT START -->` and `<!-- CONTENT END -->` with the document. Touch nothing else
    in the file: the CSS and JS above and below render every block in `components.md`.
-3. **For recaps, fill the diffs** from git instead of retyping them:
-   ```bash
-   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" fill-diffs docs/visual/.../recap.html
-   ```
-4. **Check it**, and fix every ERROR:
+3. **Check it**, and fix every ERROR:
    ```bash
    python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" check docs/visual/.../plan.html
    ```
-5. **Open it** in the user's browser. The command prints the `file://` URL:
+4. **Open it** in the user's browser. The command prints the `file://` URL:
    ```bash
    python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" open docs/visual/.../plan.html
    ```
-6. **Hand over in chat in at most 5 lines**: the path/URL, one sentence on what the document
+5. **Hand over in chat in at most 5 lines**: the path/URL, one sentence on what the document
    proposes or reports, the number of open questions, and what you need from the user
    (approval, answers). Never repeat the document's content in chat; the page is the
    deliverable.
@@ -99,6 +95,9 @@ If the user replies in plain chat instead, apply it the same way.
   to say.
 - **Size.** Aim for 5-10 minutes of reading. Put long detail in collapsed `<details>` or
   tabs, not in the main flow.
+- **Abstract over code.** The user doesn't read code to judge the work: explain behaviour,
+  roles and flows in words and pictures. Never show diffs. Show code only as a short contract
+  (a signature, type or schema the reader must agree on), and only in a spec or plan.
 - **Both themes.** Use only the template's classes and CSS variables (`var(--ok)` etc.), and
   never hard-coded colors, so the page reads in light and dark mode.
 

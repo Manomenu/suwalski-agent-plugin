@@ -63,9 +63,10 @@ Leave out a section that has nothing to say.
    `sequenceDiagram` when the order of calls is the point. Skip it for changes with no
    structure to show.
 5. `files`: a `files` map of every file to add, change or delete, each with a `why`.
-6. `code`: 2-5 load-bearing code shapes (new signatures, types, schema, config) as
-   `x-code` blocks with notes on the lines that matter, grouped in `tabs` when there are
-   several. Planned shapes and stubs, not full implementations.
+6. `code`: only when the reader must agree on a contract: a new public signature, type,
+   schema or config shape, as short `x-code` blocks (at most ~15 lines each) with notes.
+   Otherwise describe the new elements and their roles in words (see components.md). No
+   implementations.
 7. `steps`: an ordered `steps` list (usually 3-8).
 8. `verification`: the exact commands and the manual/end-to-end check. If a spec exists, map
    its acceptance criteria to how each will be checked (a `checks` list or a table).
