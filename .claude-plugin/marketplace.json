@@ -1,0 +1,14 @@
+{
+  "name": "suwalski-agent-plugin",
+  "description": "Suwalski's Claude Code plugins for reviewing agent work.",
+  "owner": {
+    "name": "Piotr Gugnowski"
+  },
+  "plugins": [
+    {
+      "name": "suwagent",
+      "source": "./plugins/suwagent",
+      "description": "Visual spec, plan and recap pages for reviewing agent work, plus a session hook that suggests them for larger changes."
+    }
+  ]
+}

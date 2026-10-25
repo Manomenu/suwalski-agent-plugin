@@ -1,0 +1,20 @@
+{
+  "name": "suwagent",
+  "displayName": "Suwalski Agent",
+  "description": "Review agent work visually instead of reading walls of text: /visual-spec, /visual-plan and /visual-recap write HTML pages with diagrams, wireframes, annotated diffs and an in-page feedback form, plus a session hook that suggests spec → plan → recap for larger changes.",
+  "author": {
+    "name": "Piotr Gugnowski"
+  },
+  "homepage": "https://github.com/Manomenu/suwalski-agent-plugin",
+  "repository": "https://github.com/Manomenu/suwalski-agent-plugin",
+  "license": "MIT",
+  "keywords": ["visual-plan", "visual-recap", "spec", "review", "workflow"],
+  "userConfig": {
+    "suggest_visual_docs": {
+      "type": "boolean",
+      "title": "Suggest spec → plan → recap",
+      "description": "At session start, tell Claude to offer a visual spec and plan before larger changes and a visual recap after them",
+      "default": true
+    }
+  }
+}

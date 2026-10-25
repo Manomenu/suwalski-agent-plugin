@@ -1,0 +1,18 @@
+{
+  "description": "Tell Claude about the visual spec → plan → recap working agreement at session start",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/session-context.sh"],
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
