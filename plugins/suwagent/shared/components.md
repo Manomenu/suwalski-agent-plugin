@@ -314,3 +314,102 @@ OK 5h 34% (resets 16:00) · 7d 52% (resets Thu 09:00)</div>
 ```html
 <details><summary>Pełna lista przypadków brzegowych (14)</summary> … </details>
 ```
+
+## Picture blocks
+
+Blocks drawn for a reader who looks rather than reads. They work in any page, and they are
+what a **board** is made of (see "Boards" in authoring.md): a hero card, a pipeline, a grid
+of cards, a before/after, a "which one when", a settings panel. Every text in them is short:
+a label, a phrase, at most one line per item.
+
+### Hero
+
+The title card of a project: what it is in one line, a few tags, an optional sketch on the
+right (a `wire`), and the numbers that tell its size.
+
+```html
+<div class="hero">
+  <div>
+    <span class="doc-kind">CLI tool</span>
+    <h1>reportgen</h1>
+    <p class="lead">Turns a SQL query into a <b>shareable report</b> in one command.</p>
+    <span class="tag accent">📄 PDF · CSV</span> <span class="tag ok">⏱ scheduled runs</span>
+  </div>
+  <div class="side"><div class="wire after"><span class="wf-label">Report</span><div class="wf-body">…</div></div></div>
+  <div class="stats"><div><b>3</b><span>output formats</span></div><div><b>0</b><span>servers to run</span></div></div>
+</div>
+```
+
+### Flow
+
+Stages of a process, left to right, with arrows drawn between them (top to bottom on
+phones). Each stage is a card; `alt` colors one differently, such as the step a person does.
+
+```html
+<div class="flow">
+  <div><span class="tag accent">import</span><h4>Read</h4><p class="when">CSV, Excel, SQL</p><ul><li>types detected</li></ul></div>
+  <div class="alt"><span class="tag note">you</span><h4>Review</h4><p class="when">in the browser</p><div class="foot"><span class="btn ok">✅ Approve</span></div></div>
+  <div><span class="tag accent">export</span><h4>Publish</h4><p class="when">PDF and a link</p></div>
+</div>
+```
+
+### Cards
+
+A grid of features, commands or components, one card each: an `ico` (an emoji), a name, a
+`when` line, one line of what it gives, and a `foot` with a tag. `group` is a heading with a
+rule that separates two grids. Set `style="--cols:N"` to the number of cards (or half of it)
+so no card is left alone in a row; without it the grid fills as many columns as fit.
+
+```html
+<div class="group">📄 Commands</div>
+<div class="cards" style="--cols:3">
+  <div><span class="ico">🚀</span><h4><code>run</code></h4><p class="when">once, now</p><p>runs the query and writes the report</p><div class="foot"><span class="tag accent">manual</span></div></div>
+  …
+</div>
+```
+
+### Before / after
+
+```html
+<div class="versus">
+  <div class="before"><h4><span class="tag bad">Without</span></h4><ul><li>reports pasted into email by hand</li></ul></div>
+  <div class="after"><h4><span class="tag ok">With reportgen</span></h4><ul><li>one command, the same link every week</li></ul></div>
+</div>
+```
+
+The items get ✗ and ✓ by themselves. Pair them: the n-th "after" answers the n-th "before".
+
+### Which one, when
+
+A situation on the left, the answer on the right. `then` is accent by default; `note`, `ok`
+and `muted` give the other colors, such as "you start it", "automatic", "nothing to do".
+
+```html
+<div class="pick">
+  <div class="if">A one-off report for today</div><div class="then">run <small>manual</small></div>
+  <div class="if">The same report every Monday</div><div class="then ok">schedule <small>automatic</small></div>
+</div>
+```
+
+### Settings
+
+Options as they look in a settings screen: a `toggle` (add `off` for a switch that is off),
+a `seg` with the `on` choice, or a `tag` such as "always on". `fixed` marks one that can't be
+changed. `--cols` works as in Cards.
+
+```html
+<div class="settings" style="--cols:2">
+  <div class="setting"><h4>Email the link</h4><p>after every scheduled run</p><span class="toggle"></span></div>
+  <div class="setting"><h4>Format</h4><p>the default output</p><span class="seg"><span class="on">PDF</span><span>CSV</span></span></div>
+</div>
+```
+
+### Buttons and a strip
+
+`btn` draws a button as it looks in the product (`ok`, `warn`, `primary`), for showing what
+a person clicks. `strip` is a one-line band with a `lbl`, for a loop or a rule that applies
+to everything above it.
+
+```html
+<div class="strip"><span class="lbl">On every page</span> comment · <span class="btn ok">✅ Approve</span> → <span class="btn primary">Copy feedback</span></div>
+```

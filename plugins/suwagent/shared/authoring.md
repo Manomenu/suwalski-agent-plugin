@@ -1,6 +1,6 @@
 # Authoring a suwagent visual document
 
-Shared rules for `visual-spec`, `visual-plan` and `visual-recap`. The block catalog is in
+Shared rules for `visual-spec`, `visual-plan`, `visual-recap` and the boards of `visual-readme`. The block catalog is in
 `components.md` next to this file.
 
 ## Why the document exists
@@ -154,6 +154,41 @@ Whichever way it comes:
   (a signature, type or schema the reader must agree on), and only in a spec or plan.
 - **Both themes.** Use only the template's classes and CSS variables (`var(--ok)` etc.), and
   never hard-coded colors, so the page reads in light and dark mode.
+
+## Boards: pages that become pictures
+
+A **board** is a page of picture panels, made to be turned into PNGs for a place that can't
+show HTML: a README, a pull request, slides, a chat. Each `<section id="…">` on it is one
+picture. It uses the same styles as the documents, so the pictures look like the pages.
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" new board readme --title "reportgen README"   # docs/visual/board/readme.html
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" check docs/visual/board/readme.html
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" render docs/visual/board/readme.html --picture
+```
+
+- A board has no table of contents, no feedback bar and no date in its name: it is the
+  source of the pictures, edited and rendered again whenever they need to change.
+- Write one `<section id="hero">` per picture, built from the picture blocks in
+  components.md (and any other block). A section is about one screen at most.
+- `render` writes `img/<board>/<id>-light.png` and `<id>-dark.png` next to the board, at 2x,
+  trimmed to the card with a transparent margin. `--only ID…` renders some of them,
+  `--picture` prints a `<picture>` snippet for each that switches with the reader's theme.
+- **Look at every picture** after rendering (open the PNG): a cut-off bottom (`render`
+  warns), a card alone in a row (`--cols`), text that wraps badly.
+- Pictures are rendered with Firefox or Chrome. Mermaid diagrams load from a CDN after the
+  page; Chrome waits for them (`--wait`), Firefox may shoot before they appear, so draw
+  pictures with the picture blocks rather than Mermaid.
+
+`vdoc.py shot` takes the same options for any suwagent page: `--only <id or data-role>`
+shoots one section of a spec, plan or recap (`--only tldr`, `--only how`), `--theme light|dark|both`, `--scale 2`, `--crop`.
+
+## Older pages
+
+A page carries its own copy of the template's CSS and JS, so it keeps working on its own and
+doesn't change when the plugin does. To give an older page the current blocks and fixes,
+run `vdoc.py refresh <page>`: it swaps the frame for the current template's and keeps the
+`<html>` tag, the title and the content.
 
 ## Header (same for all three)
 
