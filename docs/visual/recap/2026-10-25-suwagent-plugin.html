@@ -269,12 +269,12 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
 <section data-role="tldr">
   <h2>TL;DR</h2>
   <div class="tldr">
-    <p>🟡 Repo jest teraz <b>marketplace'em Claude Code z jednym pluginem <code>suwagent</code></b>. Plugin daje trzy skille: <code>/suwagent:visual-spec</code>, <code>/suwagent:visual-plan</code> i <code>/suwagent:visual-recap</code>. Każdy pisze stronę HTML w <code>docs/visual/&lt;spec|plan|recap&gt;/</code> i domyślnie publikuje ją jako artefakt claude.ai. Link trafia do <code>claude-artifacts.md</code> w tym samym folderze. Hook <code>SessionStart</code> mówi agentowi, żeby przy większych zmianach proponował spec → plan → recap.</p>
+    <p>🟡 Repo jest teraz <b>marketplace'em Claude Code z jednym pluginem <code>suwagent</code></b>. Plugin daje trzy skille: <code>/suwagent:visual-spec</code>, <code>/suwagent:visual-plan</code> i <code>/suwagent:visual-recap</code>. Każdy pisze stronę HTML w <code>docs/visual/&lt;spec|plan|recap&gt;/</code> i domyślnie publikuje ją jako artefakt claude.ai. Link trafia do <code>claude-artifacts.md</code> w tym samym folderze. Hook <code>SessionStart</code> daje agentowi trzy stałe zasady: spec → plan → recap przy większych zmianach, linię statusu 🟢/🟡/🔴 na końcu odpowiedzi i dokumentację przed kodem (<code>/suwagent:mandatory-docs</code>).</p>
     <p>Struktura jest zgodna z oficjalną dokumentacją i <code>claude plugin validate</code> przechodzi. Do sprawdzenia zostało: instalacja z GitHuba i test w żywej sesji. Ta strona jest pierwszym recapem zrobionym tym pluginem.</p>
   </div>
   <div class="stats">
-    <div><b>6</b><span>elementów (hook, 3 skille, szablon, vdoc)</span></div>
-            <div><b>5/7</b><span>kryteriów spełnionych w pełni</span></div>
+    <div><b>7</b><span>elementów (hook, 4 skille, szablon, vdoc)</span></div>
+            <div><b>5/8</b><span>kryteriów spełnionych w pełni</span></div>
   </div>
 </section>
 
@@ -284,6 +284,7 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
     <li data-status="pass">Plugin zrobiony „zgodnie ze sztuką”, według oficjalnej dokumentacji, a nie na wzór moich wcześniejszych pluginów <span class="evidence">marketplace w korzeniu repo, plugin w <code>plugins/suwagent/</code>, ścieżki przez <code>${CLAUDE_PLUGIN_ROOT}</code>, zero <code>..</code>; <code>claude plugin validate .</code> → „Validation passed with warnings” (jedyne ostrzeżenie: brak <code>version</code>, celowo)</span></li>
     <li data-status="pass">Są skille visual-spec, visual-plan i visual-recap <span class="evidence"><code>plugins/suwagent/skills/*/SKILL.md</code>, każdy poniżej 100 linii, wspólne zasady w <code>shared/authoring.md</code></span></li>
     <li data-status="partial">Domyślna instrukcja: przy większej zmianie proponuj spec, potem plan, a po robocie recap <span class="evidence">hook działa uruchomiony ręcznie: 1050 znaków na stdout, 0 przy wyłączonej opcji. Jeszcze nie sprawdzone w sesji Claude Code po instalacji</span></li>
+    <li data-status="partial">Linia statusu 🟢/🟡/🔴 (quick-recap) i dokumentacja przed kodem (mandatory-docs) jako stałe zasady, każda z własnym przełącznikiem <span class="evidence">hook ręcznie: 2136 znaków przy wszystkich włączonych; przy wyłączonych dwóch drukuje tylko trzecią. Jeszcze nie sprawdzone w sesji po instalacji</span></li>
     <li data-status="pass">Wiadomo, jak działają aktualizacje <span class="evidence">bez pola <code>version</code> każdy commit to nowa wersja; auto-update włączasz w <code>/plugin</code> → Marketplaces (dla zewnętrznych marketplace'ów jest domyślnie wyłączony); opisane w README</span></li>
     <li data-status="pass">Strony czyta się wizualnie, recap bez surowego kodu: diagramy, role elementów, scenariusz krok po kroku, jasny i ciemny motyw <span class="evidence">ta strona wyrenderowana w headless Firefoksie, zrzuty w obu motywach; <code>vdoc.py check</code> → OK</span></li>
     <li data-status="pass">Artefakt ląduje też lokalnie, a link do niego w <code>docs/visual/recap/claude-artifacts.md</code> <span class="evidence">ta strona: plik w repo, opublikowana przez narzędzie Artifact, zarejestrowana przez <code>vdoc.py register</code></span></li>
@@ -320,7 +321,8 @@ flowchart TB
 
   <h3>Elementy i ich role</h3>
   <div class="cols">
-    <div><h4>Hook SessionStart</h4><p>Na starcie sesji (także po <code>/clear</code> i kompakcji) dopisuje agentowi krótką umowę roboczą: przy większej zmianie zaproponuj spec, potem plan, a po robocie recap; drobiazgi rób od razu. W pluginie to zastępuje „domyślny CLAUDE.md”, bo plugin CLAUDE.md nie ładuje.</p><p class="wf-muted">wyłączasz w /plugin → suwagent → Configure</p></div>
+    <div><h4>Hook SessionStart</h4><p>Na starcie sesji (także po <code>/clear</code> i kompakcji) dopisuje agentowi umowę roboczą z trzech części: spec → plan → recap przy większej zmianie, linia statusu 🟢/🟡/🔴 na końcu odpowiedzi i dokumentacja przed kodem. W pluginie to zastępuje „domyślny CLAUDE.md”, bo plugin CLAUDE.md nie ładuje.</p><p class="wf-muted">każdą część wyłączasz osobno w /plugin → suwagent → Configure</p></div>
+    <div><h4>mandatory-docs</h4><p>Zanim agent użyje biblioteki, frameworka, CLI albo API dostawcy, sprawdza zainstalowaną wersję i czyta jej oficjalną dokumentację, a nie pisze z pamięci. Podaje źródła, a gdy docs są niedostępne, mówi to wprost.</p><p class="wf-muted">na podstawie read-the-damn-docs z BuilderIO</p></div>
     <div><h4>Trzy skille</h4><p>Każdy opisuje, <b>jakie sekcje</b> ma dokument i <b>jakie zasady</b> obowiązują: spec bez kodu i plików, plan tylko do zatwierdzenia (zero zmian w kodzie przed akceptacją), recap bez diffów i z dowodami. Claude sięga po nie sam, gdy opis pasuje do zadania, albo Ty wpisujesz komendę.</p></div>
     <div><h4>Wspólne zasady i katalog bloków</h4><p><code>authoring.md</code> ustala, gdzie trafia plik, jakie są kroki, jak działa pętla feedbacku i jaki jest poziom jakości (TL;DR na górze, konkret przed abstrakcją, jedno miejsce na pytania). <code>components.md</code> zawiera gotowe snippety bloków, więc agent nie wymyśla wyglądu.</p></div>
     <div><h4>Szablon strony</h4><p>Jeden plik z całym wyglądem i zachowaniem: jasny i ciemny motyw, spis treści, diagramy, wireframe'y, formularz pytań, komentarz do każdej sekcji i pasek „Zatwierdzam / Poprawki / Kopiuj feedback”. Agent pisze tylko treść.</p></div>
@@ -354,7 +356,8 @@ flowchart TB
     <li data-change="added"><span class="path">shared/components.md</span><span class="why">katalog bloków z gotowymi snippetami</span><span class="stat"><span class="p">+245</span></span></li>
     <li data-change="added"><span class="path">scripts/vdoc.py</span><span class="why">new / check / open / links / register, tylko biblioteka standardowa</span></li>
     <li data-change="added"><span class="path">hooks/hooks.json</span><span class="why">SessionStart (startup, clear, compact)</span><span class="stat"><span class="p">+18</span></span></li>
-    <li data-change="added"><span class="path">hooks/session-context.md</span><span class="why">umowa robocza wstrzykiwana do kontekstu</span><span class="stat"><span class="p">+9</span></span></li>
+    <li data-change="added"><span class="path">hooks/context/*.md</span><span class="why">trzy części umowy roboczej: workflow, linia statusu, docs</span></li>
+    <li data-change="added"><span class="path">skills/mandatory-docs/SKILL.md</span><span class="why">kiedy i jak czytać dokumentację przed kodem</span></li>
     <li data-change="added"><span class="path">scripts/session-context.sh</span><span class="why">drukuje umowę, chyba że opcja wyłączona</span><span class="stat"><span class="p">+5</span></span></li>
     <li data-change="added"><span class="path">README.md</span><span class="why">instalacja, aktualizacje, struktura, co jeszcze może mieć plugin</span><span class="stat"><span class="p">+83</span></span></li>
     <li data-change="added"><span class="path">LICENSE</span><span class="why">MIT</span><span class="stat"><span class="p">+21</span></span></li>
@@ -374,7 +377,7 @@ flowchart TB
   <table>
     <tr><th>Miejsce</th><th>Dlaczego</th></tr>
     <tr><td><code>shared/template.html</code> <code>renderDiagrams</code></td><td>Mermaid ładowany jako moduł ESM z jsDelivr na stronie <code>file://</code>. Działa w Firefoksie. Chrome też powinien (CDN wysyła ACAO *), ale tego nie sprawdzałem.</td></tr>
-    <tr><td><code>hooks/session-context.md</code></td><td>Od tego tekstu zależy, czy agent będzie proponował spec, plan i recap za często albo za rzadko. Najlepiej sprawdzić na kilku prawdziwych zadaniach.</td></tr>
+    <tr><td><code>hooks/context/*.md</code></td><td>Od tego tekstu zależy, czy agent będzie proponował spec, plan i recap za często albo za rzadko. Najlepiej sprawdzić na kilku prawdziwych zadaniach.</td></tr>
     <tr><td>klucz feedbacku w <code>localStorage</code></td><td>Kluczem jest ścieżka pliku. Ten sam dokument skopiowany w inne miejsce zaczyna z pustym feedbackiem, a nadpisany zachowuje stare odpowiedzi do pytań, które mogły zniknąć.</td></tr>
   </table>
 </section>

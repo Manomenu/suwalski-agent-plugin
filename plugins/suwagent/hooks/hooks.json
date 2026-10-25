@@ -1,5 +1,5 @@
 {
-  "description": "Tell Claude about the visual spec → plan → recap working agreement at session start",
+  "description": "Add the user's working agreement to the context at session start: visual spec → plan → recap, a 🟢🟡🔴 status line, and docs before code",
   "hooks": {
     "SessionStart": [
       {

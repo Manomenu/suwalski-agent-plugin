@@ -8,6 +8,7 @@ visual pages instead of reading walls of text.
 | `/suwagent:visual-spec` | before planning a larger change | **what** and **why**: problem, goals and non-goals, scenarios, behaviour and edge cases, UI sketches, acceptance criteria, open questions |
 | `/suwagent:visual-plan` | before writing code | **how**: decisions with the options weighed, an architecture diagram, a file map, planned code shapes, ordered steps with checks, verification, risks |
 | `/suwagent:visual-recap` | after the work is done | **what was built and how it works**, without code or diffs: the elements and their roles, a walkthrough of a real scenario, diagrams, acceptance criteria checked against the spec/plan with evidence, deviations, verification results, where to look carefully |
+| `/suwagent:mandatory-docs` | before code that uses a library, framework, CLI or provider API | the agent reads the official docs **of the installed version** instead of coding from memory, and names its sources |
 
 Each page is one self-contained HTML file in `docs/visual/<spec|plan|recap>/<date>-<slug>.html`.
 The spec, plan and recap of the same work share a file name and link to each other. Pages
@@ -26,11 +27,17 @@ open questions, comment on sections, choose ✅ Approve or ✏️ Request change
 feedback for the agent** and paste it into the chat. The agent updates the same page and the
 same artifact.
 
-**The plugin also tells the agent about the workflow.** A `SessionStart` hook adds a short
-working agreement to Claude's context: before a larger change, offer a spec and then a plan,
-code only after the plan is approved, and offer a recap at the end. Small changes are done
-directly. To turn it off, run `/plugin`, open suwagent, choose **Configure**, and set
-*Suggest spec → plan → recap* to off.
+**The plugin also gives the agent a standing working agreement.** A `SessionStart` hook
+adds three short rules to Claude's context, and each one can be switched off in `/plugin`
+→ suwagent → Configure:
+
+- **Spec → plan → recap.** Before a larger change, the agent offers a spec and then a plan,
+  writes code only after the plan is approved, and offers a recap at the end. Small changes
+  are done directly.
+- **Status line.** Every finished piece of work ends with one line: 🟢 done, 🟡 something
+  specific pending, or 🔴 waiting for you.
+- **Docs before code.** Before using a library, framework, CLI or provider API, the agent
+  reads the current official docs (`/suwagent:mandatory-docs`).
 
 ## Install
 
@@ -71,13 +78,14 @@ After editing the plugin in a running session, run `/reload-plugins`.
 .claude-plugin/marketplace.json     the catalog: lists the plugins in this repository
 plugins/suwagent/
   .claude-plugin/plugin.json        manifest: name, description, userConfig
-  skills/visual-{spec,plan,recap}/  the three skills (SKILL.md each)
+  skills/visual-{spec,plan,recap}/  the visual document skills (SKILL.md each)
+  skills/mandatory-docs/            docs-before-code procedure
   shared/template.html              the page: CSS + JS that render every block
   shared/authoring.md               rules shared by the three skills
   shared/components.md              the block catalog (HTML snippets)
   scripts/vdoc.py                   new / check / open / links / register
   hooks/hooks.json                  SessionStart → scripts/session-context.sh
-  hooks/session-context.md          the working agreement added to Claude's context
+  hooks/context/*.md                the parts of the working agreement added to Claude's context
 docs/visual/                        visual documents of this repository (a real recap example)
 ```
 
@@ -86,6 +94,8 @@ output styles, themes, monitors, workflows and `bin/` executables. A `CLAUDE.md`
 plugin is **not** loaded: always-on instructions go in a hook like the one above, and
 instructions for a task go in a skill.
 
-Inspired by [BuilderIO/skills](https://github.com/BuilderIO/skills) (`/visual-plan`,
-`/visual-recap`). Those skills publish to Builder's hosted Plans app; suwagent writes local
-HTML files with no account or service.
+Inspired by [BuilderIO/skills](https://github.com/BuilderIO/skills) (MIT, © Builder.io):
+`/visual-plan` and `/visual-recap` gave the idea for the visual documents, and the status line
+and `mandatory-docs` are adapted from their `quick-recap` and `read-the-damn-docs`. Their
+visual skills need Builder's hosted Plans app. suwagent writes plain HTML into the repository
+and publishes it as a claude.ai artifact, or keeps it local.

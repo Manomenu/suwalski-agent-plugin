@@ -1,7 +1,7 @@
 {
   "name": "suwagent",
   "displayName": "Suwalski Agent",
-  "description": "Review agent work visually instead of reading walls of text: /visual-spec, /visual-plan and /visual-recap write HTML pages with diagrams, wireframes and an in-page feedback form, plus a session hook that suggests spec → plan → recap for larger changes.",
+  "description": "Review agent work visually instead of reading walls of text: /visual-spec, /visual-plan and /visual-recap write HTML pages (also published as claude.ai artifacts), /mandatory-docs makes the agent read current docs before coding, and a session hook adds the working agreement: spec → plan → recap for larger changes and a 🟢🟡🔴 status line at the end of answers.",
   "author": {
     "name": "Piotr Gugnowski"
   },
@@ -14,6 +14,18 @@
       "type": "boolean",
       "title": "Suggest spec → plan → recap",
       "description": "At session start, tell Claude to offer a visual spec and plan before larger changes and a visual recap after them",
+      "default": true
+    },
+    "quick_recap": {
+      "type": "boolean",
+      "title": "Status line at the end of answers",
+      "description": "End every finished piece of work with one line: 🟢 done, 🟡 something pending, 🔴 waiting for you",
+      "default": true
+    },
+    "mandatory_docs": {
+      "type": "boolean",
+      "title": "Read the docs before coding",
+      "description": "Before using a library, framework, CLI or provider API, read its current official docs instead of relying on memory",
       "default": true
     },
     "publish_mode": {
