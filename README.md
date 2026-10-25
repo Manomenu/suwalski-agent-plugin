@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/visual/board/img/readme/hero-dark.png">
-  <img alt="suwagent, a Claude Code plugin: review your coding agent's work on visual pages, not walls of text. Spec → plan → recap, a 🟢🟡🔴 status line, autopilot and orchestrate, docs before code. 3 kinds of page, 8 skills, 1 hook, 0 accounts or API keys." src="docs/visual/board/img/readme/hero-light.png" width="100%">
+  <img alt="suwagent, a Claude Code plugin: review your coding agent's work on visual pages, not walls of text. Spec → plan → recap, a 🟢🟡🔴 status line, autopilot and orchestrate, docs before code. 3 kinds of page, 10 skills, 1 hook, 0 accounts or API keys." src="docs/visual/board/img/readme/hero-light.png" width="100%">
 </picture>
 
 ## Install
@@ -127,7 +127,7 @@ Your installed copy is cached and does not change on its own.
 | | |
 | :- | :- |
 | **Auto-update** | `/plugin` → **Marketplaces** → `suwalski-agent-plugin` → **Enable auto-update** (off by default for third-party marketplaces); the new version loads in the next session or after `/reload-plugins` |
-| **Update now** | `/plugin` → **Installed** → suwagent → **Update now**, or `claude plugin update suwagent@suwalski-agent-plugin` |
+| **Update now** | `/suwagent:update` runs the update commands for you; or `/plugin` → **Installed** → suwagent → **Update now**; or `claude plugin update suwagent@suwalski-agent-plugin` |
 | **Turn off** | `claude plugin disable suwagent@suwalski-agent-plugin` |
 | **Remove** | `claude plugin uninstall suwagent@suwalski-agent-plugin`; your pages in `docs/visual/` stay |
 
@@ -174,6 +174,7 @@ plugins/suwagent/
   skills/mandatory-docs/            docs-before-code procedure
   skills/autopilot/ orchestrate/ plan-judge/ limit-guard/   ways of working
   skills/efficient-frontier/        alias of orchestrate
+  skills/update/                    updates the installed plugin
   shared/template.html              the page: CSS + JS that render every block
   shared/authoring.md               rules shared by the visual skills
   shared/components.md              the block catalog (HTML snippets)
