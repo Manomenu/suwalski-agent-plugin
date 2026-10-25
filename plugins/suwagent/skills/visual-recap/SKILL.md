@@ -86,6 +86,9 @@ a tiny change that is clearer described in one sentence.
    Mark them as reconstructed from code when they weren't captured.
 6. `data`: only if a schema, API or file format changed. The new shape as a table or an
    `erDiagram`, and what stays compatible.
+6b. `decisions`: only when the work ran under autopilot. **Decisions made without you**: a
+   `table` of every decision from the decision log (question, choice, why, how hard to
+   undo), the hard-to-undo ones first.
 7. `deviations`: only if the work departed from the plan: planned vs done in `cols` or a
    table, each with why.
 8. `files`: the `files` map, grouped by area (`li.dir`), with `data-change`, a one-line

@@ -15,6 +15,7 @@
   --line: #e3e3e0; --accent: #3b5bdb; --accent-soft: #e8edff;
   --ok: #2b8a3e; --ok-soft: #e6f4ea; --warn: #b8590b; --warn-soft: #fff1e0;
   --bad: #c92a2a; --bad-soft: #fde8e8; --note: #5f3dc4; --note-soft: #efe9ff;
+  --term-bg: #17171c; --term-ink: #e8e8ec; --term-dim: #8d8d98;
   --code-bg: #f4f4f2; --radius: 10px; --shadow: 0 1px 2px rgb(0 0 0 / 5%), 0 4px 16px rgb(0 0 0 / 4%);
   --mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
@@ -109,6 +110,7 @@ main > section > h2:first-child { margin-top: 18px; padding-right: 110px; }
 .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin: 14px 0; }
 .cols > * { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; min-width: 0; }
 .cols > * > :first-child { margin-top: 0; } .cols > * > :last-child { margin-bottom: 0; }
+.cols.two { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 .cols > .chosen { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
 .cols > .chosen h4::after { content: var(--t-chosen, " ✓ chosen"); color: var(--accent); font-size: .78rem; margin-left: .4em; }
 .cols > .rejected { opacity: .78; }
@@ -218,6 +220,16 @@ main details:not(.code-card) > summary { cursor: pointer; font-weight: 600; }
 main details:not(.code-card)[open] > summary { margin-bottom: 8px; }
 pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; }
 
+.tag { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .02em; padding: .12em .6em; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--muted); vertical-align: middle; white-space: nowrap; }
+.tag.accent { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
+.tag.ok { color: var(--ok); background: var(--ok-soft); border-color: transparent; }
+.tag.warn { color: var(--warn); background: var(--warn-soft); border-color: transparent; }
+.tag.note { color: var(--note); background: var(--note-soft); border-color: transparent; }
+.tag.bad { color: var(--bad); background: var(--bad-soft); border-color: transparent; }
+.term { background: var(--term-bg); color: var(--term-ink); font: 12.5px/1.65 var(--mono); border-radius: var(--radius); padding: 12px 16px; margin: 14px 0; overflow-x: auto; white-space: pre; }
+.term .dim { color: var(--term-dim); }
+.term b { color: #fff; font-weight: 600; }
+
 /* syntax colours for highlight.js, from the page tokens: claude.ai artifacts block CDN stylesheets */
 .hljs-keyword, .hljs-built_in, .hljs-selector-tag, .hljs-meta .hljs-keyword { color: var(--note); }
 .hljs-string, .hljs-regexp, .hljs-attr .hljs-string { color: var(--ok); }
@@ -232,20 +244,24 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
 .sec-comment { margin: 12px 0 0; padding: 10px 12px; border: 1px dashed var(--note); border-radius: var(--radius); background: var(--note-soft); }
 .sec-comment[hidden] { display: none; }
 .feedback-bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--paper); border-top: 1px solid var(--line); box-shadow: 0 -4px 20px rgb(0 0 0 / 8%); z-index: 10; }
-.feedback-bar .inner { max-width: 1240px; margin: 0 auto; padding: 10px 24px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-.feedback-bar textarea { flex: 1 1 320px; min-height: 2.4em; }
+/* one fixed grid row, so nothing jumps when the count or the clear state changes */
+.feedback-bar .inner { max-width: 1240px; margin: 0 auto; padding: 10px 24px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto; grid-template-areas: "verdict text copy clear theme"; gap: 10px; align-items: center; }
+.feedback-bar .verdict { grid-area: verdict; display: flex; gap: 4px; }
+.feedback-bar textarea { grid-area: text; height: 2.5em; min-height: 2.5em; max-height: 8em; resize: none; }
+.feedback-bar .copy { grid-area: copy; } .feedback-bar .clear { grid-area: clear; } .feedback-bar .theme { grid-area: theme; }
 .feedback-bar button, .feedback-bar label { font: inherit; font-size: .88rem; }
-.feedback-bar button { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 8px; padding: .45em 1em; cursor: pointer; }
-.feedback-bar button.primary { background: var(--accent); border-color: var(--accent); color: var(--paper); font-weight: 600; }
-.feedback-bar .verdict { display: flex; gap: 4px; }
+.feedback-bar button { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 8px; padding: .45em 1em; cursor: pointer; white-space: nowrap; }
+.feedback-bar button.primary { background: var(--accent); border-color: var(--accent); color: var(--paper); font-weight: 600; display: inline-flex; align-items: center; gap: .5em; }
 .feedback-bar .verdict button[aria-pressed="true"].ok { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
 .feedback-bar .verdict button[aria-pressed="true"].change { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
-.feedback-bar .count { color: var(--muted); font-size: .82rem; }
-.feedback-bar .theme { margin-left: auto; }
+.feedback-bar .n { min-width: 1.6em; padding: 0 .4em; border-radius: 99px; background: var(--paper); color: var(--accent); font-size: .78rem; font-weight: 700; text-align: center; }
+.feedback-bar .n:empty { visibility: hidden; }
+.feedback-bar .icon { width: 2.6em; padding-left: 0; padding-right: 0; text-align: center; }
+.feedback-bar .clear[data-armed] { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
 .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: .5em 1.1em; border-radius: 99px; font-size: .9rem; z-index: 20; }
 .copy-fallback { position: fixed; inset: 10% 10%; z-index: 30; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px; }
 .copy-fallback textarea { flex: 1; font-family: var(--mono); }
-@media (max-width: 600px) { .feedback-bar .inner { padding: 8px 16px; } .feedback-bar .theme { margin-left: 0; } }
+@media (max-width: 760px) { .feedback-bar .inner { padding: 8px 16px; grid-template-columns: auto 1fr auto auto; grid-template-areas: "verdict copy clear theme" "text text text text"; } .feedback-bar .copy { justify-self: end; } }
 @media print { .feedback-bar, .sec-comment-btn, .toc { display: none !important; } .layout { display: block; } main > section { break-inside: avoid-page; box-shadow: none; } }
 </style>
 </head>
@@ -269,7 +285,7 @@ const T = {
         comment: "💬 Comment", commented: "💬 Commented", commentPh: "Your comment on this section for the agent…",
         otherPh: "Your own answer or a note…", generalPh: "General feedback for the agent…",
         approve: "✅ Approve", changes: "✏️ Request changes", copy: "Copy feedback for the agent",
-        copied: "Copied. Paste it into the chat with the agent.", clear: "Clear", theme: "Theme",
+        copied: "Copied. Paste it into the chat with the agent.", clear: "Clear all my feedback on this page", theme: "Theme",
         count: n => `${n} comment(s)/answer(s)`, fbTitle: "Feedback on", verdictOk: "APPROVED — go ahead.",
         verdictChange: "CHANGES REQUESTED — update the document before going further.", answers: "Answers to open questions",
         comments: "Comments on sections", general: "General feedback", recPick: "(recommended)", fallback: "Copy this text (Ctrl+C) and paste it into the chat:", close: "Close",
@@ -279,7 +295,7 @@ const T = {
         comment: "💬 Skomentuj", commented: "💬 Skomentowane", commentPh: "Twój komentarz do tej sekcji dla agenta…",
         otherPh: "Własna odpowiedź albo uwaga…", generalPh: "Uwagi ogólne dla agenta…",
         approve: "✅ Zatwierdzam", changes: "✏️ Poprawki", copy: "Kopiuj feedback dla agenta",
-        copied: "Skopiowane. Wklej to agentowi w czacie.", clear: "Wyczyść", theme: "Motyw",
+        copied: "Skopiowane. Wklej to agentowi w czacie.", clear: "Wyczyść mój feedback na tej stronie", theme: "Motyw",
         count: n => `komentarze/odpowiedzi: ${n}`, fbTitle: "Feedback do", verdictOk: "ZATWIERDZAM — działaj dalej.",
         verdictChange: "POPRAWKI — popraw dokument, zanim pójdziesz dalej.", answers: "Odpowiedzi na otwarte pytania",
         comments: "Komentarze do sekcji", general: "Uwagi ogólne", recPick: "(rekomendowane)", fallback: "Skopiuj ten tekst (Ctrl+C) i wklej agentowi:", close: "Zamknij",
@@ -390,7 +406,7 @@ document.querySelectorAll(".questions fieldset").forEach((fs, i) => {
 });
 
 const bar = el("div", { class: "feedback-bar" });
-bar.innerHTML = `<div class="inner"><span class="verdict"><button type="button" class="ok" data-v="approve">${S.approve}</button><button type="button" class="change" data-v="changes">${S.changes}</button></span><textarea rows="1" placeholder="${esc(S.generalPh)}"></textarea><button type="button" class="primary copy">${esc(S.copy)}</button><span class="count"></span><button type="button" class="clear">${esc(S.clear)}</button><button type="button" class="theme" title="${esc(S.theme)}">◐</button></div>`;
+bar.innerHTML = `<div class="inner"><span class="verdict"><button type="button" class="ok" data-v="approve">${S.approve}</button><button type="button" class="change" data-v="changes">${S.changes}</button></span><textarea rows="1" placeholder="${esc(S.generalPh)}"></textarea><button type="button" class="primary copy">${esc(S.copy)}<span class="n"></span></button><button type="button" class="clear icon" title="${esc(S.clear)}" aria-label="${esc(S.clear)}">🗑</button><button type="button" class="theme icon" title="${esc(S.theme)}" aria-label="${esc(S.theme)}">◐</button></div>`;
 document.body.append(bar);
 const gta = bar.querySelector("textarea"); gta.value = fb.general || "";
 gta.oninput = () => { fb.general = gta.value; persist(); };
@@ -398,7 +414,7 @@ const vbtns = [...bar.querySelectorAll(".verdict button")];
 const paintV = () => vbtns.forEach(b => b.setAttribute("aria-pressed", String(fb.verdict === b.dataset.v)));
 vbtns.forEach(b => b.onclick = () => { fb.verdict = fb.verdict === b.dataset.v ? "" : b.dataset.v; paintV(); persist(); });
 paintV();
-function updateCount() { const n = Object.keys(fb.sections).length + new Set([...Object.keys(fb.answers), ...Object.keys(fb.other)]).size + (fb.general.trim() ? 1 : 0); bar.querySelector(".count").textContent = n ? S.count(n) : ""; }
+function updateCount() { const n = Object.keys(fb.sections).length + new Set([...Object.keys(fb.answers), ...Object.keys(fb.other)]).size + (fb.general.trim() ? 1 : 0); const c = bar.querySelector(".n"); c.textContent = n ? String(n) : ""; c.title = n ? S.count(n) : ""; }
 updateCount();
 
 function feedbackText() {
@@ -433,8 +449,8 @@ bar.querySelector(".copy").onclick = async () => {
 const clearBtn = bar.querySelector(".clear");
 clearBtn.onclick = () => {
   if (clearBtn.dataset.armed) { try { localStorage.removeItem(key); } catch { } location.reload(); return; }
-  clearBtn.dataset.armed = "1"; clearBtn.textContent = S.confirmClear;
-  setTimeout(() => { delete clearBtn.dataset.armed; clearBtn.textContent = S.clear; }, 3000);
+  clearBtn.dataset.armed = "1"; clearBtn.title = S.confirmClear; toast(S.confirmClear);
+  setTimeout(() => { delete clearBtn.dataset.armed; clearBtn.title = S.clear; }, 3000);
 };
 
 /* theme toggle: auto → light → dark */

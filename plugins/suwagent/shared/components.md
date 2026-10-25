@@ -60,6 +60,8 @@ Use it for options you weighed, before/after, or planned/done. Mark the chosen o
 </div>
 ```
 
+With four items, use `class="cols two"`: two per row, so none is left alone in a row.
+
 ## Diagram (Mermaid)
 
 Write the source raw: no HTML escaping is needed inside the script tag. Rendered from a CDN.
@@ -249,6 +251,25 @@ recommend with `data-recommended`. The page adds a free-text box to each questio
 
 Use `radio` for one choice and `checkbox` for several. A question with no options (just a
 `<legend>` and `why`) becomes a free-text answer.
+
+## Tags
+
+Small labels for a state or a kind, such as how something is invoked or a risk level:
+
+```html
+<span class="tag accent">ręcznie</span> <span class="tag ok">automatycznie</span> <span class="tag note">zawsze</span>
+<span class="tag warn">wymaga konfiguracji</span> <span class="tag bad">ryzykowne</span>
+```
+
+## Terminal
+
+What the user sees in the terminal or chat, such as a command and its output or an agent's
+reply. It is always dark, like a real terminal, so it reads the same in both themes:
+
+```html
+<div class="term"><span class="dim">$</span> python3 limits.py status
+OK 5h 34% (resets 16:00) · 7d 52% (resets Thu 09:00)</div>
+```
 
 ## Collapsible detail
 

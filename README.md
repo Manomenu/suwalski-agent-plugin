@@ -3,12 +3,23 @@
 A Claude Code plugin marketplace with one plugin, **suwagent**: review an agent's work on
 visual pages instead of reading walls of text.
 
+**Visual documents** (the agent offers them for larger changes, or you run them yourself):
+
 | Skill | When | What you get |
 | :- | :- | :- |
 | `/suwagent:visual-spec` | before planning a larger change | **what** and **why**: problem, goals and non-goals, scenarios, behaviour and edge cases, UI sketches, acceptance criteria, open questions |
-| `/suwagent:visual-plan` | before writing code | **how**: decisions with the options weighed, an architecture diagram, a file map, planned code shapes, ordered steps with checks, verification, risks |
-| `/suwagent:visual-recap` | after the work is done | **what was built and how it works**, without code or diffs: the elements and their roles, a walkthrough of a real scenario, diagrams, acceptance criteria checked against the spec/plan with evidence, deviations, verification results, where to look carefully |
-| `/suwagent:mandatory-docs` | before code that uses a library, framework, CLI or provider API | the agent reads the official docs **of the installed version** instead of coding from memory, and names its sources |
+| `/suwagent:visual-plan` | before writing code | **how**: decisions with the options weighed, an architecture diagram, a file map, ordered steps with checks, verification, risks |
+| `/suwagent:visual-recap` | after the work is done | **what was built and how it works**, without code or diffs: elements and their roles, a walkthrough of a real scenario, diagrams, acceptance criteria checked with evidence, deviations, where to look carefully |
+| `/suwagent:plan-judge` | you have 2+ plans for the same task (Claude vs Codex, two sessions) | the plans compared side by side against the real code, and one verdict (adopt / hybrid / revise) published as a visual plan |
+
+**Ways of working:**
+
+| Skill | Invoked | When | How it works |
+| :- | :- | :- | :- |
+| `/suwagent:autopilot` | only by you | you leave the agent alone with a task | no routine questions: it decides, logs every decision, stops only for real blockers (secrets, destructive steps, merge/push), and ends with a visual recap listing **decisions made without you** |
+| `/suwagent:orchestrate` | only by you | a big task with lots of reading, testing or mechanical edits | the main (expensive) model plans, decides and reviews; cheaper subagents (`haiku` for search, `sonnet` for edits and tests) do the volume, at most 3 at a time |
+| `/suwagent:limit-guard` | by autopilot and orchestrate, or by you | long or parallel work on a Pro/Max plan | reads the real 5-hour and weekly usage between steps and pauses new work at 90% / 95%, so your own work keeps headroom. Needs a one-time status line tap (`/suwagent:limit-guard setup`) |
+| `/suwagent:mandatory-docs` | automatically | before code that uses a library, framework, CLI or provider API | reads the official docs **of the installed version** instead of coding from memory, and names its sources |
 
 Each page is one self-contained HTML file in `docs/visual/<spec|plan|recap>/<date>-<slug>.html`.
 The spec, plan and recap of the same work share a file name and link to each other. Pages
@@ -80,6 +91,8 @@ plugins/suwagent/
   .claude-plugin/plugin.json        manifest: name, description, userConfig
   skills/visual-{spec,plan,recap}/  the visual document skills (SKILL.md each)
   skills/mandatory-docs/            docs-before-code procedure
+  skills/autopilot/ orchestrate/ plan-judge/ limit-guard/   ways of working
+  scripts/limits.py                 status line tap and usage check for limit-guard
   shared/template.html              the page: CSS + JS that render every block
   shared/authoring.md               rules shared by the three skills
   shared/components.md              the block catalog (HTML snippets)
@@ -96,6 +109,8 @@ instructions for a task go in a skill.
 
 Inspired by [BuilderIO/skills](https://github.com/BuilderIO/skills) (MIT, © Builder.io):
 `/visual-plan` and `/visual-recap` gave the idea for the visual documents, and the status line
-and `mandatory-docs` are adapted from their `quick-recap` and `read-the-damn-docs`. Their
+and `mandatory-docs`, `autopilot`, `plan-judge`, `orchestrate` and `limit-guard` are adapted from
+their `quick-recap`, `read-the-damn-docs`, `plow-ahead`, `plan-arbiter`, `efficient-frontier` and
+`stay-within-limits`. Their
 visual skills need Builder's hosted Plans app. suwagent writes plain HTML into the repository
 and publishes it as a claude.ai artifact, or keeps it local.

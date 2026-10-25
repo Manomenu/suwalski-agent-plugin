@@ -15,6 +15,7 @@
   --line: #e3e3e0; --accent: #3b5bdb; --accent-soft: #e8edff;
   --ok: #2b8a3e; --ok-soft: #e6f4ea; --warn: #b8590b; --warn-soft: #fff1e0;
   --bad: #c92a2a; --bad-soft: #fde8e8; --note: #5f3dc4; --note-soft: #efe9ff;
+  --term-bg: #17171c; --term-ink: #e8e8ec; --term-dim: #8d8d98;
   --code-bg: #f4f4f2; --radius: 10px; --shadow: 0 1px 2px rgb(0 0 0 / 5%), 0 4px 16px rgb(0 0 0 / 4%);
   --mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
@@ -109,6 +110,7 @@ main > section > h2:first-child { margin-top: 18px; padding-right: 110px; }
 .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin: 14px 0; }
 .cols > * { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; min-width: 0; }
 .cols > * > :first-child { margin-top: 0; } .cols > * > :last-child { margin-bottom: 0; }
+.cols.two { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 .cols > .chosen { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
 .cols > .chosen h4::after { content: var(--t-chosen, " ✓ chosen"); color: var(--accent); font-size: .78rem; margin-left: .4em; }
 .cols > .rejected { opacity: .78; }
@@ -218,6 +220,16 @@ main details:not(.code-card) > summary { cursor: pointer; font-weight: 600; }
 main details:not(.code-card)[open] > summary { margin-bottom: 8px; }
 pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; }
 
+.tag { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .02em; padding: .12em .6em; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--muted); vertical-align: middle; white-space: nowrap; }
+.tag.accent { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
+.tag.ok { color: var(--ok); background: var(--ok-soft); border-color: transparent; }
+.tag.warn { color: var(--warn); background: var(--warn-soft); border-color: transparent; }
+.tag.note { color: var(--note); background: var(--note-soft); border-color: transparent; }
+.tag.bad { color: var(--bad); background: var(--bad-soft); border-color: transparent; }
+.term { background: var(--term-bg); color: var(--term-ink); font: 12.5px/1.65 var(--mono); border-radius: var(--radius); padding: 12px 16px; margin: 14px 0; overflow-x: auto; white-space: pre; }
+.term .dim { color: var(--term-dim); }
+.term b { color: #fff; font-weight: 600; }
+
 /* syntax colours for highlight.js, from the page tokens: claude.ai artifacts block CDN stylesheets */
 .hljs-keyword, .hljs-built_in, .hljs-selector-tag, .hljs-meta .hljs-keyword { color: var(--note); }
 .hljs-string, .hljs-regexp, .hljs-attr .hljs-string { color: var(--ok); }
@@ -232,20 +244,24 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
 .sec-comment { margin: 12px 0 0; padding: 10px 12px; border: 1px dashed var(--note); border-radius: var(--radius); background: var(--note-soft); }
 .sec-comment[hidden] { display: none; }
 .feedback-bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--paper); border-top: 1px solid var(--line); box-shadow: 0 -4px 20px rgb(0 0 0 / 8%); z-index: 10; }
-.feedback-bar .inner { max-width: 1240px; margin: 0 auto; padding: 10px 24px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-.feedback-bar textarea { flex: 1 1 320px; min-height: 2.4em; }
+/* one fixed grid row, so nothing jumps when the count or the clear state changes */
+.feedback-bar .inner { max-width: 1240px; margin: 0 auto; padding: 10px 24px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto; grid-template-areas: "verdict text copy clear theme"; gap: 10px; align-items: center; }
+.feedback-bar .verdict { grid-area: verdict; display: flex; gap: 4px; }
+.feedback-bar textarea { grid-area: text; height: 2.5em; min-height: 2.5em; max-height: 8em; resize: none; }
+.feedback-bar .copy { grid-area: copy; } .feedback-bar .clear { grid-area: clear; } .feedback-bar .theme { grid-area: theme; }
 .feedback-bar button, .feedback-bar label { font: inherit; font-size: .88rem; }
-.feedback-bar button { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 8px; padding: .45em 1em; cursor: pointer; }
-.feedback-bar button.primary { background: var(--accent); border-color: var(--accent); color: var(--paper); font-weight: 600; }
-.feedback-bar .verdict { display: flex; gap: 4px; }
+.feedback-bar button { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 8px; padding: .45em 1em; cursor: pointer; white-space: nowrap; }
+.feedback-bar button.primary { background: var(--accent); border-color: var(--accent); color: var(--paper); font-weight: 600; display: inline-flex; align-items: center; gap: .5em; }
 .feedback-bar .verdict button[aria-pressed="true"].ok { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
 .feedback-bar .verdict button[aria-pressed="true"].change { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
-.feedback-bar .count { color: var(--muted); font-size: .82rem; }
-.feedback-bar .theme { margin-left: auto; }
+.feedback-bar .n { min-width: 1.6em; padding: 0 .4em; border-radius: 99px; background: var(--paper); color: var(--accent); font-size: .78rem; font-weight: 700; text-align: center; }
+.feedback-bar .n:empty { visibility: hidden; }
+.feedback-bar .icon { width: 2.6em; padding-left: 0; padding-right: 0; text-align: center; }
+.feedback-bar .clear[data-armed] { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
 .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: .5em 1.1em; border-radius: 99px; font-size: .9rem; z-index: 20; }
 .copy-fallback { position: fixed; inset: 10% 10%; z-index: 30; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px; }
 .copy-fallback textarea { flex: 1; font-family: var(--mono); }
-@media (max-width: 600px) { .feedback-bar .inner { padding: 8px 16px; } .feedback-bar .theme { margin-left: 0; } }
+@media (max-width: 760px) { .feedback-bar .inner { padding: 8px 16px; grid-template-columns: auto 1fr auto auto; grid-template-areas: "verdict copy clear theme" "text text text text"; } .feedback-bar .copy { justify-self: end; } }
 @media print { .feedback-bar, .sec-comment-btn, .toc { display: none !important; } .layout { display: block; } main > section { break-inside: avoid-page; box-shadow: none; } }
 </style>
 </head>
@@ -258,159 +274,318 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
   <span class="doc-kind">Recap</span>
   <h1>Plugin suwagent</h1>
   <div class="doc-meta">
-    <span><b>Status:</b> <span class="status draft">draft</span></span>
+    <span><b>Status:</b> <span class="status done">done</span></span>
     <span><b>Data:</b> 2026-10-25</span>
     <span><b>Branch:</b> <code>feature/visual-skills</code></span>
-    <span><b>Zakres:</b> <code>main...HEAD</code></span>
+    <span><b>Zakres:</b> <code>main...HEAD</code>, cały plugin</span>
   </div>
-  <nav class="doc-nav"><a href="recap.html" aria-current="page">Recap</a></nav>
+  <nav class="doc-nav"><a aria-current="page">Recap</a></nav>
 </header>
 
 <section data-role="tldr">
   <h2>TL;DR</h2>
   <div class="tldr">
-    <p>🟡 Repo jest teraz <b>marketplace'em Claude Code z jednym pluginem <code>suwagent</code></b>. Plugin daje trzy skille: <code>/suwagent:visual-spec</code>, <code>/suwagent:visual-plan</code> i <code>/suwagent:visual-recap</code>. Każdy pisze stronę HTML w <code>docs/visual/&lt;spec|plan|recap&gt;/</code> i domyślnie publikuje ją jako artefakt claude.ai. Link trafia do <code>claude-artifacts.md</code> w tym samym folderze. Hook <code>SessionStart</code> daje agentowi trzy stałe zasady: spec → plan → recap przy większych zmianach, linię statusu 🟢/🟡/🔴 na końcu odpowiedzi i dokumentację przed kodem (<code>/suwagent:mandatory-docs</code>).</p>
-    <p>Struktura jest zgodna z oficjalną dokumentacją i <code>claude plugin validate</code> przechodzi. Do sprawdzenia zostało: instalacja z GitHuba i test w żywej sesji. Ta strona jest pierwszym recapem zrobionym tym pluginem.</p>
+    <p>🟡 <b>suwagent</b> to plugin Claude Code z <b>8 skillami</b> i <b>3 stałymi zasadami</b>. Zamiast ścian tekstu dostajesz strony: spec, plan i recap, publikowane jako artefakty z linkiem w <code>claude-artifacts.md</code>. Do tego tryby pracy na dłuższe zadania: autopilot, orchestrate i limit-guard, a sędzia planów porównuje plany kilku agentów.</p>
+    <p>Wszystko przechodzi walidator i testy lokalne. Zostało: merge, instalacja i sprawdzenie w prawdziwej sesji.</p>
   </div>
   <div class="stats">
-    <div><b>7</b><span>elementów (hook, 4 skille, szablon, vdoc)</span></div>
-            <div><b>5/8</b><span>kryteriów spełnionych w pełni</span></div>
+    <div><b>8</b><span>skilli</span></div>
+    <div><b>3</b><span>stałe zasady (hook)</span></div>
+    <div><b>4</b><span>przełączniki w Configure</span></div>
+    <div><b>0</b><span>kont i zewnętrznych usług</span></div>
+  </div>
+</section>
+
+<section data-role="how">
+  <h2>Mapa pluginu</h2>
+  <script type="text/x-mermaid" data-caption="Trzy warstwy: zawsze włączone zasady, dokumenty wizualne i tryby pracy">
+flowchart TB
+  subgraph Zawsze["🔵 Zawsze: hook SessionStart"]
+    direction LR
+    Z1["spec → plan → recap<br/>przy większej zmianie"]
+    Z2["linia statusu<br/>🟢 🟡 🔴"]
+    Z3["docs przed kodem"]
+  end
+  subgraph Dok["📄 Dokumenty wizualne"]
+    direction LR
+    SP["visual-spec<br/>co i dlaczego"] --> PL["visual-plan<br/>jak"] --> RC["visual-recap<br/>co powstało"]
+    PJ["plan-judge<br/>kilka planów → 1"] --> PL
+  end
+  subgraph Tryby["⚙️ Tryby pracy"]
+    direction LR
+    AP["autopilot<br/>bez pytań, z logiem decyzji"]
+    OR["orchestrate<br/>drogi model myśli,<br/>tanie subagenty robią"]
+    LG["limit-guard<br/>pauza przed limitem"]
+  end
+  Z3 -.-> MD["mandatory-docs"]
+  Zawsze --> Dok
+  AP --> RC
+  AP --> LG
+  OR --> LG
+  </script>
+</section>
+
+<section data-role="cheatsheet">
+  <h2>Ściągawka: co, kiedy, jak wywołać</h2>
+  <table>
+    <tr><th>Co</th><th>Wywołanie</th><th>Kiedy po to sięgasz</th><th>Co dostajesz</th></tr>
+    <tr><td><b>spec → plan → recap</b></td><td><span class="tag note">zawsze</span></td><td>agent sam proponuje przy większej zmianie</td><td>jedno zdanie propozycji zamiast kodowania w ciemno</td></tr>
+    <tr><td><b>linia statusu</b></td><td><span class="tag note">zawsze</span></td><td>każda zakończona praca</td><td>🟢 gotowe · 🟡 coś czeka · 🔴 czekam na Ciebie</td></tr>
+    <tr><td><b>docs przed kodem</b></td><td><span class="tag note">zawsze</span></td><td>biblioteka, framework, CLI, API dostawcy</td><td>kod według docs zainstalowanej wersji, ze źródłami</td></tr>
+    <tr><td><code>visual-spec</code></td><td><span class="tag ok">agent proponuje</span> <span class="tag accent">ręcznie</span></td><td>nowa funkcja, wymagania niejasne</td><td>strona: problem, cele, scenariusze, kryteria</td></tr>
+    <tr><td><code>visual-plan</code></td><td><span class="tag ok">agent proponuje</span> <span class="tag accent">ręcznie</span></td><td>przed kodem, kilka plików albo podejść</td><td>strona: decyzje, architektura, kroki, ryzyka</td></tr>
+    <tr><td><code>visual-recap</code></td><td><span class="tag ok">agent proponuje</span> <span class="tag accent">ręcznie</span></td><td>po robocie, przed merge</td><td>strona: jak działa, kryteria ✓/✗, gdzie patrzeć</td></tr>
+    <tr><td><code>plan-judge</code></td><td><span class="tag ok">sam</span> <span class="tag accent">ręcznie</span></td><td>masz 2+ planów (Claude vs Codex, dwie sesje)</td><td>werdykt + zwycięski plan jako visual-plan</td></tr>
+    <tr><td><code>autopilot</code></td><td><span class="tag accent">tylko ręcznie</span></td><td>zostawiasz agenta samego z zadaniem</td><td>skończona praca + recap z decyzjami bez Ciebie</td></tr>
+    <tr><td><code>orchestrate</code></td><td><span class="tag accent">tylko ręcznie</span></td><td>duże zadanie: dużo czytania, testów, mechanicznych zmian</td><td>ta sama jakość, mniej drogich tokenów</td></tr>
+    <tr><td><code>limit-guard</code></td><td><span class="tag ok">sam w autopilot / orchestrate</span> <span class="tag accent">ręcznie</span></td><td>długa praca na planie Pro/Max</td><td>pauza przy 90% (5h) / 95% (tydzień), zapas dla Ciebie</td></tr>
+    <tr><td><code>mandatory-docs</code></td><td><span class="tag ok">sam</span> <span class="tag accent">ręcznie</span></td><td>pełna procedura „docs przed kodem”</td><td>wersja → oficjalne docs → fakty → kod → źródła</td></tr>
+  </table>
+  <p class="wf-muted">„tylko ręcznie” znaczy <code>disable-model-invocation</code>: agent nie włączy tego trybu sam, bo zmienia on zasady gry (autonomia, wydatki na subagenty).</p>
+
+  <h3>Którego użyć?</h3>
+  <script type="text/x-mermaid" data-caption="Decyzja w kilku pytaniach">
+flowchart TB
+  A{"Duże zadanie?"} -->|nie| X["zrób od razu<br/>+ linia statusu"]
+  A -->|tak| B{"Wymagania jasne?"}
+  B -->|nie| S["visual-spec"]
+  B -->|tak| C{"Masz kilka planów?"}
+  S --> C
+  C -->|tak| J["plan-judge"]
+  C -->|nie| P["visual-plan"]
+  J --> D{"Zostawiasz agenta?"}
+  P --> D
+  D -->|tak| AP["autopilot"]
+  D -->|nie| E{"Dużo czytania / testów?"}
+  E -->|tak| OR["orchestrate"]
+  E -->|nie| N["zwykła praca"]
+  AP --> R["visual-recap"]
+  OR --> R
+  N --> R
+  </script>
+</section>
+
+<section data-role="flow">
+  <h2>Jedno zadanie od początku do końca</h2>
+  <script type="text/x-mermaid" data-caption="Kto z kim rozmawia przy większej zmianie">
+sequenceDiagram
+  participant H as Hook
+  participant U as Ty
+  participant C as Claude
+  participant A as Artefakt + repo
+  H->>C: start sesji: 3 stałe zasady
+  U->>C: „dodaj eksport CSV raportów”
+  C->>U: „Zrobię najpierw visual-spec?” (1 linia)
+  U->>C: tak
+  C->>A: spec/2026-…-eksport-csv.html → artefakt → claude-artifacts.md
+  U->>A: komentarze, odpowiedzi, ✅ Zatwierdzam
+  C->>A: plan (ten sam slug, link do speca)
+  Note over C: biblioteki → mandatory-docs
+  U->>C: zatwierdzam plan
+  C->>C: implementacja (opcjonalnie orchestrate + limit-guard)
+  C->>A: recap: kryteria ze speca ✓/✗
+  C->>U: 🟢 Eksport CSV gotowy, testy przechodzą
+  </script>
+</section>
+
+<section data-role="rules">
+  <h2>Stałe zasady z hooka</h2>
+  <p>Plugin nie może dać „domyślnego CLAUDE.md”, bo Claude Code go nie ładuje. Zamiast tego hook <code>SessionStart</code> (start sesji, <code>/clear</code>, kompakcja) dopisuje agentowi do kontekstu do trzech krótkich części. Każdą wyłączasz osobno.</p>
+  <div class="cols">
+    <div><h4>spec → plan → recap</h4><p>Przy większej zmianie agent proponuje spec, potem plan, koduje po zatwierdzeniu planu i proponuje recap. Drobiazgi robi od razu. Jedno „nie” wystarcza na całe zadanie.</p></div>
+    <div><h4>Linia statusu</h4><p>Ostatnia linia każdej zakończonej pracy, do 100 znaków. „Testy nieuruchomione” to 🟡, nie 🟢.</p></div>
+    <div><h4>Docs przed kodem</h4><p>Przed użyciem zewnętrznego API agent czyta oficjalne docs zainstalowanej wersji. Szczegóły są w skillu <code>mandatory-docs</code>.</p></div>
+  </div>
+  <div class="term"><span class="dim">…koniec odpowiedzi agenta</span>
+<b>🟢 Eksport CSV gotowy, testy przechodzą</b>
+<b>🟡 Kod gotowy, ustaw EXPORT_BUCKET przed testem na stagingu</b>
+<b>🔴 Potrzebuję hasła do bazy stagingowej, żeby iść dalej</b></div>
+
+  <h3>Przełączniki: /plugin → suwagent → Configure</h3>
+  <div class="wire" style="max-width:560px">
+    <span class="wf-label">Configure · suwagent</span>
+    <div class="wf-body">
+      <div class="wf-row"><span class="wf-grow">Suggest spec → plan → recap</span><span class="wf-btn primary">on</span></div>
+      <div class="wf-row"><span class="wf-grow">Status line at the end of answers</span><span class="wf-btn primary">on</span></div>
+      <div class="wf-row"><span class="wf-grow">Read the docs before coding</span><span class="wf-btn primary">on</span></div>
+      <div class="wf-row"><span class="wf-grow">Where visual documents go</span><span class="wf-btn">artifact ▾</span></div>
+      <div class="wf-muted">local: nic nie wychodzi z maszyny, do repo klientów</div>
+    </div>
+  </div>
+</section>
+
+<section data-role="documents">
+  <h2>Dokumenty wizualne</h2>
+  <div class="cols two">
+    <div><h4>visual-spec</h4><p><b>Co</b> i <b>dlaczego</b>: problem z prawdziwym przykładem, cele i nie-cele, scenariusze, zachowanie i przypadki brzegowe, szkice UI, kryteria akceptacji. Bez kodu i bez plików.</p></div>
+    <div><h4>visual-plan</h4><p><b>Jak</b>: decyzje z odrzuconymi opcjami, diagram architektury, mapa plików, kroki z „gotowe, gdy”, weryfikacja, ryzyka. Kod najwyżej jako krótki kontrakt.</p></div>
+    <div><h4>visual-recap</h4><p><b>Co powstało i jak działa</b>, bez kodu i diffów: role elementów, scenariusz krok po kroku, kryteria ze speca ✓/✗ z dowodami, gdzie patrzeć uważnie.</p></div>
+    <div><h4>plan-judge</h4><p>Kilka planów → jeden: macierz kryteriów ✓/~/✗, plany obok siebie (wybrany / odrzucone), werdykt <i>adopt / hybrid / revise</i>, a pod spodem zwycięski plan gotowy do zatwierdzenia.</p></div>
+  </div>
+
+  <h3>Gdzie lądują i jak trafiają do artefaktu</h3>
+  <script type="text/x-mermaid" data-caption="Lokalny plik jest źródłem, artefakt jego kopią, a rejestr pamięta link">
+flowchart LR
+  N["vdoc.py new<br/>plan eksport-csv"] --> F["docs/visual/plan/<br/>2026-10-25-eksport-csv.html"]
+  F --> K["vdoc.py check"] --> P{"tryb"}
+  P -->|artifact| A["Artifact publish<br/>(ten sam URL przy poprawkach)"] --> RG["vdoc.py register →<br/>plan/claude-artifacts.md"]
+  P -->|local| O["vdoc.py open<br/>przeglądarka"]
+  </script>
+  <ul class="files">
+    <li class="dir">docs/visual/</li>
+    <li data-change="unchanged"><span class="path">spec/2026-10-25-eksport-csv.html</span><span class="why">co i dlaczego</span></li>
+    <li data-change="unchanged"><span class="path">plan/2026-10-25-eksport-csv.html</span><span class="why">ten sam slug, nav linkuje do speca</span></li>
+    <li data-change="unchanged"><span class="path">plan/claude-artifacts.md</span><span class="why">tabela: dokument · plik · link artefaktu · data</span></li>
+    <li data-change="unchanged"><span class="path">recap/2026-10-25-eksport-csv.html</span><span class="why">kryteria ze speca ✓/✗</span></li>
+  </ul>
+
+  <h3>Feedback ze strony</h3>
+  <div class="wire after">
+    <span class="wf-label">pasek na dole każdej strony (poprawiony: stały układ)</span>
+    <div class="wf-bar"><span class="wf-btn">✅ Zatwierdzam</span><span class="wf-btn">✏️ Poprawki</span><span class="wf-input wf-grow">Uwagi ogólne dla agenta…</span><span class="wf-btn primary wf-new">Kopiuj feedback dla agenta ③</span><span class="wf-btn wf-new">🗑</span><span class="wf-btn">◐</span></div>
+  </div>
+  <div class="callout decision"><p>Licznik siedzi w przycisku, a 🗑 ma stałą szerokość. Pierwsze kliknięcie tylko zaczerwienia przycisk i pokazuje podpowiedź, drugie czyści. Nic już nie przeskakuje do drugiego rzędu.</p></div>
+</section>
+
+<section data-role="modes">
+  <h2>Tryby pracy</h2>
+  <div class="tabs">
+    <div data-tab="autopilot">
+      <p><span class="tag accent">tylko ręcznie</span> <code>/suwagent:autopilot dodaj eksport CSV</code>. Pracuje do końca bez pytań o drobiazgi. Każde „A czy B?” rozstrzyga sam i zapisuje do logu decyzji. Na koniec <b>sam</b> pisze recap z sekcją <b>Decyzje podjęte bez Ciebie</b>.</p>
+      <script type="text/x-mermaid" data-caption="Pętla autopilota">
+stateDiagram-v2
+  [*] --> Praca
+  Praca --> Decyzja: drobna niejasność
+  Decyzja --> Praca: wybór + wpis w logu
+  Praca --> Sprawdzenie: krok gotowy
+  Sprawdzenie --> Praca: poprawki
+  Sprawdzenie --> LimitGuard: długa praca
+  LimitGuard --> Praca: OK
+  Praca --> Stop: twarda blokada
+  Stop --> [*]: hand-off w czacie
+  Sprawdzenie --> Recap: kryteria spełnione
+  Recap --> [*]
+      </script>
+      <div class="callout risk" data-label="Twarde stopy: pyta tylko o to"><p>brak sekretu lub dostępu · coś nieodwracalnego (dane, migracja, deploy, force push) · <b>merge, push, PR</b> · decyzja, którą zastrzegłeś dla siebie · powtarzająca się porażka testu</p></div>
+    </div>
+    <div data-tab="orchestrate">
+      <p><span class="tag accent">tylko ręcznie</span> <code>/suwagent:orchestrate przenieś testy na vitest</code>. Główny, drogi model planuje, rozstrzyga i recenzuje. Tanie subagenty robią objętość, w falach po maksymalnie 3.</p>
+      <script type="text/x-mermaid" data-caption="Kto co robi">
+flowchart LR
+  M["Główny model<br/>plan · decyzje · integracja · review"]
+  subgraph Fala["fala ≤ 3 równolegle"]
+    H1["haiku<br/>szukanie, inwentarz, logi"]
+    S1["sonnet<br/>edycje, testy"]
+    S2["sonnet<br/>edycje, testy"]
+  end
+  M -->|"pakiet: cel, zakres, komendy,<br/>format odpowiedzi, kiedy stop"| Fala
+  Fala -->|"dowody: plik:linia, komendy, wyniki"| M
+  M --> LG["limit-guard<br/>między falami"]
+      </script>
+      <div class="callout note"><p>Dwa agenty nigdy nie edytują tych samych plików, a raporty subagentów to tropy, nie werdykty: główny model sprawdza kluczowe dowody sam.</p></div>
+    </div>
+    <div data-tab="limit-guard">
+      <p><span class="tag ok">sam w autopilot / orchestrate</span> <span class="tag accent">ręcznie</span>. Claude Code sam czeka na reset, gdy limit się <b>skończy</b>. limit-guard zatrzymuje pracę <b>wcześniej</b>, żeby nocny autopilot nie zjadł Ci całego tygodnia.</p>
+      <script type="text/x-mermaid" data-caption="Skąd bierze liczby: tylko status line je dostaje, więc jest podsłuch">
+flowchart LR
+  CC["Claude Code<br/>rate_limits 5h / 7d"] -->|JSON| TAP["status line:<br/>limits.py tap<br/>(Twoja status line dalej działa)"]
+  TAP --> F[("~/.claude/suwagent/<br/>rate-limits.json")]
+  F --> ST["limits.py status"] --> AG{"agent"}
+  AG -->|OK| GO["dalej"]
+  AG -->|PAUSE| W["kończy bieżące,<br/>czeka do resetu"]
+  AG -->|UNKNOWN| NG["działa bez strażnika<br/>(raz o tym mówi)"]
+      </script>
+      <div class="term"><span class="dim">$</span> python3 limits.py status
+OK 5h 34% (resets 11:41) · 7d 52% (resets Wed 10:41)
+<span class="dim">$</span> python3 limits.py status
+<b>PAUSE 5h 93% ≥ 90%; wait 3599 s, until 11:41</b> · 5h 93% · 7d 52%</div>
+      <div class="callout warn" data-label="Jednorazowo"><p><code>/suwagent:limit-guard setup</code> pokaże zmianę <code>statusLine</code> w <code>~/.claude/settings.json</code> i zapisze ją dopiero po Twojej zgodzie. Działa tylko na planach Pro i Max.</p></div>
+    </div>
   </div>
 </section>
 
 <section data-role="acceptance">
   <h2>Czy robi to, o co prosiłeś</h2>
   <ul class="checks">
-    <li data-status="pass">Plugin zrobiony „zgodnie ze sztuką”, według oficjalnej dokumentacji, a nie na wzór moich wcześniejszych pluginów <span class="evidence">marketplace w korzeniu repo, plugin w <code>plugins/suwagent/</code>, ścieżki przez <code>${CLAUDE_PLUGIN_ROOT}</code>, zero <code>..</code>; <code>claude plugin validate .</code> → „Validation passed with warnings” (jedyne ostrzeżenie: brak <code>version</code>, celowo)</span></li>
-    <li data-status="pass">Są skille visual-spec, visual-plan i visual-recap <span class="evidence"><code>plugins/suwagent/skills/*/SKILL.md</code>, każdy poniżej 100 linii, wspólne zasady w <code>shared/authoring.md</code></span></li>
-    <li data-status="partial">Domyślna instrukcja: przy większej zmianie proponuj spec, potem plan, a po robocie recap <span class="evidence">hook działa uruchomiony ręcznie: 1050 znaków na stdout, 0 przy wyłączonej opcji. Jeszcze nie sprawdzone w sesji Claude Code po instalacji</span></li>
-    <li data-status="partial">Linia statusu 🟢/🟡/🔴 (quick-recap) i dokumentacja przed kodem (mandatory-docs) jako stałe zasady, każda z własnym przełącznikiem <span class="evidence">hook ręcznie: 2136 znaków przy wszystkich włączonych; przy wyłączonych dwóch drukuje tylko trzecią. Jeszcze nie sprawdzone w sesji po instalacji</span></li>
-    <li data-status="pass">Wiadomo, jak działają aktualizacje <span class="evidence">bez pola <code>version</code> każdy commit to nowa wersja; auto-update włączasz w <code>/plugin</code> → Marketplaces (dla zewnętrznych marketplace'ów jest domyślnie wyłączony); opisane w README</span></li>
-    <li data-status="pass">Strony czyta się wizualnie, recap bez surowego kodu: diagramy, role elementów, scenariusz krok po kroku, jasny i ciemny motyw <span class="evidence">ta strona wyrenderowana w headless Firefoksie, zrzuty w obu motywach; <code>vdoc.py check</code> → OK</span></li>
-    <li data-status="pass">Artefakt ląduje też lokalnie, a link do niego w <code>docs/visual/recap/claude-artifacts.md</code> <span class="evidence">ta strona: plik w repo, opublikowana przez narzędzie Artifact, zarejestrowana przez <code>vdoc.py register</code></span></li>
-    <li data-status="partial">Feedback wraca do agenta ze strony <span class="evidence">formularz, komentarze do sekcji i przycisk „Kopiuj feedback” są zrobione; kopiowanie do schowka nie było klikane w prawdziwej przeglądarce</span></li>
+    <li data-status="pass">Plugin według oficjalnej dokumentacji <span class="evidence"><code>claude plugin validate .</code> przechodzi (jedyne ostrzeżenie: brak <code>version</code>, celowo)</span></li>
+    <li data-status="pass">visual-spec, visual-plan, visual-recap <span class="evidence">recap bez surowego kodu: role, scenariusz, diagramy</span></li>
+    <li data-status="pass">Artefakt + plik w <code>docs/visual/&lt;rodzaj&gt;/</code> + link w <code>claude-artifacts.md</code> <span class="evidence">ta strona: wersja 3 tego samego artefaktu, wpis odświeżony przez <code>register</code></span></li>
+    <li data-status="pass">quick-recap i read-the-damn-docs (jako <code>mandatory-docs</code>) <span class="evidence">hook drukuje części zgodnie z przełącznikami</span></li>
+    <li data-status="pass">plow-ahead, plan-arbiter, efficient-frontier, stay-within-limits pod lepszymi nazwami, z opisem kiedy i jak <span class="evidence">autopilot, plan-judge, orchestrate, limit-guard; tabela wyżej</span></li>
+    <li data-status="pass">Pasek feedbacku nie przeskakuje <span class="evidence">stała siatka, licznik w przycisku, 🗑 o stałej szerokości; zrzut w Firefoksie</span></li>
+    <li data-status="partial">limit-guard czyta prawdziwe limity <span class="evidence">przetestowane na danych w formacie z docs (OK, PAUSE, UNKNOWN, stary snapshot, zepsute wejście); podsłuch nie jest jeszcze zainstalowany u Ciebie</span></li>
+    <li data-status="partial">Agent sam stosuje zasady i proponuje skille <span class="evidence">nie sprawdzone w żywej sesji po instalacji</span></li>
   </ul>
-</section>
-
-<section data-role="deviations">
-  <h2>Czym to się różni od BuilderIO/skills</h2>
-  <div class="cols">
-    <div class="rejected"><h4>BuilderIO</h4><p>Plany i recapy to MDX publikowany do <b>hostowanej aplikacji Plans</b> (plan.agent-native.com) przez serwer MCP, z kontem, komentarzami w aplikacji i instalatorem npx. Bez połączenia skill się zatrzymuje.</p></div>
-    <div class="chosen"><h4>suwagent</h4><p><b>HTML w repo i artefakt claude.ai</b> z tego samego pliku: link, komentarze, telefon, a historia zostaje w repo. Dla repo klientów jest tryb <code>local</code>, w którym nic nie wychodzi z maszyny. Recap jest bardziej abstrakcyjny niż u nich: bez diffów, za to role elementów i przebieg scenariusza.</p></div>
-  </div>
-  <div class="callout decision"><p>Wziąłem z BuilderIO dyscyplinę treści: TL;DR na początku, konkret przed abstrakcją, decyzje wprost, jeden formularz otwartych pytań, recap całej pracy, a nie tylko ostatniego kroku, recap sprawdzany ze specem. Ich infrastruktury nie wziąłem. Doszedł <b>visual-spec</b>, którego oni nie mają: <i>co</i> i <i>dlaczego</i> przed <i>jak</i>. Recap sprawdza kryteria akceptacji ze specu.</p></div>
-</section>
-
-<section data-role="how">
-  <h2>Jak to działa</h2>
-  <script type="text/x-mermaid" data-caption="Od wywołania skilla do Twojego feedbacku">
-flowchart TB
-  subgraph Sesja["Sesja Claude Code"]
-    direction LR
-    H["hook SessionStart"] -.->|"umowa: spec → plan → recap"| C((Claude))
-    C -->|"/suwagent:visual-plan"| S["skill + zasady<br/>+ katalog bloków"]
-  end
-  subgraph vdoc["vdoc.py"]
-    direction LR
-    N["new<br/>(szablon)"] --> E["Claude pisze treść"] --> K["check"] --> O["open"]
-  end
-  Sesja --> vdoc
-  vdoc --> B["przeglądarka: docs/visual/…/plan.html"]
-  B -->|"Kopiuj feedback → wklej w czat"| Sesja
-  </script>
-
-  <h3>Elementy i ich role</h3>
-  <div class="cols">
-    <div><h4>Hook SessionStart</h4><p>Na starcie sesji (także po <code>/clear</code> i kompakcji) dopisuje agentowi umowę roboczą z trzech części: spec → plan → recap przy większej zmianie, linia statusu 🟢/🟡/🔴 na końcu odpowiedzi i dokumentacja przed kodem. W pluginie to zastępuje „domyślny CLAUDE.md”, bo plugin CLAUDE.md nie ładuje.</p><p class="wf-muted">każdą część wyłączasz osobno w /plugin → suwagent → Configure</p></div>
-    <div><h4>mandatory-docs</h4><p>Zanim agent użyje biblioteki, frameworka, CLI albo API dostawcy, sprawdza zainstalowaną wersję i czyta jej oficjalną dokumentację, a nie pisze z pamięci. Podaje źródła, a gdy docs są niedostępne, mówi to wprost.</p><p class="wf-muted">na podstawie read-the-damn-docs z BuilderIO</p></div>
-    <div><h4>Trzy skille</h4><p>Każdy opisuje, <b>jakie sekcje</b> ma dokument i <b>jakie zasady</b> obowiązują: spec bez kodu i plików, plan tylko do zatwierdzenia (zero zmian w kodzie przed akceptacją), recap bez diffów i z dowodami. Claude sięga po nie sam, gdy opis pasuje do zadania, albo Ty wpisujesz komendę.</p></div>
-    <div><h4>Wspólne zasady i katalog bloków</h4><p><code>authoring.md</code> ustala, gdzie trafia plik, jakie są kroki, jak działa pętla feedbacku i jaki jest poziom jakości (TL;DR na górze, konkret przed abstrakcją, jedno miejsce na pytania). <code>components.md</code> zawiera gotowe snippety bloków, więc agent nie wymyśla wyglądu.</p></div>
-    <div><h4>Szablon strony</h4><p>Jeden plik z całym wyglądem i zachowaniem: jasny i ciemny motyw, spis treści, diagramy, wireframe'y, formularz pytań, komentarz do każdej sekcji i pasek „Zatwierdzam / Poprawki / Kopiuj feedback”. Agent pisze tylko treść.</p></div>
-    <div><h4>vdoc.py</h4><p>Pomocnik agenta. <b>new</b> tworzy stronę z szablonu, <b>check</b> wyłapuje błędy, które zepsułyby stronę (pusta treść, zły JSON adnotacji, brak sekcji typowych dla danego dokumentu), a <b>open</b> otwiera ją w przeglądarce.</p></div>
-    <div><h4>Publikacja i rejestr</h4><p>W trybie <code>artifact</code> skill publikuje lokalny plik jako artefakt i zapisuje link przez <code>vdoc.py register</code> w <code>claude-artifacts.md</code>. Przy kolejnej zmianie aktualizuje ten sam artefakt, więc link się nie zmienia.</p><p class="wf-muted">tryb wybierasz w /plugin → suwagent → Configure</p></div>
-    <div><h4>Marketplace</h4><p>Repo jest katalogiem pluginów. Instalujesz z GitHuba jedną komendą, a aktualizacje przychodzą z każdym pushem, jeśli włączysz auto-update.</p></div>
-  </div>
-
-  <h3>Co się dzieje, gdy prosisz o większą zmianę</h3>
-  <ol class="steps">
-    <li><p>Opisujesz zadanie. Agent ma w kontekście umowę z hooka, więc zamiast od razu kodować proponuje w jednym zdaniu <code>visual-spec</code>.</p></li>
-    <li><p>Spec trafia do <code>docs/visual/spec/2026-…-slug.html</code> i jest publikowany jako artefakt. W czacie dostajesz link i 3–5 linii, a nie ścianę tekstu.</p></li>
-    <li><p>Komentujesz artefakt albo wypełniasz pytania i klikasz „Kopiuj feedback”. Agent poprawia <b>lokalny plik</b> i publikuje go do <b>tego samego</b> artefaktu.</p></li>
-    <li><p>Po akceptacji speca to samo dzieje się z planem, który ma ten sam slug w <code>docs/visual/plan/</code>. Kod powstaje dopiero po zatwierdzeniu planu.</p></li>
-    <li><p>Po robocie recap odhacza kryteria ze speca z dowodami, wyjaśnia rolami i diagramami, jak to działa, i wskazuje, gdzie patrzeć uważnie, bez pokazywania kodu.</p></li>
-  </ol>
-  <div class="callout note"><p>Przy drobnej zmianie (literówka, poprawka w jednej linii) agent niczego nie proponuje. Gdy raz odmówisz, nie proponuje ponownie w tym samym zadaniu.</p></div>
 </section>
 
 <section data-role="files">
   <h2>Pliki</h2>
+  <details><summary>Cały plugin (25 plików)</summary>
   <ul class="files">
-    <li data-change="added"><span class="path">.claude-plugin/marketplace.json</span><span class="why">katalog: repo jest marketplace'em z jednym pluginem</span><span class="stat"><span class="p">+14</span></span></li>
+    <li data-change="added"><span class="path">.claude-plugin/marketplace.json</span><span class="why">repo = marketplace z jednym pluginem</span></li>
+    <li data-change="added"><span class="path">README.md · LICENSE</span><span class="why">instalacja, aktualizacje, tabele skilli</span></li>
     <li class="dir">plugins/suwagent/</li>
-    <li data-change="added"><span class="path">.claude-plugin/plugin.json</span><span class="why">manifest + <code>userConfig</code> do wyłączania sugestii</span><span class="stat"><span class="p">+20</span></span></li>
-    <li data-change="added"><span class="path">skills/visual-spec/SKILL.md</span><span class="why">co i dlaczego, kryteria akceptacji</span><span class="stat"><span class="p">+69</span></span></li>
-    <li data-change="added"><span class="path">skills/visual-plan/SKILL.md</span><span class="why">jak: decyzje, mapa plików, kroki, weryfikacja</span><span class="stat"><span class="p">+82</span></span></li>
-    <li data-change="added"><span class="path">skills/visual-recap/SKILL.md</span><span class="why">co powstało, porównanie ze spec/plan, kluczowe diffy</span><span class="stat"><span class="p">+94</span></span></li>
-    <li data-change="added"><span class="path">shared/template.html</span><span class="why">strona: motyw jasny/ciemny, render bloków, pasek feedbacku</span></li>
-    <li data-change="added"><span class="path">shared/authoring.md</span><span class="why">wspólne zasady: gdzie, kroki, pętla review, poziom jakości</span><span class="stat"><span class="p">+125</span></span></li>
-    <li data-change="added"><span class="path">shared/components.md</span><span class="why">katalog bloków z gotowymi snippetami</span><span class="stat"><span class="p">+245</span></span></li>
-    <li data-change="added"><span class="path">scripts/vdoc.py</span><span class="why">new / check / open / links / register, tylko biblioteka standardowa</span></li>
-    <li data-change="added"><span class="path">hooks/hooks.json</span><span class="why">SessionStart (startup, clear, compact)</span><span class="stat"><span class="p">+18</span></span></li>
-    <li data-change="added"><span class="path">hooks/context/*.md</span><span class="why">trzy części umowy roboczej: workflow, linia statusu, docs</span></li>
-    <li data-change="added"><span class="path">skills/mandatory-docs/SKILL.md</span><span class="why">kiedy i jak czytać dokumentację przed kodem</span></li>
-    <li data-change="added"><span class="path">scripts/session-context.sh</span><span class="why">drukuje umowę, chyba że opcja wyłączona</span><span class="stat"><span class="p">+5</span></span></li>
-    <li data-change="added"><span class="path">README.md</span><span class="why">instalacja, aktualizacje, struktura, co jeszcze może mieć plugin</span><span class="stat"><span class="p">+83</span></span></li>
-    <li data-change="added"><span class="path">LICENSE</span><span class="why">MIT</span><span class="stat"><span class="p">+21</span></span></li>
+    <li data-change="added"><span class="path">.claude-plugin/plugin.json</span><span class="why">manifest i 4 przełączniki (userConfig)</span></li>
+    <li data-change="added"><span class="path">skills/visual-spec · visual-plan · visual-recap</span><span class="why">dokumenty wizualne</span></li>
+    <li data-change="added"><span class="path">skills/plan-judge</span><span class="why">kilka planów → werdykt + plan</span></li>
+    <li data-change="added"><span class="path">skills/autopilot · orchestrate · limit-guard</span><span class="why">tryby pracy</span></li>
+    <li data-change="added"><span class="path">skills/mandatory-docs</span><span class="why">docs przed kodem</span></li>
+    <li data-change="added"><span class="path">hooks/hooks.json</span><span class="why">SessionStart: startup, clear, compact</span></li>
+    <li data-change="added"><span class="path">hooks/context/*.md</span><span class="why">3 części umowy roboczej</span></li>
+    <li data-change="added"><span class="path">shared/template.html</span><span class="why">wygląd i zachowanie stron, działa też w artefakcie</span></li>
+    <li data-change="added"><span class="path">shared/authoring.md · components.md</span><span class="why">zasady i katalog bloków</span></li>
+    <li data-change="added"><span class="path">scripts/vdoc.py</span><span class="why">new · check · open · links · register</span></li>
+    <li data-change="added"><span class="path">scripts/limits.py</span><span class="why">tap · status · setup</span></li>
+    <li data-change="added"><span class="path">scripts/session-context.sh</span><span class="why">składa umowę według przełączników</span></li>
+    <li class="dir">docs/visual/recap/</li>
+    <li data-change="added"><span class="path">2026-10-25-suwagent-plugin.html · claude-artifacts.md</span><span class="why">ta strona i jej link</span></li>
   </ul>
+  </details>
 </section>
 
 <section data-role="verification">
   <h2>Weryfikacja</h2>
-  <div class="callout ok"><p><code>claude plugin validate .</code> (Claude Code 2.1.310): marketplace i plugin przechodzą. Jedno ostrzeżenie: brak <code>version</code>, celowo.</p></div>
-  <div class="callout ok"><p>Hook uruchomiony ręcznie: 1050 znaków umowy na stdout (limit kontekstu z hooka to 10 000), a przy <code>CLAUDE_PLUGIN_OPTION_SUGGEST_VISUAL_DOCS=false</code> nic.</p></div>
-  <div class="callout ok"><p>Ta strona: <code>vdoc.py new</code> → treść → <code>check</code> (OK) → render w headless Firefoksie w jasnym i ciemnym motywie → publikacja jako artefakt → <code>register</code>.</p></div>
-  <div class="callout risk"><p>Niesprawdzone: instalacja z GitHuba przez <code>/plugin marketplace add</code> (repo nie jest jeszcze wypchnięte), wstrzyknięcie hooka w żywej sesji, odczyt <code>publish_mode</code> przez skill po instalacji, kliknięcie „Kopiuj feedback” w prawdziwej przeglądarce oraz to, czy Claude sam zaproponuje skille przy większej zmianie.</p></div>
+  <div class="callout ok"><p><code>claude plugin validate .</code> przechodzi, z jednym ostrzeżeniem (brak <code>version</code>).</p></div>
+  <div class="callout ok"><p>Hook: wszystkie części włączone dają 2,1 tys. znaków (limit to 10 tys.), a wyłączona część znika.</p></div>
+  <div class="callout ok"><p><code>vdoc.py</code>: <code>register</code> nie dubluje wpisów i odrzuca linki spoza claude.ai, a plan dziedziczy datę i slug speca. <code>limits.py</code>: wszystkie stany na danych testowych, a <code>setup</code> opakowuje istniejącą status line.</p></div>
+  <div class="callout ok"><p>Szablon: składnia JS sprawdzona przez <code>node --check</code>, render w Firefoksie w jasnym i ciemnym motywie, strona działa jako artefakt (Twój zrzut paska pochodzi z artefaktu).</p></div>
+  <div class="callout risk"><p>Niesprawdzone: instalacja z GitHuba, zasady w żywej sesji, prawdziwe <code>rate_limits</code> z Twojej status line.</p></div>
 </section>
 
 <section data-role="review">
   <h2>Gdzie patrzeć uważnie</h2>
   <table>
     <tr><th>Miejsce</th><th>Dlaczego</th></tr>
-    <tr><td><code>shared/template.html</code> <code>renderDiagrams</code></td><td>Mermaid ładowany jako moduł ESM z jsDelivr na stronie <code>file://</code>. Działa w Firefoksie. Chrome też powinien (CDN wysyła ACAO *), ale tego nie sprawdzałem.</td></tr>
-    <tr><td><code>hooks/context/*.md</code></td><td>Od tego tekstu zależy, czy agent będzie proponował spec, plan i recap za często albo za rzadko. Najlepiej sprawdzić na kilku prawdziwych zadaniach.</td></tr>
-    <tr><td>klucz feedbacku w <code>localStorage</code></td><td>Kluczem jest ścieżka pliku. Ten sam dokument skopiowany w inne miejsce zaczyna z pustym feedbackiem, a nadpisany zachowuje stare odpowiedzi do pytań, które mogły zniknąć.</td></tr>
+    <tr><td><code>scripts/limits.py</code> i podsłuch status line</td><td>Opiera się na polu <code>rate_limits</code>, które Claude Code daje tylko status line i tylko na Pro/Max. Jeśli zmieni format, strażnik powie UNKNOWN i nie zablokuje pracy.</td></tr>
+    <tr><td><code>skills/autopilot</code>: twarde stopy</td><td>Granica autonomii. Merge, push, deploy i operacje nieodwracalne są wypisane wprost, ale warto przeczytać tę listę samemu.</td></tr>
+    <tr><td><code>hooks/context/*.md</code></td><td>Od tych kilku zdań zależy, czy agent proponuje spec i plan za często albo za rzadko. Najlepiej dostroić po kilku prawdziwych zadaniach.</td></tr>
   </table>
 </section>
 
 <section data-role="followups">
   <h2>Następne kroki</h2>
-  <ul>
-    <li>Po Twojej akceptacji: merge <code>feature/visual-skills</code> → <code>main</code>, push, a potem <code>/plugin marketplace add Manomenu/suwalski-agent-plugin</code> i włączenie auto-update.</li>
-    <li>Evale pluginu (<code>claude plugin eval</code>): czy Claude sam proponuje spec przy większym zadaniu i nie proponuje przy literówce.</li>
-    <li>Opcjonalnie: GitHub Action, który robi recap dla każdego PR (BuilderIO ma coś takiego), oraz ikona pluginu, jeśli kiedyś trafi do katalogu Anthropic.</li>
-  </ul>
+  <ol class="steps">
+    <li><p>Merge <code>feature/visual-skills</code> → <code>main</code> i push (czeka na Twoją zgodę).</p></li>
+    <li><p><code>/plugin marketplace add Manomenu/suwalski-agent-plugin</code>, potem instalacja i włączenie auto-update.</p></li>
+    <li><p><code>/suwagent:limit-guard setup</code>, jeśli chcesz strażnika limitów.</p></li>
+    <li><p>Później: <code>visual-audit</code> (niezależny audyt pracy innego agenta, idea z agent-watchdog) i evale pluginu.</p></li>
+  </ol>
 </section>
 
 <section data-role="questions">
   <h2>Otwarte pytania</h2>
   <form class="questions">
     <fieldset data-id="q1">
-      <legend>Nazwa pluginu</legend>
-      <p class="why">Nazwa jest prefiksem komend (<code>/suwagent:visual-plan</code>). Po publikacji zmiana psuje instalacje, teraz jest darmowa.</p>
-      <label data-recommended><input type="radio" value="suwagent"><span><b>suwagent</b><small>pasuje do suwgit i suwageval, krótka</small></span></label>
-      <label><input type="radio" value="suwvisual"><span><b>suwvisual</b><small>mówi, co robi, ale zawęża plugin, który może urosnąć</small></span></label>
+      <legend>Progi limit-guard</legend>
+      <p class="why">Przy jakim zużyciu autopilot ma się zatrzymać i zostawić resztę limitu Tobie.</p>
+      <label data-recommended><input type="radio" value="90-95"><span><b>5h 90% · tydzień 95%</b><small>maksimum pracy, mały zapas</small></span></label>
+      <label><input type="radio" value="75-85"><span><b>5h 75% · tydzień 85%</b><small>zostaje więcej na Twoją bieżącą pracę</small></span></label>
     </fieldset>
     <fieldset data-id="q2">
-      <legend>Czy dokumenty z docs/visual/ mają trafiać do gita?</legend>
-      <p class="why">Commitowane zostawiają historię decyzji przy kodzie. Ignorowane nie śmiecą w diffach.</p>
-      <label data-recommended><input type="radio" value="commit"><span><b>Commitować</b><small>spec i plan zostają jako dokumentacja decyzji</small></span></label>
-      <label><input type="radio" value="ignore"><span><b>Dodawać do .gitignore</b><small>strony są tylko do review</small></span></label>
-    </fieldset>
-    <fieldset data-id="q3">
-      <legend>Wersjonowanie pluginu</legend>
-      <p class="why">Bez <code>version</code> każdy push od razu trafia do Ciebie (przy auto-update). Z <code>version</code> trzeba ją podbijać przy każdym wydaniu.</p>
-      <label data-recommended><input type="radio" value="none"><span><b>Bez version, każdy commit to wydanie</b><small>najprostsze dla jednej osoby</small></span></label>
-      <label><input type="radio" value="semver"><span><b>Semver i podbijanie</b><small>kontrolowane wydania, gdy plugin będzie mieć innych użytkowników</small></span></label>
+      <legend>Czy autopilot może commitować na branchu?</legend>
+      <p class="why">Commity w stabilnych punktach ułatwiają cofnięcie. Merge i push zostają zawsze zablokowane.</p>
+      <label data-recommended><input type="radio" value="commit"><span><b>Tak, na branchu feature/*</b><small>historia kroków, łatwy rollback</small></span></label>
+      <label><input type="radio" value="no-commit"><span><b>Nie, zostawia zmiany niezacommitowane</b><small>sam decydujesz, co wchodzi</small></span></label>
     </fieldset>
   </form>
 </section>
@@ -428,7 +603,7 @@ const T = {
         comment: "💬 Comment", commented: "💬 Commented", commentPh: "Your comment on this section for the agent…",
         otherPh: "Your own answer or a note…", generalPh: "General feedback for the agent…",
         approve: "✅ Approve", changes: "✏️ Request changes", copy: "Copy feedback for the agent",
-        copied: "Copied. Paste it into the chat with the agent.", clear: "Clear", theme: "Theme",
+        copied: "Copied. Paste it into the chat with the agent.", clear: "Clear all my feedback on this page", theme: "Theme",
         count: n => `${n} comment(s)/answer(s)`, fbTitle: "Feedback on", verdictOk: "APPROVED — go ahead.",
         verdictChange: "CHANGES REQUESTED — update the document before going further.", answers: "Answers to open questions",
         comments: "Comments on sections", general: "General feedback", recPick: "(recommended)", fallback: "Copy this text (Ctrl+C) and paste it into the chat:", close: "Close",
@@ -438,7 +613,7 @@ const T = {
         comment: "💬 Skomentuj", commented: "💬 Skomentowane", commentPh: "Twój komentarz do tej sekcji dla agenta…",
         otherPh: "Własna odpowiedź albo uwaga…", generalPh: "Uwagi ogólne dla agenta…",
         approve: "✅ Zatwierdzam", changes: "✏️ Poprawki", copy: "Kopiuj feedback dla agenta",
-        copied: "Skopiowane. Wklej to agentowi w czacie.", clear: "Wyczyść", theme: "Motyw",
+        copied: "Skopiowane. Wklej to agentowi w czacie.", clear: "Wyczyść mój feedback na tej stronie", theme: "Motyw",
         count: n => `komentarze/odpowiedzi: ${n}`, fbTitle: "Feedback do", verdictOk: "ZATWIERDZAM — działaj dalej.",
         verdictChange: "POPRAWKI — popraw dokument, zanim pójdziesz dalej.", answers: "Odpowiedzi na otwarte pytania",
         comments: "Komentarze do sekcji", general: "Uwagi ogólne", recPick: "(rekomendowane)", fallback: "Skopiuj ten tekst (Ctrl+C) i wklej agentowi:", close: "Zamknij",
@@ -549,7 +724,7 @@ document.querySelectorAll(".questions fieldset").forEach((fs, i) => {
 });
 
 const bar = el("div", { class: "feedback-bar" });
-bar.innerHTML = `<div class="inner"><span class="verdict"><button type="button" class="ok" data-v="approve">${S.approve}</button><button type="button" class="change" data-v="changes">${S.changes}</button></span><textarea rows="1" placeholder="${esc(S.generalPh)}"></textarea><button type="button" class="primary copy">${esc(S.copy)}</button><span class="count"></span><button type="button" class="clear">${esc(S.clear)}</button><button type="button" class="theme" title="${esc(S.theme)}">◐</button></div>`;
+bar.innerHTML = `<div class="inner"><span class="verdict"><button type="button" class="ok" data-v="approve">${S.approve}</button><button type="button" class="change" data-v="changes">${S.changes}</button></span><textarea rows="1" placeholder="${esc(S.generalPh)}"></textarea><button type="button" class="primary copy">${esc(S.copy)}<span class="n"></span></button><button type="button" class="clear icon" title="${esc(S.clear)}" aria-label="${esc(S.clear)}">🗑</button><button type="button" class="theme icon" title="${esc(S.theme)}" aria-label="${esc(S.theme)}">◐</button></div>`;
 document.body.append(bar);
 const gta = bar.querySelector("textarea"); gta.value = fb.general || "";
 gta.oninput = () => { fb.general = gta.value; persist(); };
@@ -557,7 +732,7 @@ const vbtns = [...bar.querySelectorAll(".verdict button")];
 const paintV = () => vbtns.forEach(b => b.setAttribute("aria-pressed", String(fb.verdict === b.dataset.v)));
 vbtns.forEach(b => b.onclick = () => { fb.verdict = fb.verdict === b.dataset.v ? "" : b.dataset.v; paintV(); persist(); });
 paintV();
-function updateCount() { const n = Object.keys(fb.sections).length + new Set([...Object.keys(fb.answers), ...Object.keys(fb.other)]).size + (fb.general.trim() ? 1 : 0); bar.querySelector(".count").textContent = n ? S.count(n) : ""; }
+function updateCount() { const n = Object.keys(fb.sections).length + new Set([...Object.keys(fb.answers), ...Object.keys(fb.other)]).size + (fb.general.trim() ? 1 : 0); const c = bar.querySelector(".n"); c.textContent = n ? String(n) : ""; c.title = n ? S.count(n) : ""; }
 updateCount();
 
 function feedbackText() {
@@ -592,8 +767,8 @@ bar.querySelector(".copy").onclick = async () => {
 const clearBtn = bar.querySelector(".clear");
 clearBtn.onclick = () => {
   if (clearBtn.dataset.armed) { try { localStorage.removeItem(key); } catch { } location.reload(); return; }
-  clearBtn.dataset.armed = "1"; clearBtn.textContent = S.confirmClear;
-  setTimeout(() => { delete clearBtn.dataset.armed; clearBtn.textContent = S.clear; }, 3000);
+  clearBtn.dataset.armed = "1"; clearBtn.title = S.confirmClear; toast(S.confirmClear);
+  setTimeout(() => { delete clearBtn.dataset.armed; clearBtn.title = S.clear; }, 3000);
 };
 
 /* theme toggle: auto → light → dark */

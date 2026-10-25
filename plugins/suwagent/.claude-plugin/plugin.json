@@ -1,14 +1,20 @@
 {
   "name": "suwagent",
   "displayName": "Suwalski Agent",
-  "description": "Review agent work visually instead of reading walls of text: /visual-spec, /visual-plan and /visual-recap write HTML pages (also published as claude.ai artifacts), /mandatory-docs makes the agent read current docs before coding, and a session hook adds the working agreement: spec → plan → recap for larger changes and a 🟢🟡🔴 status line at the end of answers.",
+  "description": "Review agent work visually instead of reading walls of text: visual spec, plan and recap pages (also published as claude.ai artifacts), plan-judge for competing plans, autopilot, orchestrate and limit-guard for long autonomous work, mandatory-docs before code, and a session hook with the working agreement (spec → plan → recap, a 🟢🟡🔴 status line).",
   "author": {
     "name": "Piotr Gugnowski"
   },
   "homepage": "https://github.com/Manomenu/suwalski-agent-plugin",
   "repository": "https://github.com/Manomenu/suwalski-agent-plugin",
   "license": "MIT",
-  "keywords": ["visual-plan", "visual-recap", "spec", "review", "workflow"],
+  "keywords": [
+    "visual-plan",
+    "visual-recap",
+    "spec",
+    "review",
+    "workflow"
+  ],
   "userConfig": {
     "suggest_visual_docs": {
       "type": "boolean",
@@ -32,7 +38,10 @@
       "type": "string",
       "title": "Where visual documents go",
       "description": "artifact: keep the local HTML and also publish it as a claude.ai artifact, with its link in docs/visual/<kind>/claude-artifacts.md. local: keep it on this machine only (for client or confidential repositories)",
-      "options": ["artifact", "local"],
+      "options": [
+        "artifact",
+        "local"
+      ],
       "default": "artifact"
     }
   }
