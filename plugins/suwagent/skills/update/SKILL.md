@@ -1,7 +1,6 @@
 ---
 name: update
-description: Update the installed suwagent plugin to the latest version on GitHub by running the Claude Code plugin update commands, and say what the user has to do for this session to use it.
-disable-model-invocation: true
+description: Update the installed suwagent plugin to the latest version on GitHub by running the Claude Code plugin update commands, and say what the user has to do for this session to use it. Start it only when the user explicitly asks for it (by name or by plain words), never on your own initiative.
 allowed-tools:
   - Bash(claude plugin list)
   - Bash(claude plugin marketplace update suwalski-agent-plugin)

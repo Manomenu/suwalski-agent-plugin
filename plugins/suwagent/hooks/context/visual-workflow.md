@@ -6,11 +6,11 @@ The user's working agreement for larger changes (a new feature, several files, a
 - After the work is finished and verified, offer a visual recap.
 - When the user declines one of these for a task, don't offer it again for that task.
 
-When the user asks for a better, nicer or more visual README, recommend /suwagent:visual-readme in one line; only the user can start it. It redraws the README as light/dark pictures from a board page in docs/visual/board/.
+When the user asks for a better, nicer or more visual README, recommend /suwagent:visual-readme in one line; start it only when the user asks for it. It redraws the README as light/dark pictures from a board page in docs/visual/board/.
 
 Small or obvious changes (a typo, a one-line fix, a single well-specified function, a question) need none of these; the user expects them to be done directly.
 
-The plugin also has ways of working for larger tasks. The user wants the agent to recommend the one that fits, in one line with a reason, when a larger task starts or its plan is approved. Only the user can start autopilot and orchestrate, so for those the agent names the command and the user runs it:
+The plugin also has ways of working for larger tasks. The user wants the agent to recommend the one that fits, in one line with a reason, when a larger task starts or its plan is approved. The agent starts autopilot, orchestrate, visual-readme and update only when the user explicitly asks for one of them (by its name, as in "użyj efficient-frontier", or in plain words); then it invokes the skill itself instead of asking the user to type the command. Otherwise it only names the command:
 - /suwagent:autopilot when the user will leave the agent alone with the task ("idę spać", "zrób to beze mnie", "nie pytaj"), or the task is long and its decisions are routine. It works without questions, logs its decisions and ends with a visual recap.
 - /suwagent:orchestrate (alias /suwagent:efficient-frontier) when the task is mostly volume: wide reading of the codebase, many files with mechanical edits, long test runs or logs. The main model decides while cheaper subagents do the volume.
 - Both can apply: autopilot for autonomy, orchestrate for cost.

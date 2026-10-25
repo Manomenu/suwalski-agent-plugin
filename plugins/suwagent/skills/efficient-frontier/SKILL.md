@@ -1,7 +1,6 @@
 ---
 name: efficient-frontier
-description: Alias of /suwagent:orchestrate. Run a large task with the expensive model deciding and reviewing while cheaper subagents do the reading, testing and bounded edits.
-disable-model-invocation: true
+description: Alias of /suwagent:orchestrate. Run a large task with the expensive model deciding and reviewing while cheaper subagents do the reading, testing and bounded edits. Start it only when the user explicitly asks for it (by name or by plain words), never on your own initiative.
 argument-hint: "[the task to run as an orchestrator]"
 ---
 

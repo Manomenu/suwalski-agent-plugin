@@ -1,7 +1,6 @@
 ---
 name: visual-readme
-description: Rewrite the repository's README so it is told in pictures, the way a visual recap is, instead of walls of text. The pictures are panels on a board page (hero, before/after, how it works, features, which one when, settings) built from the suwagent visual blocks, rendered to light and dark PNGs that GitHub switches with the reader's theme, and redrawn from the same source whenever the project changes. Text stays only where people copy it or search for it (install, commands, configuration, troubleshooting).
-disable-model-invocation: true
+description: Rewrite the repository's README so it is told in pictures, the way a visual recap is, instead of walls of text. The pictures are panels on a board page (hero, before/after, how it works, features, which one when, settings) built from the suwagent visual blocks, rendered to light and dark PNGs that GitHub switches with the reader's theme, and redrawn from the same source whenever the project changes. Text stays only where people copy it or search for it (install, commands, configuration, troubleshooting). Start it only when the user explicitly asks for it (by name or by plain words), never on your own initiative.
 argument-hint: "[what to stress, or the audience]"
 ---
 

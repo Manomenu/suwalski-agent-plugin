@@ -1,7 +1,6 @@
 ---
 name: orchestrate
-description: Run a large task as an orchestrator. The session's own expensive model keeps planning, decisions, integration and final review, and hands token-heavy work (repository scans, docs extraction, test runs, log reduction, bounded code edits) to cheaper parallel subagents with precise hand-off packets. Use for big, parallelizable work where the main model would otherwise spend most of its tokens reading and running things.
-disable-model-invocation: true
+description: Run a large task as an orchestrator. The session's own expensive model keeps planning, decisions, integration and final review, and hands token-heavy work (repository scans, docs extraction, test runs, log reduction, bounded code edits) to cheaper parallel subagents with precise hand-off packets. Use for big, parallelizable work where the main model would otherwise spend most of its tokens reading and running things. Start it only when the user explicitly asks for it (by name or by plain words), never on your own initiative.
 argument-hint: "[the task to run as an orchestrator]"
 ---
 

@@ -57,7 +57,8 @@ This is what one looks like — [the recap of this repository](docs/visual/recap
 </picture>
 
 All skills are invoked as `/suwagent:<name>`; `/suwagent:efficient-frontier` is an alias of
-`orchestrate`. Only you start `autopilot`, `orchestrate` and `visual-readme`.
+`orchestrate`. The agent starts `autopilot`, `orchestrate`, `visual-readme` and `update` only when you ask
+for them, by name or in plain words; you can also type the command yourself.
 
 The pictures in this README were made by `/suwagent:visual-readme`: panels on a board page,
 drawn with the same styles as the spec, plan and recap pages and rendered in both themes.

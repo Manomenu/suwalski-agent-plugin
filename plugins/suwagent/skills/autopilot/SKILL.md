@@ -1,7 +1,6 @@
 ---
 name: autopilot
-description: Work through a task to the end without stopping for routine questions, turning ordinary ambiguity into recorded assumptions and decisions, stopping only for real blockers, and finishing with a visual recap that lists every decision made without the user. Run it when the user leaves the agent alone with a task.
-disable-model-invocation: true
+description: Work through a task to the end without stopping for routine questions, turning ordinary ambiguity into recorded assumptions and decisions, stopping only for real blockers, and finishing with a visual recap that lists every decision made without the user. Run it when the user leaves the agent alone with a task. Start it only when the user explicitly asks for it (by name or by plain words), never on your own initiative.
 argument-hint: "[the task to finish]"
 ---
 
