@@ -73,7 +73,9 @@ Leave out a section that has nothing to say.
    schema or config shape, as short `x-code` blocks (at most ~15 lines each) with notes.
    Otherwise describe the new elements and their roles in words (see components.md). No
    implementations.
-7. `steps`: an ordered `steps` list (usually 3-8).
+7. `steps`: an ordered `steps` list (usually 3-8). When the work is delivered as stacked MRs
+   (`/suwagent:mr-chain`), add a `chain` section after it: the MR split as a `flow` and a table
+   of index, branch, what it does and done-when.
 8. `verification`: the exact commands and the manual/end-to-end check. If a spec exists, map
    its acceptance criteria to how each will be checked (a `checks` list or a table).
 9. `risks`: real risks, each with a mitigation or rollback. Include migration and

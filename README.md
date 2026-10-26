@@ -57,8 +57,14 @@ This is what one looks like — [the recap of this repository](docs/visual/recap
 </picture>
 
 All skills are invoked as `/suwagent:<name>`; `/suwagent:efficient-frontier` is an alias of
-`orchestrate`. The agent starts `autopilot`, `orchestrate`, `visual-readme` and `update` only when you ask
+`orchestrate`. The agent starts `autopilot`, `orchestrate`, `mr-chain`, `visual-readme` and `update` only when you ask
 for them, by name or in plain words; you can also type the command yourself.
+
+`/suwagent:mr-chain` delivers a feature as stacked merge requests (`SR-108-01-…`, `SR-108-02-…`, each
+targeting the previous one): it splits the work into MRs that review on their own, puts every fix on
+the earliest branch that has its code, merges down instead of rebasing, and pushes the whole chain
+only when you say so. On a branch that is already part of a chain, the agent follows the same rules
+without being asked.
 
 The pictures in this README were made by `/suwagent:visual-readme`: panels on a board page,
 drawn with the same styles as the spec, plan and recap pages and rendered in both themes.
@@ -175,6 +181,7 @@ plugins/suwagent/
   skills/visual-readme/             the README told in pictures, from a board page
   skills/mandatory-docs/            docs-before-code procedure
   skills/autopilot/ orchestrate/ plan-judge/ limit-guard/   ways of working
+  skills/mr-chain/                  a feature delivered as stacked MRs
   skills/efficient-frontier/        alias of orchestrate
   skills/update/                    updates the installed plugin
   shared/template.html              the page: CSS + JS that render every block

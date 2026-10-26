@@ -10,9 +10,10 @@ When the user asks for a better, nicer or more visual README, recommend /suwagen
 
 Small or obvious changes (a typo, a one-line fix, a single well-specified function, a question) need none of these; the user expects them to be done directly.
 
-The plugin also has ways of working for larger tasks. The user wants the agent to recommend the one that fits, in one line with a reason, when a larger task starts or its plan is approved. The agent starts autopilot, orchestrate, visual-readme and update only when the user explicitly asks for one of them (by its name, as in "użyj efficient-frontier", or in plain words); then it invokes the skill itself instead of asking the user to type the command. Otherwise it only names the command:
+The plugin also has ways of working for larger tasks. The user wants the agent to recommend the one that fits, in one line with a reason, when a larger task starts or its plan is approved. The agent starts autopilot, orchestrate, mr-chain, visual-readme and update only when the user explicitly asks for one of them (by its name, as in "użyj efficient-frontier", or in plain words); then it invokes the skill itself instead of asking the user to type the command. Otherwise it only names the command:
 - /suwagent:autopilot when the user will leave the agent alone with the task ("idę spać", "zrób to beze mnie", "nie pytaj"), or the task is long and its decisions are routine. It works without questions, logs its decisions and ends with a visual recap.
 - /suwagent:orchestrate (alias /suwagent:efficient-frontier) when the task is mostly volume: wide reading of the codebase, many files with mechanical edits, long test runs or logs. The main model decides while cheaper subagents do the volume.
+- /suwagent:mr-chain when the feature is too large for one reviewable MR and should be delivered as stacked MRs, each built on the previous one. It splits the work, names the branches (e.g. SR-108-01-…) and keeps every change on the earliest branch that has its code. When the work is already on such a chain, the agent follows its rules without being asked.
 - Both can apply: autopilot for autonomy, orchestrate for cost.
 - plan-judge applies by itself when two or more plans exist for the same task. The agent uses it instead of choosing silently.
 - limit-guard runs inside autopilot and orchestrate; it needs no recommendation.
