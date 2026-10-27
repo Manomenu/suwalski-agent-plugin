@@ -1,6 +1,6 @@
 # Authoring a suwagent visual document
 
-Shared rules for `visual-spec`, `visual-plan`, `visual-recap` and the boards of `visual-readme`. The block catalog is in
+Shared rules for `visual-spec`, `visual-plan`, `visual-recap`, `visual-deviation` and the boards of `visual-readme`. The block catalog is in
 `components.md` next to this file.
 
 ## Why the document exists
@@ -13,13 +13,14 @@ spatial, real names (files, functions, fields) instead of vague nouns, and nothi
 
 ## Where the files go
 
-One folder per kind. The spec, plan and recap of the same piece of work share one file name,
-so they find and link to each other:
+One folder per kind. The spec, plan, recap and deviation page of the same piece of work share
+one file name, so they find and link to each other:
 
 ```
 docs/visual/spec/2026-10-25-export-csv.html
 docs/visual/plan/2026-10-25-export-csv.html
 docs/visual/recap/2026-10-25-export-csv.html
+docs/visual/deviation/2026-10-25-export-csv.html
 docs/visual/recap/claude-artifacts.md      ← links to the published artifacts of this folder
 ```
 
@@ -79,7 +80,7 @@ The helper is `${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py` (Python 3, standard librar
    1. Run `vdoc.py links <file>`. It says whether this file already has an artifact.
    2. Publish the local file with the Artifact tool, using `file_path` = the local `.html`:
       - **Not published yet**: give an `icon` (`list` for a spec, `map` for a plan, `report`
-        for a recap) and a one-sentence `description`.
+        for a recap, `compare` for a deviation page) and a one-sentence `description`.
       - **Already published**: update **that** artifact by passing its URL as `url`, so the
         link stays the same. If the tool requires a read of the artifact first, read it, then
         publish the local file.
@@ -194,7 +195,7 @@ run `vdoc.py refresh <page>`: it swaps the frame for the current template's and 
 
 ```html
 <header class="doc-head">
-  <span class="doc-kind">Plan</span>  <!-- Spec / Plan / Recap, in the document's language -->
+  <span class="doc-kind">Plan</span>  <!-- Spec / Plan / Recap / Deviation, in the document's language -->
   <h1>Eksport raportów do CSV</h1>
   <div class="doc-meta">
     <span><b>Status:</b> <span class="status draft">draft</span></span>
