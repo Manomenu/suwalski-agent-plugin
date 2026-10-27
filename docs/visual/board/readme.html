@@ -364,7 +364,7 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
       <span class="doc-kind">Claude Code plugin</span>
       <h1>suwagent</h1>
       <p class="lead">Review your coding agent's work on <b>visual pages</b>, not walls of text.</p>
-      <span class="tag accent">📄 spec → plan → recap</span>
+      <span class="tag accent">📄 spec → plan → recap / deviation</span>
       <span class="tag ok">🟢 🟡 🔴 status line</span>
       <span class="tag note">⚙️ autopilot · orchestrate</span>
       <span class="tag">📚 docs before code</span>
@@ -381,8 +381,8 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
       </div>
     </div>
     <div class="stats">
-      <div><b>3</b><span>kinds of page: spec, plan, recap</span></div>
-      <div><b>10</b><span>skills, started by you or the agent</span></div>
+      <div><b>4</b><span>kinds of page: spec, plan, recap, deviation</span></div>
+      <div><b>12</b><span>skills, started by you or the agent</span></div>
       <div><b>1</b><span>hook: the same rules in every project</span></div>
       <div><b>0</b><span>accounts or API keys to set up</span></div>
     </div>
@@ -431,6 +431,7 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
       <div class="foot"><span class="tag ok">tests ✓</span></div></div>
     <div><span class="tag accent">visual-recap</span><h4>Recap</h4><p class="when">what was built, no diffs</p>
       <ul><li>roles and a walkthrough</li><li>annotated screenshots</li><li>criteria ✓ ✓ ✓ ✗</li><li>where to look carefully</li></ul>
+      <p class="when">or <b>visual-deviation</b>: only what differs from the spec, and why</p>
       <div class="foot"><span class="btn ok">✅ Approve</span></div></div>
   </div>
   <div class="strip">
@@ -439,6 +440,11 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
     <span class="btn ok">✅ Approve</span> or <span class="btn warn">✏️ Request changes</span>
     → <span class="btn primary">Copy feedback for the agent</span> → the same page is updated
   </div>
+  <div class="strip">
+    <span class="lbl">In git, recommended</span>
+    <span class="tag warn">.gitignore</span> plan + recap <code>docs/visual/plan/</code> <code>docs/visual/recap/</code> ·
+    <span class="tag ok">commit</span> spec + deviation
+  </div>
   <div class="term">🟢 <b>CSV export ready</b>, 14 tests pass
 🟡 <b>Migration written</b>, not run on staging yet
 🔴 <b>Need the Stripe test key</b> to continue</div>
@@ -446,10 +452,11 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
 
 <section id="skills">
   <div class="group">📄 Visual documents</div>
-  <div class="cards" style="--cols:5">
+  <div class="cards" style="--cols:3">
     <div><span class="ico">🎯</span><h4><code>visual-spec</code></h4><p class="when">before planning a larger change</p><p>problem, goals, scenarios, edge cases, UI sketches, acceptance criteria</p><div class="foot"><span class="tag accent">what and why</span></div></div>
     <div><span class="ico">🗺️</span><h4><code>visual-plan</code></h4><p class="when">before writing code</p><p>decisions, architecture diagram, file map, ordered steps, risks</p><div class="foot"><span class="tag accent">how</span></div></div>
     <div><span class="ico">🔍</span><h4><code>visual-recap</code></h4><p class="when">after the work is done</p><p>roles, a real scenario, annotated screenshots, criteria with evidence</p><div class="foot"><span class="tag accent">what was built</span></div></div>
+    <div><span class="ico">↔️</span><h4><code>visual-deviation</code></h4><p class="when">you want only the differences</p><p>where the build departs from the spec: promised vs built, why, keep / fix / decide</p><div class="foot"><span class="tag accent">commit with the spec</span></div></div>
     <div><span class="ico">⚖️</span><h4><code>plan-judge</code></h4><p class="when">2+ plans for one task</p><p>compared against the real code: adopt, merge or send back</p><div class="foot"><span class="tag accent">several plans → 1</span></div></div>
     <div><span class="ico">🖼️</span><h4><code>visual-readme</code></h4><p class="when">when you ask for it</p><p>a README told in pictures like these, light and dark, redrawn from one source page</p><div class="foot"><span class="tag note">you start it</span></div></div>
   </div>
@@ -474,6 +481,7 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
     <div class="if">Mostly reading, test runs, mechanical edits</div><div class="then note">orchestrate <small>you start</small></div>
     <div class="if">A long or parallel run on a Pro/Max plan</div><div class="then ok">limit-guard <small>by itself</small></div>
     <div class="if">Work finished and checked</div><div class="then">visual-recap <small>what was built</small></div>
+    <div class="if">Only want what differs from the spec</div><div class="then">visual-deviation <small>+ why</small></div>
     <div class="if">The README is a wall of text</div><div class="then note">visual-readme <small>you start</small></div>
   </div>
 </section>

@@ -1,10 +1,12 @@
-This user reviews agent work through visual HTML pages instead of long chat text, using three skills: /suwagent:visual-spec (what and why), /suwagent:visual-plan (how) and /suwagent:visual-recap (what was built and how it works). The pages are saved under docs/visual/<spec|plan|recap>/ and, by default, also published as claude.ai artifacts, whose links are recorded in docs/visual/<kind>/claude-artifacts.md.
+This user reviews agent work through visual HTML pages instead of long chat text, using four skills: /suwagent:visual-spec (what and why), /suwagent:visual-plan (how), /suwagent:visual-recap (what was built and how it works) and /suwagent:visual-deviation (only where the implementation departs from the spec, and why). The pages are saved under docs/visual/<spec|plan|recap|deviation>/ and, by default, also published as claude.ai artifacts, whose links are recorded in docs/visual/<kind>/claude-artifacts.md.
 
 The user's working agreement for larger changes (a new feature, several files, a change of behaviour, an API or data shape, or a choice between approaches):
 - Before planning, offer in one line to write a visual spec, unless the requirements are already pinned down or an approved spec exists.
 - Before writing code, offer a visual plan, and start implementing only after the user approves it.
-- After the work is finished and verified, offer a visual recap.
+- After the work is finished and verified, offer a visual recap. When a spec exists and the user wants only the differences rather than the whole story, or a record to keep in the repository next to the spec, offer /suwagent:visual-deviation instead: a short page with each departure from the spec, its reason and a keep / fix / decide recommendation.
 - When the user declines one of these for a task, don't offer it again for that task.
+
+What goes into git, the user's recommendation for every repository: plans and recaps are gitignored (docs/visual/plan/ and docs/visual/recap/ in .gitignore), because they are working pages of one task; specs and deviation pages are committed, together, because they stay true after the work is merged (the contract, and where the build consciously departs from it). When the agent writes a plan or recap in a repository whose .gitignore doesn't cover them yet (check with `git check-ignore`), it recommends adding those two lines in one line, and adds them only when the user agrees; after a no, it doesn't ask again in that repository.
 
 When the user asks for a better, nicer or more visual README, recommend /suwagent:visual-readme in one line; start it only when the user asks for it. It redraws the README as light/dark pictures from a board page in docs/visual/board/.
 
