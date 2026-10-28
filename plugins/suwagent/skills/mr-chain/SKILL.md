@@ -1,6 +1,6 @@
 ---
 name: mr-chain
-description: Deliver a feature as a stacked chain of merge requests, where branch N is built on branch N-1 and each MR targets the previous branch. Split the work into MRs that each review on their own, name and create the branches, put every change on the earliest branch that has its code, merge down instead of rewriting, avoid churn, verify on the last branch, and push the whole chain only when the user says so. Start a new chain only when the user explicitly asks for one (by name or by plain words); when the work is already on such a chain, follow these rules without being asked.
+description: Deliver a feature as a stacked chain of merge requests, where branch N is built on branch N-1 and each MR targets the previous branch. Split the work into MRs that each review on their own, name and create the branches, put every change on the earliest branch that has its code, merge down instead of rewriting, avoid churn, build the whole chain first and test it only on the last branch (fixing each failure in the MR that owns the code), and push the whole chain only when the user says so. Start a new chain only when the user explicitly asks for one (by name or by plain words); when the work is already on such a chain, follow these rules without being asked.
 when_to_use: The user says "mr-chain", "MR-chainem", "stacked MRs", "rozbij to na MR-y", or names branches like SR-108-01-…; or the current branch is part of a chain (an -NN- index in its name, a parent that is another feature branch, an MR that targets a feature branch), including fixes, merges, pushes and reviews on that chain.
 argument-hint: "[the feature or ticket, e.g. SR-108, or a path to an approved plan]"
 ---
@@ -14,8 +14,14 @@ each MR on its own and should be able to ask one question of it, "does this do i
 
 Task: $ARGUMENTS
 
-Starting a chain has three phases: **split** (the user approves it), **build** (MR by MR), and
-**hand over** (push, MR table, recap). On an existing chain, start from section 4.
+Starting a chain has four phases: **split** (the user approves it), **build** (MR by MR, as the
+work seems right, without running tests), **test and fix** (on the last branch, each fix in its
+own MR, merged down), and **hand over** (push, MR table, recap). On an existing chain, start from
+section 4.
+
+**Why this order:** the intermediate states of a chain rarely work anyway, so testing each MR
+spends time on failures that a later MR removes. Building the whole chain first and testing once,
+at its end, finds the real problems, and section 4 puts each fix where it belongs.
 
 ## 1. Split the feature into MRs
 
@@ -29,8 +35,9 @@ first. Ask for the ticket id if the project's conventions use one and nobody gav
 
 - **One question for the reviewer.** It is about one thing: a contract, a data change, one
   mechanism, one feature built on it. "While I'm here" changes go elsewhere (section 6).
-- **It works at its end.** The build and the tests pass on the MR's branch. The only exception is
-  an old system that a later MR deletes (section 5), and only with the user's agreement.
+- **It is complete at its end, not proven.** It has its final shape and passes the cheap static
+  checks the project has (build, lint, scenario validation). Tests and evaluation runs wait for the
+  end of the chain (section 7).
 - **Dependencies first.** A typical order:
   1. tests or evaluation scenarios that pin the behaviour (when the project works test-first or
      scenario-first, they come first and may fail until later MRs land);
@@ -38,7 +45,8 @@ first. Ask for the ticket id if the project's conventions use one and nobody gav
   3. data and content;
   4. the core mechanism;
   5. features on top of it, from the simplest to the most complex;
-  6. removing what the chain replaced.
+  6. removing what the chain replaces. This can come early, right after the tests, so later MRs
+     build on cleared ground instead of next to the old system (section 5).
 - **Data apart from code.** A big content or data change is its own MR, so reviewers of the code
   don't scroll past thousands of data lines.
 - **A size a reviewer finishes in one sitting**: roughly up to 400 changed lines of code,
@@ -54,7 +62,8 @@ AGENTS.md names one. The base is the default branch unless the user says otherwi
 **Show the split** as a table: index, branch, what it does, done-when (the check that proves the
 MR works). When a visual plan exists, put the split there as a section `data-role="chain"`, with
 the `flow` block (at most three MRs per row) and the table, and republish the page. Otherwise
-show the table in chat. Create branches only after the user approves the split.
+show the table in chat. Done-when names what the MR must achieve; it is checked at the end, on
+the last branch. Create branches only after the user approves the split.
 
 ## 2. Create the branches one at a time
 
@@ -64,7 +73,7 @@ nothing yet.
 
 ```bash
 git checkout <base> && git checkout -b SR-108-01-hurricane-scenarios
-# … MR 1 done, checks green …
+# … MR 1 done, static checks pass …
 git checkout -b SR-108-02-hurricane-knowledge-base        # from SR-108-01
 ```
 
@@ -82,8 +91,9 @@ the parent.
   - a test replaced in a later MR instead of extended, so earlier assertions are lost;
   - copying a file instead of `git mv`, which hides the real diff;
   - documentation lines edited in two MRs when one would do.
-- **Close the MR** when its done-when check passes on its branch. Then branch the next one from
-  it. After that, routine checks run on the last branch only (section 7).
+- **Good enough, not perfect.** Build each MR the way it seems right and move on once it looks
+  done and its static checks pass. Don't run tests or evaluation scenarios per MR; the end of the
+  chain shows what is actually wrong (section 7). Then branch the next one from it.
 - **Tell the user** after each MR in one or two lines: what landed, what the check showed, which
   MR comes next.
 
@@ -127,6 +137,7 @@ git checkout B(k+1) && git merge --no-ff Bk     # repeat to the end of the chain
 
 ## 5. Code a later MR deletes: leave it alone
 
+Prefer deleting the old system early in the chain (section 1), so nothing needs this section.
 When the chain ends by deleting an old system, earlier MRs **don't edit files that will be
 deleted**. That means no patches to keep the old system working and no temporary markers in code
 that is going away. The old system may stay broken between those MRs. Agree on this with the user
@@ -148,13 +159,28 @@ whatever MR is open. It goes to one of three places:
 
 Ask the user which one, once, and do what they decide.
 
-## 7. Verifying
+## 7. Test at the end, fix in place
 
-- Build and unit tests run **on the last branch**: if `Bn` works, the round is done.
-  Intermediate branches just receive the commits and merges. Loop over every branch only when the
-  user asks, or before the first push.
-- Expensive end-to-end, evaluation or live runs only **on the last branch**, with a small subset
-  (a tag, a filter), not the full suite.
+This is the default way of working on a chain:
+
+```mermaid
+flowchart LR
+  B["Build B1…Bn as it seems right"] --> T["Tests and scenarios on Bn"]
+  T -->|"failure"| F["Fix on the earliest branch that has the code"]
+  F --> M["Merge down to Bn"]
+  M --> T
+  T -->|"all pass"| D["Hand over"]
+```
+
+- Tests, end-to-end and evaluation runs start only **when the whole chain exists** and looks like
+  it should work. Run them **on the last branch**, never on intermediate ones.
+- For each failure, find the MR that owns the code (section 4), commit the fix there, merge down
+  to `Bn`, and run the failing tests again on `Bn`. Don't patch the newest MR to make a failure go
+  away.
+- Repeat until the chain passes. Loop over every branch only when the user asks, or before the
+  first push.
+- Expensive end-to-end, evaluation or live runs use a small subset (a tag, a filter) while fixing,
+  and the full set once at the end.
 - Report the net size per MR, before (origin) and after (local):
   `git diff --shortstat origin/Bk-1 origin/Bk` compared with `git diff --shortstat Bk-1 Bk`.
 

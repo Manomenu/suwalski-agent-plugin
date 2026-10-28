@@ -446,8 +446,8 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
   </div>
   <div class="strip">
     <span class="lbl">In git, recommended</span>
-    <span class="tag warn">.gitignore</span> plan, recap, QA <code>docs/visual/{plan,recap,qa}/</code> ·
-    <span class="tag ok">commit</span> spec + deviation
+    <span class="tag warn">.gitignore</span> plan, recap, deviation, QA <code>docs/visual/{plan,recap,deviation,qa}/</code> ·
+    <span class="tag ok">commit</span> final spec, with the accepted deviations written in
   </div>
   <div class="term">🟢 <b>CSV export ready</b>, 14 tests pass
 🟡 <b>Migration written</b>, not run on staging yet
@@ -460,7 +460,7 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
     <div><span class="ico">🎯</span><h4><code>visual-spec</code></h4><p class="when">before planning a larger change</p><p>problem, goals, scenarios, edge cases, UI sketches, acceptance criteria</p><div class="foot"><span class="tag accent">what and why</span></div></div>
     <div><span class="ico">🗺️</span><h4><code>visual-plan</code></h4><p class="when">before writing code</p><p>decisions, architecture diagram, file map, ordered steps, risks</p><div class="foot"><span class="tag accent">how</span></div></div>
     <div><span class="ico">🔍</span><h4><code>visual-recap</code></h4><p class="when">after the work is done</p><p>roles, a real scenario, annotated screenshots, criteria with evidence</p><div class="foot"><span class="tag accent">what was built</span></div></div>
-    <div><span class="ico">↔️</span><h4><code>visual-deviation</code></h4><p class="when">you want only the differences</p><p>where the build departs from the spec: promised vs built, why, keep / fix / decide</p><div class="foot"><span class="tag accent">commit with the spec</span></div></div>
+    <div><span class="ico">↔️</span><h4><code>visual-deviation</code></h4><p class="when">you want only the differences</p><p>where the build departs from the spec: promised vs built, why, keep / fix / decide</p><div class="foot"><span class="tag accent">accepted ones go into the final spec</span></div></div>
     <div><span class="ico">🧪</span><h4><code>visual-qa</code></h4><p class="when">work goes to a tester</p><p>where to test, scenarios as user clicks, the expected screen for each, a results sheet</p><div class="foot"><span class="tag accent">for the tester</span></div></div>
     <div><span class="ico">⚖️</span><h4><code>plan-judge</code></h4><p class="when">2+ plans for one task</p><p>compared against the real code: adopt, merge or send back</p><div class="foot"><span class="tag accent">several plans → 1</span></div></div>
     <div><span class="ico">🖼️</span><h4><code>visual-readme</code></h4><p class="when">when you ask for it</p><p>a README told in pictures like these, light and dark, redrawn from one source page</p><div class="foot"><span class="tag note">you start it</span></div></div>

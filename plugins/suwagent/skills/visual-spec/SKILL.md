@@ -72,3 +72,10 @@ Leave out a section that has nothing to say. Never write one that only says "N/A
 Follow the hand-off step in authoring.md. End by asking the user to review the page and
 comment on it or paste the feedback. Once the spec is approved (status `approved`), suggest
 `/suwagent:visual-plan` as the next step. Don't start planning or coding before that.
+
+## When the task is finished
+
+The spec is the one page of the task that is committed, and it is committed as the **final
+spec**: rewritten so that it reads as if it had assumed the deviations the user accepted (see
+`/suwagent:visual-deviation`) from the start, with no history of what changed. Its acceptance
+criteria then describe what was built and verified.

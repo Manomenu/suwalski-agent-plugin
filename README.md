@@ -30,7 +30,7 @@ Requirements: `git` and `python3` (standard library only).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/visual/board/img/readme/flow-dark.png">
-  <img alt="One larger task: Spec (what and why, approve) → Plan (how, approve) → Build (only after approval, docs first, optionally autopilot or orchestrate) → Recap (what was built, criteria checked), or visual-deviation (only what differs from the spec, and why) → Test with visual-qa (for the tester: where, scenarios as clicks, expected screens, pass or fail). On every page: comment, answer questions, Approve or Request changes, Copy feedback for the agent, and the same page is updated. In git, recommended: plan, recap and QA in .gitignore (docs/visual/plan/, docs/visual/recap/, docs/visual/qa/), spec and deviation committed. Answers end with a status line: 🟢 done, 🟡 pending, 🔴 waiting for you." src="docs/visual/board/img/readme/flow-light.png" width="100%">
+  <img alt="One larger task: Spec (what and why, approve) → Plan (how, approve) → Build (only after approval, docs first, optionally autopilot or orchestrate) → Recap (what was built, criteria checked), or visual-deviation (only what differs from the spec, and why) → Test with visual-qa (for the tester: where, scenarios as clicks, expected screens, pass or fail). On every page: comment, answer questions, Approve or Request changes, Copy feedback for the agent, and the same page is updated. In git, recommended: plan, recap, deviation and QA in .gitignore, only the final spec committed (rewritten to include the accepted deviations). Answers end with a status line: 🟢 done, 🟡 pending, 🔴 waiting for you." src="docs/visual/board/img/readme/flow-light.png" width="100%">
 </picture>
 
 You don't have to remember any command: the agent offers each page in one line when a task is big
@@ -48,15 +48,16 @@ blocked) that comes back to the agent. Say where and how to test when you start 
 `/suwagent:visual-qa staging https://test.example.com, manual UI on desktop`; without an environment
 the agent asks for one.
 
-**What goes into git.** Recommended: plans, recaps and QA pages in `.gitignore`, specs and deviation
-pages committed. Plans, recaps and QA pages are working pages of one task; the spec and the deviation page stay true
-after the work is merged (the contract, and where the build consciously departs from it), so they go
-in together.
+**What goes into git.** Recommended: only the final spec is committed; plans, recaps, deviation pages
+and QA pages are working pages of one task and go in `.gitignore`. When the task is finished, the spec
+is rewritten as if it had assumed the accepted deviations from the start, so the committed spec
+describes what was built, with no history of how it got there.
 
 ```gitignore
 # suwagent: working pages of one task
 docs/visual/plan/
 docs/visual/recap/
+docs/visual/deviation/
 docs/visual/qa/
 ```
 
@@ -74,7 +75,7 @@ This is what one looks like — [the recap of this repository](docs/visual/recap
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/visual/board/img/readme/skills-dark.png">
-  <img alt="Visual documents: visual-spec (what and why), visual-plan (how), visual-recap (what was built), visual-deviation (only the differences from the spec; commit it with the spec), visual-qa (a test guide for the tester: where, what to click, what to expect), plan-judge (several plans into one), visual-readme (you start it; a README told in pictures, light and dark). Ways of working: autopilot (you start it; no routine questions, decisions logged), orchestrate (you start it; the main model decides, haiku and sonnet subagents do the volume), limit-guard (pauses at 90% of the 5-hour or 95% of the weekly limit), mandatory-docs (automatic; official docs of the installed version)." src="docs/visual/board/img/readme/skills-light.png" width="100%">
+  <img alt="Visual documents: visual-spec (what and why), visual-plan (how), visual-recap (what was built), visual-deviation (only the differences from the spec; the accepted ones go into the final spec), visual-qa (a test guide for the tester: where, what to click, what to expect), plan-judge (several plans into one), visual-readme (you start it; a README told in pictures, light and dark). Ways of working: autopilot (you start it; no routine questions, decisions logged), orchestrate (you start it; the main model decides, haiku and sonnet subagents do the volume), limit-guard (pauses at 90% of the 5-hour or 95% of the weekly limit), mandatory-docs (automatic; official docs of the installed version)." src="docs/visual/board/img/readme/skills-light.png" width="100%">
 </picture>
 
 <picture>
@@ -89,7 +90,8 @@ for them, by name or in plain words; you can also type the command yourself.
 `/suwagent:mr-chain` delivers a feature as stacked merge requests (`SR-108-01-…`, `SR-108-02-…`, each
 targeting the previous one): it splits the work into MRs that review on their own, puts every fix on
 the earliest branch that has its code, merges down instead of rebasing, and pushes the whole chain
-only when you say so. On a branch that is already part of a chain, the agent follows the same rules
+only when you say so. It builds the whole chain first and runs tests only on the last branch; each
+failure is fixed in the MR that owns the code and merged down. On a branch that is already part of a chain, the agent follows the same rules
 without being asked.
 
 The pictures in this README were made by `/suwagent:visual-readme`: panels on a board page,

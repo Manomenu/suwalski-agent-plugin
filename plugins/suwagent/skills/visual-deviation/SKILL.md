@@ -102,10 +102,14 @@ No code and no diffs: `file:line` as a reference only, as in a recap.
 
 ## After the user decides
 
-For every deviation the user keeps, offer once to update the spec (and plan) so they
-describe what was built, following the review loop in authoring.md. The spec stays the
-contract for the next recap, so it should not keep promising what was consciously changed.
 For every one they want fixed, the work goes back to implementation.
+
+The deviations the user keeps go into the **final spec**: once the task is finished, rewrite
+the spec so that it reads as if it had assumed them from the start. No "changed from" notes,
+no history, no link to this page: a reader of the spec should not be able to tell what was
+planned differently. Show the rewritten spec through the review loop in authoring.md. The
+final spec is the only page of the task that is committed; this page, like the plan, recap
+and QA page, is a working page and stays out of git.
 
 ## Hand-off
 
