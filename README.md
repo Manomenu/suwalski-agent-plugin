@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/visual/board/img/readme/hero-dark.png">
-  <img alt="suwagent, a Claude Code plugin: review your coding agent's work on visual pages, not walls of text. Spec → plan → recap or deviation, a 🟢🟡🔴 status line, autopilot and orchestrate, docs before code. 4 kinds of page, 12 skills, 1 hook, 0 accounts or API keys." src="docs/visual/board/img/readme/hero-light.png" width="100%">
+  <img alt="suwagent, a Claude Code plugin: review your coding agent's work on visual pages, not walls of text. Spec → plan → recap or deviation, a test guide for the tester, a 🟢🟡🔴 status line, autopilot and orchestrate, docs before code. 5 kinds of page, 13 skills, 1 hook, 0 accounts or API keys." src="docs/visual/board/img/readme/hero-light.png" width="100%">
 </picture>
 
 ## Install
@@ -30,19 +30,26 @@ Requirements: `git` and `python3` (standard library only).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/visual/board/img/readme/flow-dark.png">
-  <img alt="One larger task: Spec (what and why, approve) → Plan (how, approve) → Build (only after approval, docs first, optionally autopilot or orchestrate) → Recap (what was built, criteria checked), or visual-deviation (only what differs from the spec, and why). On every page: comment, answer questions, Approve or Request changes, Copy feedback for the agent, and the same page is updated. In git, recommended: plan and recap in .gitignore (docs/visual/plan/, docs/visual/recap/), spec and deviation committed. Answers end with a status line: 🟢 done, 🟡 pending, 🔴 waiting for you." src="docs/visual/board/img/readme/flow-light.png" width="100%">
+  <img alt="One larger task: Spec (what and why, approve) → Plan (how, approve) → Build (only after approval, docs first, optionally autopilot or orchestrate) → Recap (what was built, criteria checked), or visual-deviation (only what differs from the spec, and why) → Test with visual-qa (for the tester: where, scenarios as clicks, expected screens, pass or fail). On every page: comment, answer questions, Approve or Request changes, Copy feedback for the agent, and the same page is updated. In git, recommended: plan, recap and QA in .gitignore (docs/visual/plan/, docs/visual/recap/, docs/visual/qa/), spec and deviation committed. Answers end with a status line: 🟢 done, 🟡 pending, 🔴 waiting for you." src="docs/visual/board/img/readme/flow-light.png" width="100%">
 </picture>
 
 You don't have to remember any command: the agent offers each page in one line when a task is big
-enough. Every page is a self-contained HTML file in `docs/visual/<spec|plan|recap|deviation>/`, and by
+enough. Every page is a self-contained HTML file in `docs/visual/<spec|plan|recap|deviation|qa>/`, and by
 default also a private claude.ai artifact you can open and comment on from any device.
 
 `/suwagent:visual-deviation` is the short alternative to a recap: only where the build departs from
 the spec, each difference with what was promised, what was built, why, and keep / fix / decide.
 Use it when you know the spec and don't need the whole story.
 
-**What goes into git.** Recommended: plans and recaps in `.gitignore`, specs and deviation pages
-committed. Plans and recaps are working pages of one task; the spec and the deviation page stay true
+`/suwagent:visual-qa` hands finished work to a tester who clicks rather than reads code: where to test
+(environment, version, accounts, test data), scenarios as user actions with the real labels, the
+expected result of each as a screenshot or sketch, what is not a bug, and a results sheet (pass / fail /
+blocked) that comes back to the agent. Say where and how to test when you start it, e.g.
+`/suwagent:visual-qa staging https://test.example.com, manual UI on desktop`; without an environment
+the agent asks for one.
+
+**What goes into git.** Recommended: plans, recaps and QA pages in `.gitignore`, specs and deviation
+pages committed. Plans, recaps and QA pages are working pages of one task; the spec and the deviation page stay true
 after the work is merged (the contract, and where the build consciously departs from it), so they go
 in together.
 
@@ -50,9 +57,10 @@ in together.
 # suwagent: working pages of one task
 docs/visual/plan/
 docs/visual/recap/
+docs/visual/qa/
 ```
 
-The agent offers to add these lines when it writes a plan or recap in a repository that doesn't
+The agent offers to add these lines when it writes a plan, recap or QA page in a repository that doesn't
 ignore them yet.
 
 This is what one looks like — [the recap of this repository](docs/visual/recap/2026-10-25-suwagent-plugin.html), in Polish:
@@ -66,12 +74,12 @@ This is what one looks like — [the recap of this repository](docs/visual/recap
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/visual/board/img/readme/skills-dark.png">
-  <img alt="Visual documents: visual-spec (what and why), visual-plan (how), visual-recap (what was built), visual-deviation (only the differences from the spec; commit it with the spec), plan-judge (several plans into one), visual-readme (you start it; a README told in pictures, light and dark). Ways of working: autopilot (you start it; no routine questions, decisions logged), orchestrate (you start it; the main model decides, haiku and sonnet subagents do the volume), limit-guard (pauses at 90% of the 5-hour or 95% of the weekly limit), mandatory-docs (automatic; official docs of the installed version)." src="docs/visual/board/img/readme/skills-light.png" width="100%">
+  <img alt="Visual documents: visual-spec (what and why), visual-plan (how), visual-recap (what was built), visual-deviation (only the differences from the spec; commit it with the spec), visual-qa (a test guide for the tester: where, what to click, what to expect), plan-judge (several plans into one), visual-readme (you start it; a README told in pictures, light and dark). Ways of working: autopilot (you start it; no routine questions, decisions logged), orchestrate (you start it; the main model decides, haiku and sonnet subagents do the volume), limit-guard (pauses at 90% of the 5-hour or 95% of the weekly limit), mandatory-docs (automatic; official docs of the installed version)." src="docs/visual/board/img/readme/skills-light.png" width="100%">
 </picture>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/visual/board/img/readme/choose-dark.png">
-  <img alt="Which one, when: a typo or question → just done; details still open → visual-spec; requirements clear → visual-plan; two plans → plan-judge; 'do it without me' → autopilot; mostly reading, tests, mechanical edits → orchestrate; a long run on Pro/Max → limit-guard; work finished → visual-recap; only what differs from the spec → visual-deviation; the README is a wall of text → visual-readme." src="docs/visual/board/img/readme/choose-light.png" width="100%">
+  <img alt="Which one, when: a typo or question → just done; details still open → visual-spec; requirements clear → visual-plan; two plans → plan-judge; 'do it without me' → autopilot; mostly reading, tests, mechanical edits → orchestrate; a long run on Pro/Max → limit-guard; work finished → visual-recap; only what differs from the spec → visual-deviation; it goes to a tester or the client's acceptance → visual-qa; the README is a wall of text → visual-readme." src="docs/visual/board/img/readme/choose-light.png" width="100%">
 </picture>
 
 All skills are invoked as `/suwagent:<name>`; `/suwagent:efficient-frontier` is an alias of
@@ -85,7 +93,7 @@ only when you say so. On a branch that is already part of a chain, the agent fol
 without being asked.
 
 The pictures in this README were made by `/suwagent:visual-readme`: panels on a board page,
-drawn with the same styles as the spec, plan, recap and deviation pages and rendered in both themes.
+drawn with the same styles as the visual document pages and rendered in both themes.
 
 <details>
 <summary><b>orchestrate</b> and <b>limit-guard</b>, inside</summary>
@@ -195,7 +203,7 @@ After editing the plugin in a running session, run `/reload-plugins`.
 .claude-plugin/marketplace.json     the catalog: lists the plugins in this repository
 plugins/suwagent/
   .claude-plugin/plugin.json        manifest: name, description, userConfig
-  skills/visual-{spec,plan,recap,deviation}/  the visual document skills (SKILL.md each)
+  skills/visual-{spec,plan,recap,deviation,qa}/  the visual document skills (SKILL.md each)
   skills/visual-readme/             the README told in pictures, from a board page
   skills/mandatory-docs/            docs-before-code procedure
   skills/autopilot/ orchestrate/ plan-judge/ limit-guard/   ways of working

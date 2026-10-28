@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Helper for suwagent visual documents (visual-spec, visual-plan, visual-recap, visual-deviation) and boards.
+"""Helper for suwagent visual documents (visual-spec, visual-plan, visual-recap, visual-deviation, visual-qa) and boards.
 
     vdoc.py new KIND SLUG --title T [--lang pl]   create docs/visual/KIND/<date>-SLUG.html from the template
                                                   (KIND board: docs/visual/board/SLUG.html, a page of picture panels)
@@ -31,7 +31,8 @@ from array import array
 from pathlib import Path
 
 TEMPLATE = Path(__file__).resolve().parent.parent / "shared" / "template.html"
-KINDS = ("spec", "plan", "recap", "deviation")
+KINDS = ("spec", "plan", "recap", "deviation", "qa")
+LABELS = {"qa": "QA"}  # nav link text where capitalize() would read wrong
 BOARD = "board"
 REGISTRY = "claude-artifacts.md"
 CONTENT_RE = re.compile(r"(<!-- CONTENT START -->)(.*?)(<!-- CONTENT END -->)", re.S)
@@ -54,6 +55,7 @@ EXPECTED = {
     "plan": ["tldr", "approach", "files", "steps", "verification", "questions"],
     "recap": ["tldr", "acceptance", "how", "files", "verification", "review"],
     "deviation": ["tldr", "deviations"],
+    "qa": ["tldr", "environment", "scenarios", "results"],
 }
 
 
@@ -65,7 +67,7 @@ def kind_of(path):
     """The document kind is the name of the folder it sits in: docs/visual/<kind>/<file>.html."""
     kind = path.resolve().parent.name
     if kind not in KINDS:
-        sys.exit(f"{path} is not in a docs/visual/<spec|plan|recap|deviation>/ folder")
+        sys.exit(f"{path} is not in a docs/visual/<spec|plan|recap|deviation|qa>/ folder")
     return kind
 
 
@@ -391,7 +393,7 @@ def cmd_links(a):
             continue
         reg = read_registry(sib.parent).get(sib.name)
         target = reg["url"] if reg else f"../{other}/{sib.name}"
-        print(f'nav {other}: <a href="{target}">{other.capitalize()}</a>' + ("" if reg else "  (local only)"))
+        print(f'nav {other}: <a href="{target}">{LABELS.get(other, other.capitalize())}</a>' + ("" if reg else "  (local only)"))
 
 
 def cmd_register(a):
