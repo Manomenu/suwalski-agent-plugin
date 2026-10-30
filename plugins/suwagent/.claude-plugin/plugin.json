@@ -1,7 +1,7 @@
 {
   "name": "suwagent",
   "displayName": "Suwalski Agent",
-  "description": "Review agent work visually instead of reading walls of text: visual spec, plan and recap pages, plus a short deviation page of what differs from the spec and a test guide for testers (also published as claude.ai artifacts), plan-judge for competing plans, visual-readme for a README told in light/dark pictures, autopilot, orchestrate and limit-guard for long autonomous work, mr-chain for delivering a feature as stacked MRs, mandatory-docs before code, and a session hook with the working agreement (spec → plan → recap, a 🟢🟡🔴 status line).",
+  "description": "Review agent work visually instead of reading walls of text: visual spec, plan and recap pages, plus a short deviation page of what differs from the spec , a test guide for testers and a spec guardrail coverage page (also published as claude.ai artifacts), plan-judge for competing plans, visual-readme for a README told in light/dark pictures, autopilot, orchestrate and limit-guard for long autonomous work, mr-chain for delivering a feature as stacked MRs, mandatory-docs before code, and a session hook with the working agreement (spec → plan → recap, a 🟢🟡🔴 status line).",
   "author": {
     "name": "Piotr Gugnowski"
   },

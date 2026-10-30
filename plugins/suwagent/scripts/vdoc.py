@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Helper for suwagent visual documents (visual-spec, visual-plan, visual-recap, visual-deviation, visual-qa) and boards.
+"""Helper for suwagent visual documents (visual-spec, visual-plan, visual-recap, visual-deviation, visual-qa,
+visual-guardrails) and boards.
 
     vdoc.py new KIND SLUG --title T [--lang pl]   create docs/visual/KIND/<date>-SLUG.html from the template
                                                   (KIND board: docs/visual/board/SLUG.html, a page of picture panels)
@@ -31,7 +32,7 @@ from array import array
 from pathlib import Path
 
 TEMPLATE = Path(__file__).resolve().parent.parent / "shared" / "template.html"
-KINDS = ("spec", "plan", "recap", "deviation", "qa")
+KINDS = ("spec", "plan", "recap", "deviation", "qa", "guardrails")
 LABELS = {"qa": "QA"}  # nav link text where capitalize() would read wrong
 BOARD = "board"
 REGISTRY = "claude-artifacts.md"
@@ -56,6 +57,7 @@ EXPECTED = {
     "recap": ["tldr", "acceptance", "how", "files", "verification", "review"],
     "deviation": ["tldr", "deviations"],
     "qa": ["tldr", "environment", "scenarios", "results"],
+    "guardrails": ["tldr", "gate", "coverage"],
 }
 
 
@@ -67,7 +69,7 @@ def kind_of(path):
     """The document kind is the name of the folder it sits in: docs/visual/<kind>/<file>.html."""
     kind = path.resolve().parent.name
     if kind not in KINDS:
-        sys.exit(f"{path} is not in a docs/visual/<spec|plan|recap|deviation|qa>/ folder")
+        sys.exit(f"{path} is not in a docs/visual/<spec|plan|recap|deviation|qa|guardrails>/ folder")
     return kind
 
 

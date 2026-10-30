@@ -34,7 +34,7 @@ Requirements: `git` and `python3` (standard library only).
 </picture>
 
 You don't have to remember any command: the agent offers each page in one line when a task is big
-enough. Every page is a self-contained HTML file in `docs/visual/<spec|plan|recap|deviation|qa>/`, and by
+enough. Every page is a self-contained HTML file in `docs/visual/<spec|plan|recap|deviation|qa|guardrails>/`, and by
 default also a private claude.ai artifact you can open and comment on from any device.
 
 `/suwagent:visual-deviation` is the short alternative to a recap: only where the build departs from
@@ -48,8 +48,16 @@ blocked) that comes back to the agent. Say where and how to test when you start 
 `/suwagent:visual-qa staging https://test.example.com, manual UI on desktop`; without an environment
 the agent asks for one.
 
-**What goes into git.** Recommended: only the final spec is committed; plans, recaps, deviation pages
-and QA pages are working pages of one task and go in `.gitignore`. When the task is finished, the spec
+`/suwagent:visual-guardrails` checks that the code can't drift away from the spec unnoticed: for every
+acceptance criterion it finds the guardrail on your gate (CI, check script, pre-commit) that would fail
+if the criterion broke — a unit, integration or e2e test, a lint rule, a type check — and then checks
+that it is a good one: it asserts what the criterion promises, and for the key criteria the agent
+breaks the behaviour in a throwaway worktree to see the guardrail go red. The page is a criterion → guardrail matrix (guarded, weak, off the gate, none,
+manual only), and each gap gets a proposed guardrail with its kind, place and cost; you tick the ones
+to add. `/suwagent:visual-guardrails all` checks every spec in `docs/visual/spec/` at once.
+
+**What goes into git.** Recommended: only the final spec is committed; plans, recaps, deviation,
+QA and guardrails pages are working pages of one task and go in `.gitignore`. When the task is finished, the spec
 is rewritten as if it had assumed the accepted deviations from the start, so the committed spec
 describes what was built, with no history of how it got there.
 
@@ -59,9 +67,10 @@ docs/visual/plan/
 docs/visual/recap/
 docs/visual/deviation/
 docs/visual/qa/
+docs/visual/guardrails/
 ```
 
-The agent offers to add these lines when it writes a plan, recap or QA page in a repository that doesn't
+The agent offers to add these lines when it writes a plan, recap, QA or guardrails page in a repository that doesn't
 ignore them yet.
 
 This is what one looks like — [the recap of this repository](docs/visual/recap/2026-10-25-suwagent-plugin.html), in Polish:
@@ -205,7 +214,7 @@ After editing the plugin in a running session, run `/reload-plugins`.
 .claude-plugin/marketplace.json     the catalog: lists the plugins in this repository
 plugins/suwagent/
   .claude-plugin/plugin.json        manifest: name, description, userConfig
-  skills/visual-{spec,plan,recap,deviation,qa}/  the visual document skills (SKILL.md each)
+  skills/visual-{spec,plan,recap,deviation,qa,guardrails}/  the visual document skills (SKILL.md each)
   skills/visual-readme/             the README told in pictures, from a board page
   skills/mandatory-docs/            docs-before-code procedure
   skills/autopilot/ orchestrate/ plan-judge/ limit-guard/   ways of working
