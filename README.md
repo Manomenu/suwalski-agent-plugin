@@ -56,13 +56,38 @@ breaks the behaviour in a throwaway worktree to see the guardrail go red. The pa
 manual only), and each gap gets a proposed guardrail with its kind, place and cost; you tick the ones
 to add. `/suwagent:visual-guardrails all` checks every spec in `docs/visual/spec/` at once.
 
-**Criteria on the gate.** Every acceptance criterion gets an id, `AC-<feature>-<n>`, which
-`vdoc.py ids` assigns and never reuses. A project can make its gate fail when a criterion has no
-guardrail: it lists its kinds of guardrail in a `criteria.json` (a name, path globs, how the id is
-written) and runs `vdoc.py criteria`, which prints each criterion with every guardrail naming its
-id (kind, file:line) and fails on an unguarded criterion, an id no spec defines, an id in a file
-of no listed kind, and a spec without one unique id per criterion. Pin `vdoc.py` by commit and
-SHA-256 in the project, so the gate gives the same answer on every machine and in CI:
+### Spec ↔ guardrails sync on the gate
+
+A spec and the code drift apart quietly: a criterion is reworded, a test is deleted, and nothing
+fails. suwagent ties them together with ids, so the project's gate fails the moment they drift.
+
+1. **Every acceptance criterion has an id**, `AC-<feature>-<n>`, at the start of its item in the
+   spec's `<section data-role="acceptance">`. `vdoc.py ids <spec>` assigns them and never reuses a
+   number, not even one of a criterion dropped earlier (it reads the spec folder's git history).
+   `vdoc.py check` fails on a criterion without an id, with two, or with an id another spec defines.
+2. **Outside the spec, a criterion lives only as a guardrail** that names its id: a test (the id in
+   its name or a trait), a lint rule or a config (a comment above the rule). Not as a checklist or
+   a QA note. A criterion that no automated check can prove is reworded into plain description or
+   dropped from the spec.
+3. **The gate checks the link both ways** with `vdoc.py criteria`: it prints each criterion with every
+   guardrail naming its id (kind, file:line) and fails, with the fix, on
+
+   | Problem | Example message |
+   | --- | --- |
+   | a criterion no guardrail names | `AC-notes-2: no guardrail — name the id in a test, lint rule or config …` |
+   | a guardrail naming an id no spec defines | `AC-notes-9 at tests/test_notes.py:4: no spec defines this criterion …` |
+   | an id in a file no guardrail kind covers | `AC-notes-1 at src/notes/store.ts:12: not a guardrail …` |
+   | a spec without one unique id per criterion | `docs/visual/spec/notes.html: a criterion without an id: "…"` |
+
+   ```text
+   $ python3 vdoc.py criteria --config criteria.json
+   AC-notes-1       server test (xunit)          Tests/Notes/NoteEndpointsTests.cs:14
+   AC-notes-1       e2e test (playwright)        Web/src/notes/NotesScreen.e2e.ts:4
+   ```
+
+**Set it up in a project.** The plugin owns the format; the project only says where its guardrails
+live, in a `criteria.json` at its root (the first kind whose path globs match a file wins; prose and
+files ignored by git are not read):
 
 ```json
 {
@@ -74,6 +99,16 @@ SHA-256 in the project, so the gate gives the same answer on every machine and i
   ]
 }
 ```
+
+Then the gate runs `vdoc.py criteria` **pinned by commit and SHA-256**: download
+`https://raw.githubusercontent.com/Manomenu/suwalski-agent-plugin/<commit>/plugins/suwagent/scripts/vdoc.py`
+into a cache, check the sum, run it. The installed plugin's copy changes with every update, and a CI
+runner has no plugin, so a pinned file is what gives the same answer on a laptop and in CI.
+[solid-dotnet-app-tpl](https://github.com/Manomenu/solid-dotnet-app-tpl) does exactly this in
+`scripts/.internal/criteria.sh` (with `just criteria-update` to move the pin) and is the worked example.
+
+What it cannot see: whether a guardrail would really fail when the behaviour breaks. That is what
+`/suwagent:visual-guardrails` checks before a merge.
 
 **What goes into git.** Recommended: only the final spec is committed; plans, recaps, deviation,
 QA and guardrails pages are working pages of one task and go in `.gitignore`. When the task is finished, the spec
