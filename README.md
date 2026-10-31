@@ -56,6 +56,25 @@ breaks the behaviour in a throwaway worktree to see the guardrail go red. The pa
 manual only), and each gap gets a proposed guardrail with its kind, place and cost; you tick the ones
 to add. `/suwagent:visual-guardrails all` checks every spec in `docs/visual/spec/` at once.
 
+**Criteria on the gate.** Every acceptance criterion gets an id, `AC-<feature>-<n>`, which
+`vdoc.py ids` assigns and never reuses. A project can make its gate fail when a criterion has no
+guardrail: it lists its kinds of guardrail in a `criteria.json` (a name, path globs, how the id is
+written) and runs `vdoc.py criteria`, which prints each criterion with every guardrail naming its
+id (kind, file:line) and fails on an unguarded criterion, an id no spec defines, an id in a file
+of no listed kind, and a spec without one unique id per criterion. Pin `vdoc.py` by commit and
+SHA-256 in the project, so the gate gives the same answer on every machine and in CI:
+
+```json
+{
+  "specs": "docs/visual/spec",
+  "prose": ["docs/**", "**/*.md"],
+  "kinds": [
+    { "kind": "unit test", "paths": ["tests/**/*.py"], "how": "the id in the test name" },
+    { "kind": "lint (eslint)", "paths": ["eslint.config.js"], "how": "// <id> above the rule" }
+  ]
+}
+```
+
 **What goes into git.** Recommended: only the final spec is committed; plans, recaps, deviation,
 QA and guardrails pages are working pages of one task and go in `.gitignore`. When the task is finished, the spec
 is rewritten as if it had assumed the accepted deviations from the start, so the committed spec

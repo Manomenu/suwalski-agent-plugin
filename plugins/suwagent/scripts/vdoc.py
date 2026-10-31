@@ -10,6 +10,7 @@ visual-guardrails) and boards.
     vdoc.py register PATH URL                     record the published artifact in KIND/claude-artifacts.md
     vdoc.py refresh PATH                          give an older page the current template's CSS and JS, content kept
     vdoc.py ids SPEC [--feature F]                give each acceptance criterion of a spec its id AC-F-<n>, never reused
+    vdoc.py criteria --config criteria.json [ID]  trace each criterion of a project's specs to the guardrails naming its id
     vdoc.py shot URL|PATH OUT.png [--size WxH]    screenshot a page with an installed headless browser
          [--only ID] [--theme T] [--scale N] [--crop]   one section of a suwagent page, themed, sharp, trimmed
     vdoc.py render PATH [OUTDIR] [--picture]      every <section id> of a page as <id>-light.png and <id>-dark.png
@@ -223,6 +224,101 @@ def spec_problems(path, text):
         for dup in sorted(set(mine) & theirs):
             errors.append(f"{dup} is also defined in {other.name}; give this criterion a new id: remove it and run `vdoc.py ids`")
     return errors
+
+
+def glob_re(pattern):
+    """A path glob as a regex: ** spans folders, * and ? stay inside one (PurePath.full_match needs Python 3.13)."""
+    out, i = "", 0
+    while i < len(pattern):
+        if pattern.startswith("**/", i):
+            out, i = out + "(?:.*/)?", i + 3
+        elif pattern.startswith("**", i):
+            out, i = out + ".*", i + 2
+        else:
+            out += {"*": "[^/]*", "?": "[^/]"}.get(pattern[i], re.escape(pattern[i]))
+            i += 1
+    return re.compile(out + r"\Z")
+
+
+def cmd_criteria(a):
+    """Every criterion of the specs is named by a guardrail of a kind the project's config lists, and nothing else names an id."""
+    root = Path(a.root).resolve()
+    config = json.loads((root / a.config).read_text(encoding="utf-8"))
+    specs = config["specs"].rstrip("/") + "/"
+    prose = [glob_re(g) for g in config.get("prose", [])]
+    kinds = [(k["kind"], [glob_re(g) for g in k["paths"]]) for k in config["kinds"]]
+    listed = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"], cwd=root,
+                            capture_output=True, check=True).stdout.decode("utf-8").split("\0")
+    paths = sorted(p for p in listed if p and (root / p).is_file())
+
+    def read(path):
+        data = (root / path).read_bytes()
+        return None if b"\0" in data else data.decode("utf-8", errors="replace")
+
+    problems, definitions, seen = [], {}, set()
+    spec_paths = [p for p in paths if p.startswith(specs) and p.endswith(".html")]
+    for path in spec_paths:
+        items = criteria(read(path) or "")
+        if items is None:
+            problems.append(f'{path}: no acceptance section — add <section data-role="acceptance"> with one <li> per criterion,'
+                            " each starting with its id AC-<feature>-<n>.")
+            continue
+        if not items:
+            problems.append(f"{path}: the acceptance section has no criteria — add one <li> per criterion, each starting with its id.")
+        for _, inner in items:
+            ids = list(dict.fromkeys(AC_RE.findall(inner)))
+            if not ids:
+                problems.append(f'{path}: a criterion without an id: "{plain(inner)}" — start it with the next free'
+                                " AC-<feature>-<n> (vdoc.py ids).")
+            elif len(ids) > 1:
+                problems.append(f'{path}: one criterion has several ids ({" ".join(ids)}): "{plain(inner)}" — split it,'
+                                " one criterion per id.")
+                seen |= set(ids)
+            else:
+                definitions.setdefault(ids[0], []).append(path)
+    for cid, where in sorted(definitions.items()):
+        if len(where) > 1:
+            problems.append(f"{cid} is defined twice ({','.join(sorted(set(where)))}) — an id names one criterion for good:"
+                            " give the newer one the next free number.")
+    for path in spec_paths:
+        for number, line in enumerate((read(path) or "").splitlines(), 1):
+            for cid in dict.fromkeys(AC_RE.findall(line)):
+                if cid not in definitions and cid not in seen:
+                    problems.append(f"{path}:{number}: mentions {cid}, which no acceptance section defines — define it there"
+                                    " or remove the mention.")
+
+    trace = []
+    for path in paths:
+        if path.startswith(specs) or any(g.match(path) for g in prose):
+            continue
+        text = read(path)
+        if text is None or not AC_RE.search(text):
+            continue
+        kind = next((name for name, globs in kinds if any(g.match(path) for g in globs)), None)
+        for number, line in enumerate(text.splitlines(), 1):
+            for cid in dict.fromkeys(AC_RE.findall(line)):
+                if kind is None:
+                    problems.append(f"{cid} at {path}:{number}: not a guardrail — nothing the gate runs reads this file. Move"
+                                    f" the id to the test, lint rule or config that proves the criterion (kinds: {a.config}).")
+                elif cid not in definitions:
+                    problems.append(f"{cid} at {path}:{number}: no spec defines this criterion — restore it in the spec, or"
+                                    " delete or rename the guardrail's id.")
+                else:
+                    trace.append((cid, kind, path, number))
+    guarded = {t[0] for t in trace}
+    for cid in sorted(definitions):
+        if cid not in guarded:
+            problems.append(f"{cid}: no guardrail — name the id in a test, lint rule or config that fails when the criterion"
+                            " breaks. If no automated check can prove it, ask the owner whether it becomes plain description"
+                            " in the spec or leaves the spec.")
+    if a.id:
+        trace = [t for t in trace if t[0] == a.id]
+        problems = [p for p in problems if p.startswith((f"{a.id} ", f"{a.id}:"))]
+    for cid, kind, path, number in sorted(trace):
+        print(f"{cid:<16} {kind:<28} {path}:{number}")
+    for problem in problems:
+        print(problem, file=sys.stderr)
+    sys.exit(1 if problems else 0)
 
 
 def cmd_check(a):
@@ -518,6 +614,11 @@ def main():
     i.add_argument("path")
     i.add_argument("--feature", help="the feature part of AC-<feature>-<n>; defaults to the spec's slug")
     i.set_defaults(fn=cmd_ids)
+    c = sub.add_parser("criteria")
+    c.add_argument("id", nargs="?", help="show only this criterion, AC-<feature>-<n>")
+    c.add_argument("--config", default="criteria.json", help="the project's kinds of guardrail, relative to --root")
+    c.add_argument("--root", default=".", help="the repository to check")
+    c.set_defaults(fn=cmd_criteria)
     r = sub.add_parser("register")
     r.add_argument("path")
     r.add_argument("url")

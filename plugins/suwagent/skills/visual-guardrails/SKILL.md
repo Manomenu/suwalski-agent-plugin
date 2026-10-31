@@ -76,8 +76,8 @@ No CI at all: the gate is the project's local check script if there is one; say 
 ## Map criteria to guardrails, once
 
 For each criterion, look for what asserts its observable result: first by its id
-(`AC-<feature>-<n>`; tests and lint rules name it, and a project may have a check that lists
-them), then by the nouns of the criterion (the endpoint, screen, field, message, error code),
+(`AC-<feature>-<n>`; tests and lint rules name it; a project with a `criteria.json` lists them
+with `vdoc.py criteria`), then by the nouns of the criterion (the endpoint, screen, field, message, error code),
 by the spec's slug, and by the code paths the criterion runs
 through. Then give it one status:
 
