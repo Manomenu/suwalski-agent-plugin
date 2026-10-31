@@ -1,6 +1,6 @@
 ---
 name: visual-recap
-description: Explain finished work (the current branch, a commit range, a PR, or uncommitted changes) as a visual recap HTML page at a high level, without code or diffs. It covers what now exists, how it works (elements and their roles, a walkthrough of a real scenario, before/after behaviour, diagrams), the acceptance criteria checked against the spec/plan with evidence, deviations from the plan, verification results, and where a reviewer should look. Use after implementing a larger change, before review or merge, and when the user asks for a recap, a summary of changes, "co zrobiłeś", "podsumuj zmiany", "jak to zaimplementowałeś".
+description: Explain finished work (the current branch, a commit range, a PR, or uncommitted changes) as a visual recap HTML page at a high level, without code or diffs. It covers what now exists, how it works (elements and their roles, a walkthrough of a real scenario, before/after behaviour, diagrams), the acceptance criteria checked against the spec/plan with evidence, the guardrail written for each criterion and how it really guards it, deviations from the plan, verification results, and where a reviewer should look. Use after implementing a larger change, before review or merge, and when the user asks for a recap, a summary of changes, "co zrobiłeś", "podsumuj zmiany", "jak to zaimplementowałeś".
 when_to_use: Work on a multi-file change has just been finished or a branch is ready for review; or the user says "visual recap", "recap", "podsumowanie", "pokaż co się zmieniło", "wyjaśnij implementację", "review this branch/PR".
 argument-hint: "[branch | base...head | PR number | commit]"
 ---
@@ -73,6 +73,23 @@ a tiny change that is clearer described in one sentence.
 3. `acceptance`: if a spec or plan exists, every acceptance criterion as a `checks` item,
    starting with the spec's id (`AC-<feature>-<n>`), with `data-status` and `evidence`. Without a spec, list what the change claims to do,
    with evidence.
+3b. `guardrails`: **What keeps each criterion true**. `acceptance` says a criterion passes
+   today; this section says what will catch it if someone breaks it tomorrow. For every
+   criterion of `acceptance`, one row of a `table`: the criterion's id · the guardrail written
+   or relied on for it (kind: unit, integration, e2e, contract test, lint or type rule,
+   schema check; test name or rule id) · **its path**: the repository-relative path to the
+   file that holds it, with the line (`tests/export/test_csv.py:42`), so the reader can open
+   it; for a lint, type or schema rule, the path to the rule or its config · **how it guards**, in plain words: what it sets
+   up, what observable result it asserts (the value, message, status, screen state or limit
+   the criterion names), and which concrete break would turn it red · the gate job that runs
+   it · how that was established (`probed`: you broke the behaviour and watched it fail, or
+   `read`: judged from its assertions). A test that only touches the code path, mocks away
+   the part the criterion is about, or isn't run on the gate is not a guardrail: say so in
+   the row, and mark the criterion's `acceptance` item `partial` or list it under
+   `followups`. A criterion with no guardrail gets a `none` row, never a silent gap. When a
+   criterion's guarding is not obvious from one sentence, follow the table with a short
+   walkthrough of that guardrail. For a full audit with break probes, point to
+   `/suwagent:visual-guardrails`.
 4. `how`: **How it works**, the heart of the recap:
    - a Mermaid diagram of the structure or flow after the change, or a before/after pair in
      `cols` when the structure itself changed; a `sequenceDiagram` for a new request path;
