@@ -41,6 +41,14 @@ What to specify: $ARGUMENTS (if empty, use the change being discussed in the con
 - **Acceptance criteria are the contract.** Each one is observable and checkable (a user
   action and the visible result, or an input and its output), concrete enough that
   `/visual-recap` can later mark it pass or fail with evidence.
+- **Every criterion has an id**, `AC-<feature>-<n>` (`AC-export-csv-3`), shown at the start of its
+  item. Tests and lint rules name the id, so each criterion can be traced to the guardrails that
+  keep it true (`/suwagent:visual-guardrails`, and a project's own check when it has one). Write the
+  criteria without ids and run `vdoc.py ids <spec>`: it numbers the new ones and never reuses a
+  number, not even one of a criterion dropped earlier (it reads the folder's git history). An id
+  stays with its criterion for good: never renumber, because a guardrail of the old number would
+  silently guard the new text. `check` fails on a criterion without an id, with two, or with an id
+  another spec of the folder defines.
 
 ## Sections, in order
 
@@ -62,7 +70,8 @@ Leave out a section that has nothing to say. Never write one that only says "N/A
    one per new state (empty, loading, error, success). Real labels in the user's language.
 8. `data`: only if a contract changes: a new field, an API, a file format, an event. An
    `erDiagram` or a table of fields with types and meaning.
-9. `acceptance`: a `checks` list without statuses, 4-12 items.
+9. `acceptance`: a `checks` list without statuses, 4-12 items, each starting with its id
+   (`vdoc.py ids`).
 10. `risks`: real risks and assumptions (`callout risk` / `callout assumption`). Include
     rollout and migration concerns if users or data are affected.
 11. `questions`: the single Open questions form, each question with a recommended answer.

@@ -247,15 +247,17 @@ keeps the code working after each one.
 
 ```html
 <ul class="checks">
-  <li>Przycisk eksportu widoczny tylko dla roli <code>analyst</code> i wyżej</li>
-  <li data-status="pass">CSV otwiera się poprawnie w Excelu (BOM, średniki) <span class="evidence">test: export.spec.ts › excel-compat</span></li>
+  <li><code>AC-export-csv-1</code> Przycisk eksportu widoczny tylko dla roli <code>analyst</code> i wyżej</li>
+  <li data-status="pass"><code>AC-export-csv-2</code> CSV otwiera się poprawnie w Excelu (BOM, średniki) <span class="evidence">test: export.spec.ts › excel-compat</span></li>
   <li data-status="fail">… <span class="evidence">why it fails</span></li>
   <li data-status="partial">…</li>
   <li data-status="skipped">…</li>
 </ul>
 ```
 
-In a spec, the items have no status: they are the contract. In a recap, give each one a
+In a spec, the items have no status: they are the contract, and each starts with its id
+`AC-<feature>-<n>`, which `vdoc.py ids` assigns. A recap, deviation, QA or guardrails page
+quotes the same id for the same criterion. In a recap, give each one a
 status and evidence (a test name, a command and its output, a file:line).
 
 ## Table

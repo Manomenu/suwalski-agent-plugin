@@ -9,6 +9,7 @@ visual-guardrails) and boards.
     vdoc.py links PATH                            the page's published artifact URL and its sibling documents
     vdoc.py register PATH URL                     record the published artifact in KIND/claude-artifacts.md
     vdoc.py refresh PATH                          give an older page the current template's CSS and JS, content kept
+    vdoc.py ids SPEC [--feature F]                give each acceptance criterion of a spec its id AC-F-<n>, never reused
     vdoc.py shot URL|PATH OUT.png [--size WxH]    screenshot a page with an installed headless browser
          [--only ID] [--theme T] [--scale N] [--crop]   one section of a suwagent page, themed, sharp, trimmed
     vdoc.py render PATH [OUTDIR] [--picture]      every <section id> of a page as <id>-light.png and <id>-dark.png
@@ -42,6 +43,10 @@ ATTR_RE = re.compile(r'([\w-]+)=(?:"([^"]*)"|\'([^\']*)\')')
 ROW_RE = re.compile(r"^\| (?P<title>.*?) \| \[(?P<file>[^\]]+)\]\([^)]*\) \| <?(?P<url>https://[^ >|]+)>? \| (?P<date>[^|]*?) \|$")
 ARTIFACT_URL_RE = re.compile(r"^https://claude\.ai/(?:code/)?artifact/[\w-]+$")
 IMG_RE = re.compile(r'<img\b[^>]*\bsrc="([^"]+)"')
+# A criterion's id, AC-<feature>-<n>: guardrails (tests, lint rules) name it, so code and spec stay traceable.
+AC_RE = re.compile(r"\bAC-[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*-\d+\b")
+ACCEPTANCE_RE = re.compile(r'(<section\b[^>]*data-role="acceptance"[^>]*>)(.*?)(</section>)', re.S)
+LI_RE = re.compile(r"(<li\b[^>]*>)(.*?)(</li>)", re.S)
 CHROMES = ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "chrome", "microsoft-edge", "msedge",
            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
            "/Applications/Chromium.app/Contents/MacOS/Chromium",
@@ -145,6 +150,81 @@ def cmd_refresh(a):
     print(f"refreshed {path} from {TEMPLATE.name}" + ("" if text != old else " (already current)"))
 
 
+def criteria(text):
+    """The <li> items of a spec's acceptance section, as (opening tag, inner HTML) pairs; None without the section."""
+    m = ACCEPTANCE_RE.search(text)
+    return None if not m else [(li[1], li[2]) for li in LI_RE.finditer(m[2])]
+
+
+def plain(inner):
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", inner)).strip()[:60]
+
+
+def used_ids(folder, feature):
+    """Every number of AC-<feature>-<n> in the specs of the folder, and in their git history: a dropped criterion keeps its id."""
+    pattern = re.compile(rf"\bAC-{re.escape(feature)}-(\d+)\b")
+    found = set()
+    for spec in folder.glob("*.html"):
+        found |= {int(n) for n in pattern.findall(spec.read_text(encoding="utf-8"))}
+    try:
+        log = subprocess.run(["git", "log", "--all", "-p", "--", "."], cwd=folder, capture_output=True,
+                             text=True, encoding="utf-8", errors="replace", check=False).stdout
+        found |= {int(n) for n in pattern.findall(log)}
+    except OSError:
+        pass
+    return found
+
+
+def cmd_ids(a):
+    path = Path(a.path)
+    text = path.read_text(encoding="utf-8")
+    feature = a.feature or re.sub(r"^\d{4}-\d{2}-\d{2}-", "", path.stem)
+    if not re.fullmatch(r"[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*", feature):
+        sys.exit(f'"{feature}" cannot be the feature of an id: pass --feature with kebab-case words starting with a letter')
+    if criteria(text) is None:
+        sys.exit('no <section data-role="acceptance">: write the criteria as <li> items of it first')
+    taken = used_ids(path.parent, feature)
+    assigned = []
+
+    def number(li):
+        if AC_RE.search(li[2]):
+            return li[0]
+        n = max(taken, default=0) + 1
+        taken.add(n)
+        assigned.append(f"AC-{feature}-{n}  {plain(li[2])}")
+        return f"{li[1]}<code>AC-{feature}-{n}</code> {li[2].lstrip()}{li[3]}"
+
+    section = ACCEPTANCE_RE.search(text)
+    text = text[:section.start(2)] + LI_RE.sub(number, section[2]) + text[section.end(2):]
+    path.write_text(text, encoding="utf-8")
+    print("\n".join(assigned) if assigned else "every criterion already has its id")
+
+
+def spec_problems(path, text):
+    """Errors in a spec's criteria: each has exactly one id, and no other spec of the folder defines it."""
+    items = criteria(text)
+    if items is None:
+        return []
+    errors, mine = [], []
+    for _, inner in items:
+        ids = list(dict.fromkeys(AC_RE.findall(inner)))
+        if not ids:
+            errors.append(f'criterion without an id: "{plain(inner)}"; run `vdoc.py ids {path.as_posix()}`')
+        elif len(ids) > 1:
+            errors.append(f'one criterion has several ids ({" ".join(ids)}): "{plain(inner)}"; split it, one criterion per id')
+        else:
+            mine.append(ids[0])
+    for dup in sorted({i for i in mine if mine.count(i) > 1}):
+        errors.append(f"{dup} is defined twice in this spec; an id names one criterion: run `vdoc.py ids` after removing one")
+    for other in sorted(path.parent.glob("*.html")):
+        if other.resolve() == path.resolve():
+            continue
+        theirs = {AC_RE.search(inner)[0] for _, inner in (criteria(other.read_text(encoding="utf-8")) or []) if AC_RE.search(inner)}
+        for dup in sorted(set(mine) & theirs):
+            errors.append(f"{dup} is also defined in {other.name}; give this criterion a new id: remove it and run `vdoc.py ids`")
+    return errors
+
+
 def cmd_check(a):
     path = Path(a.path)
     text = path.read_text(encoding="utf-8")
@@ -204,6 +284,8 @@ def cmd_check(a):
             errors.append(f"image {src} does not exist next to the page")
         else:
             images.append(src)
+    if kind == "spec":
+        errors += spec_problems(path, body)
     if re.search(r"<(?:html|head|body|style)[\s>]", body, re.I):
         errors.append("the content area contains <html>, <head>, <body> or <style>; use the template's classes")
     for e in errors:
@@ -432,6 +514,10 @@ def main():
         s = sub.add_parser(name)
         s.add_argument("path")
         s.set_defaults(fn=fn)
+    i = sub.add_parser("ids")
+    i.add_argument("path")
+    i.add_argument("--feature", help="the feature part of AC-<feature>-<n>; defaults to the spec's slug")
+    i.set_defaults(fn=cmd_ids)
     r = sub.add_parser("register")
     r.add_argument("path")
     r.add_argument("url")

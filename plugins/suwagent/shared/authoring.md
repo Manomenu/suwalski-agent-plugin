@@ -74,7 +74,8 @@ The helper is `${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py` (Python 3, standard librar
    session's browser tool (Claude in Chrome, the built-in browser, Playwright) and save the
    PNG to the same place. Never shoot screens with real customer data or secrets for a page
    that gets published; use test data, or keep the page `local`.
-3. **Check it**, and fix every ERROR:
+3. **Check it**, and fix every ERROR. A spec numbers its acceptance criteria first with
+   `vdoc.py ids <spec>`:
    ```bash
    python3 "${CLAUDE_PLUGIN_ROOT}/scripts/vdoc.py" check docs/visual/plan/2026-10-25-export-csv.html
    ```

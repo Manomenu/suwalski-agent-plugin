@@ -70,8 +70,8 @@ a tiny change that is clearer described in one sentence.
 2. `tldr`: what now exists and the verdict in 2-4 sentences, with a 🟢 (done and verified),
    🟡 (done, something pending) or 🔴 (broken or blocked) at the start. `stats`: elements
    added/changed, tests added, criteria met (e.g. 7/8).
-3. `acceptance`: if a spec or plan exists, every acceptance criterion as a `checks` item
-   with `data-status` and `evidence`. Without a spec, list what the change claims to do,
+3. `acceptance`: if a spec or plan exists, every acceptance criterion as a `checks` item,
+   starting with the spec's id (`AC-<feature>-<n>`), with `data-status` and `evidence`. Without a spec, list what the change claims to do,
    with evidence.
 4. `how`: **How it works**, the heart of the recap:
    - a Mermaid diagram of the structure or flow after the change, or a before/after pair in
