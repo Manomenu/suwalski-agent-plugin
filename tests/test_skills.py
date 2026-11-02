@@ -48,9 +48,6 @@ class Skills(unittest.TestCase):
         self.assertIn(str(PLUGIN / "hooks" / "context" / "method.md"), out)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 class SessionContext(unittest.TestCase):
     def test_the_session_start_output_stays_under_the_hook_output_cap(self):
@@ -60,3 +57,7 @@ class SessionContext(unittest.TestCase):
         out = subprocess.run(["sh", str(PLUGIN / "scripts" / "session-context.sh")], capture_output=True, text=True,
                              encoding="utf-8", env={"PATH": "/usr/bin:/bin"}, check=True).stdout
         self.assertLess(len(out), 9500, f"session context is {len(out)} characters; shorten hooks/context/*.md")
+
+
+if __name__ == "__main__":
+    unittest.main()
