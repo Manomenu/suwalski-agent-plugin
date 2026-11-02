@@ -34,8 +34,17 @@ Requirements: `git` and `python3` (standard library only).
 </picture>
 
 You don't have to remember any command: the agent offers each page in one line when a task is big
-enough. Every page is a self-contained HTML file in `docs/visual/<spec|plan|recap|deviation|qa|guardrails>/`, and by
+enough. Every page is a self-contained HTML file in `docs/visual/<spec|plan|recap|deviation|qa|guardrails|review>/`, and by
 default also a private claude.ai artifact you can open and comment on from any device.
+
+Three skills carry the method around the pages. `/suwagent:task-triage` sizes a task before anything
+else (S: a ticket and a test, M: a delta in the feature's living spec, L: a spec and a plan) and names
+the spec it belongs to. `/suwagent:review-triage` tells a reviewer which of two paths a finished change
+takes: ordinary (read the spec, the guardrails page and the recap; a separate agent reads the diff) or
+careful (read the diff too), decided by a short always-careful list, not by a ladder of trust levels.
+`/suwagent:agent-review` is that separate reviewer: a subagent with a clean context reads the diff
+against the spec and writes `docs/visual/review/`, findings with `file:line` and a severity, scope
+beyond the spec included, and never re-judges the concept.
 
 `/suwagent:visual-deviation` is the short alternative to a recap: only where the build departs from
 the spec, each difference with what was promised, what was built, why, and keep / fix / decide.
@@ -122,9 +131,10 @@ docs/visual/recap/
 docs/visual/deviation/
 docs/visual/qa/
 docs/visual/guardrails/
+docs/visual/review/
 ```
 
-The agent offers to add these lines when it writes a plan, recap, QA or guardrails page in a repository that doesn't
+The agent offers to add these lines when it writes a plan, recap, QA, guardrails or review page in a repository that doesn't
 ignore them yet.
 
 This is what one looks like — [the recap of this repository](docs/visual/recap/2026-10-25-suwagent-plugin.html), in Polish:
@@ -209,7 +219,7 @@ The working agreement is plain Markdown that a `SessionStart` hook adds to every
 | File | Part |
 | :- | :- |
 | [`working-with-user.md`](plugins/suwagent/hooks/context/working-with-user.md) | language, length, pictures over prose, no raw code, honest status (always on) |
-| [`visual-workflow.md`](plugins/suwagent/hooks/context/visual-workflow.md) | when to offer a spec, plan or recap, and which way of working to recommend |
+| [`visual-workflow.md`](plugins/suwagent/hooks/context/visual-workflow.md) | the method: triage, one living spec per feature, criteria as guardrails, contracts on boundaries, the gate, two review paths, brownfield order; when to offer each page, and which way of working to recommend |
 | [`quick-recap.md`](plugins/suwagent/hooks/context/quick-recap.md) | the 🟢 🟡 🔴 status line |
 | [`mandatory-docs.md`](plugins/suwagent/hooks/context/mandatory-docs.md) | docs before code |
 

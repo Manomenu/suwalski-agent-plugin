@@ -1,6 +1,6 @@
 # Authoring a suwagent visual document
 
-Shared rules for `visual-spec`, `visual-plan`, `visual-recap`, `visual-deviation`, `visual-qa`, `visual-guardrails` and the boards of `visual-readme`. The block catalog is in
+Shared rules for `visual-spec`, `visual-plan`, `visual-recap`, `visual-deviation`, `visual-qa`, `visual-guardrails`, `agent-review` and the boards of `visual-readme`. The block catalog is in
 `components.md` next to this file.
 
 ## Why the document exists
@@ -13,7 +13,7 @@ spatial, real names (files, functions, fields) instead of vague nouns, and nothi
 
 ## Where the files go
 
-One folder per kind. The spec, plan, recap, deviation, QA and guardrails page of the same piece of work
+One folder per kind. The spec, plan, recap, deviation, QA, guardrails and review page of the same piece of work
 share one file name, so they find and link to each other:
 
 ```
@@ -23,6 +23,7 @@ docs/visual/recap/2026-10-25-export-csv.html
 docs/visual/deviation/2026-10-25-export-csv.html
 docs/visual/qa/2026-10-25-export-csv.html
 docs/visual/guardrails/2026-10-25-export-csv.html
+docs/visual/review/2026-10-25-export-csv.html
 docs/visual/recap/claude-artifacts.md      ← links to the published artifacts of this folder
 ```
 

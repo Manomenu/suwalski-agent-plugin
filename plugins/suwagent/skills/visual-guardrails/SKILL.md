@@ -34,6 +34,15 @@ What to check: $ARGUMENTS
 
 ## Rules
 
+- **Not the author.** The judgement of whether a guardrail really guards must not come from
+  the session that wrote the guardrail: an author's session grades its own homework. If this
+  session wrote any of the code or tests under review, delegate the mapping, the reading of
+  assertions and the break probe to a subagent with a clean context (the Agent tool,
+  general-purpose), hand it the spec, the gate and the rules of this skill, and build the
+  page from its report. The page says who judged. The human then approves or rejects per
+  criterion from the page and opens a test file only where the verdict is `weak` or `none`.
+- **One merge request.** The page is valid until the merge request closes; it is not kept up
+  to date afterwards, and it stays out of git.
 - **Read-only.** Change no code, tests or CI in the user's working tree. The only file you
   write is the page; the break probe below runs in a throwaway git worktree. Filling the gaps
   is separate work the user decides on afterwards.

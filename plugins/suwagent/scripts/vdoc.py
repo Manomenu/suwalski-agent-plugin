@@ -34,7 +34,7 @@ from array import array
 from pathlib import Path
 
 TEMPLATE = Path(__file__).resolve().parent.parent / "shared" / "template.html"
-KINDS = ("spec", "plan", "recap", "deviation", "qa", "guardrails")
+KINDS = ("spec", "plan", "recap", "deviation", "qa", "guardrails", "review")
 LABELS = {"qa": "QA"}  # nav link text where capitalize() would read wrong
 BOARD = "board"
 REGISTRY = "claude-artifacts.md"
@@ -64,6 +64,7 @@ EXPECTED = {
     "deviation": ["tldr", "deviations"],
     "qa": ["tldr", "environment", "scenarios", "results"],
     "guardrails": ["tldr", "gate", "coverage"],
+    "review": ["tldr", "findings"],
 }
 
 
@@ -75,7 +76,7 @@ def kind_of(path):
     """The document kind is the name of the folder it sits in: docs/visual/<kind>/<file>.html."""
     kind = path.resolve().parent.name
     if kind not in KINDS:
-        sys.exit(f"{path} is not in a docs/visual/<spec|plan|recap|deviation|qa|guardrails>/ folder")
+        sys.exit(f"{path} is not in a docs/visual/<spec|plan|recap|deviation|qa|guardrails|review>/ folder")
     return kind
 
 

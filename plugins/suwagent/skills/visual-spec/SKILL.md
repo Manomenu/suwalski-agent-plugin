@@ -9,7 +9,14 @@ argument-hint: "[what to specify]"
 
 A spec settles **what** the change does and **why**, so the user can approve it before anyone
 plans **how**. It says nothing about files or functions to change. That belongs in
-`/visual-plan`, which builds on the approved spec.
+`/visual-plan`, which builds on the approved spec. A sentence that would have to change in a
+refactor that changes no behaviour does not belong in a spec: that is the test for every line.
+
+One **living spec per feature**, not one per task. A feature is one behaviour with one owner
+("discounts"), not a project, a repository or a screen. When the spec of the feature already
+exists, a task is a **delta** in it: criteria added, changed or dropped, edited in place, with
+no changelog and no "changed from" notes; the chat message names the delta, git keeps the
+history. A new spec is written only for a new feature (`/suwagent:task-triage` tells which).
 
 Before writing, read these two files. They hold the rules shared by all three visual skills
 and the HTML blocks:
@@ -70,11 +77,26 @@ Leave out a section that has nothing to say. Never write one that only says "N/A
    one per new state (empty, loading, error, success). Real labels in the user's language.
 8. `data`: only if a contract changes: a new field, an API, a file format, an event. An
    `erDiagram` or a table of fields with types and meaning.
+8a. `contract`: only when the feature has consumers in other repositories or modules. The
+   name of the contract and where its generated artifact lives (an `openapi.json`, an event
+   schema) with the version or digest in use. Never a list of consumers: that is a snapshot
+   of other repositories' state and rots the moment one of them upgrades. Who is affected
+   by a breaking change is found when the change is made (the owner's CI diff, tickets),
+   not kept in the spec.
+8b. `decisions`: only when something was chosen between options. One sentence per decision:
+   what was chosen and why not otherwise. A decision that concerns several features goes
+   to `docs/adr/` as its own file, and the spec links to it instead of repeating it. A
+   decision is never edited; a change of mind is a new sentence or file that says what it
+   supersedes.
 9. `acceptance`: a `checks` list without statuses, 4-12 items, each starting with its id
    (`vdoc.py ids`).
 10. `risks`: real risks and assumptions (`callout risk` / `callout assumption`). Include
     rollout and migration concerns if users or data are affected.
 11. `questions`: the single Open questions form, each question with a recommended answer.
+
+Mark what is not permanent so the reader knows: a `tag` "optional" on sections 4
+(non-goals), 8a and 8b, and a `tag` "temporary" on the Open questions (they disappear
+once answered; the answer goes into the text) and on any note about this task's delta.
 
 ## Hand-off
 

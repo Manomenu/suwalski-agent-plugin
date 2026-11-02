@@ -8,7 +8,7 @@
     {
       "name": "suwagent",
       "source": "./plugins/suwagent",
-      "description": "Visual spec, plan and recap pages for reviewing agent work, plus a session hook that suggests them for larger changes."
+      "description": "Spec-driven work with guardrails: visual spec, plan, recap, guardrails and review pages, task and review triage, and a session hook that carries the method into every project."
     }
   ]
 }
