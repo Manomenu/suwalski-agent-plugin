@@ -421,8 +421,11 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
   <h2>One larger task, start to finish</h2>
   <p class="when">The agent offers each page in one line. Small changes skip all of it.</p>
   <div class="flow">
-    <div><span class="tag accent">visual-spec</span><h4>Spec</h4><p class="when">what and why</p>
-      <ul><li>goals</li><li>scenarios</li><li>UI sketches</li><li>criteria</li></ul>
+    <div><span class="tag accent">task-triage</span><h4>Size</h4><p class="when">S, M or L</p>
+      <ul><li>S: ticket + test</li><li>M: delta in spec</li><li>L: spec + plan</li></ul>
+      <div class="foot"><span class="btn ok">✅ one word</span></div></div>
+    <div><span class="tag accent">visual-spec</span><h4>Spec</h4><p class="when">one living spec per feature</p>
+      <ul><li>what and why</li><li>criteria with ids</li><li>decisions</li></ul>
       <div class="foot"><span class="btn ok">✅ Approve</span></div></div>
     <div><span class="tag accent">visual-plan</span><h4>Plan</h4><p class="when">how</p>
       <ul><li>decisions</li><li>diagram</li><li>file map</li><li>steps</li></ul>
@@ -431,9 +434,12 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
       <ul><li>docs first</li><li>autopilot, orchestrate</li><li>limit-guard</li></ul>
       <div class="foot"><span class="tag ok">tests ✓</span></div></div>
     <div><span class="tag accent">visual-recap</span><h4>Recap</h4><p class="when">what was built</p>
-      <ul><li>roles, a scenario</li><li>screenshots</li><li>criteria ✓ ✗</li></ul>
+      <ul><li>roles, a scenario</li><li>criteria ✓ ✗</li><li><b>guardrails</b> page: a check per criterion</li></ul>
       <p class="when">or <b>deviation</b>: only what differs</p>
       <div class="foot"><span class="btn ok">✅ Approve</span></div></div>
+    <div class="alt"><span class="tag note">review-triage</span><h4>Review</h4><p class="when">two paths</p>
+      <ul><li>you: spec + guardrails page</li><li><b>agent-review</b>: the diff</li><li>careful path: you too</li></ul>
+      <div class="foot"><span class="tag ok">merge</span></div></div>
     <div><span class="tag accent">visual-qa</span><h4>Test</h4><p class="when">for the tester</p>
       <ul><li>environment</li><li>what to click</li><li>expected screens</li></ul>
       <div class="foot"><span class="tag ok">pass</span> <span class="tag bad">fail</span></div></div>
@@ -446,7 +452,7 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
   </div>
   <div class="strip">
     <span class="lbl">In git, recommended</span>
-    <span class="tag warn">.gitignore</span> plan, recap, deviation, QA <code>docs/visual/{plan,recap,deviation,qa}/</code> ·
+    <span class="tag warn">.gitignore</span> plan, recap, deviation, QA, guardrails, review <code>docs/visual/{plan,recap,deviation,qa,guardrails,review}/</code> ·
     <span class="tag ok">commit</span> final spec, with the accepted deviations written in
   </div>
   <div class="term">🟢 <b>CSV export ready</b>, 14 tests pass
@@ -456,17 +462,22 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
 
 <section id="skills">
   <div class="group">📄 Visual documents</div>
-  <div class="cards" style="--cols:4">
+  <div class="cards" style="--cols:3">
     <div><span class="ico">🎯</span><h4><code>visual-spec</code></h4><p class="when">before planning a larger change</p><p>problem, goals, scenarios, edge cases, UI sketches, acceptance criteria</p><div class="foot"><span class="tag accent">what and why</span></div></div>
     <div><span class="ico">🗺️</span><h4><code>visual-plan</code></h4><p class="when">before writing code</p><p>decisions, architecture diagram, file map, ordered steps, risks</p><div class="foot"><span class="tag accent">how</span></div></div>
     <div><span class="ico">🔍</span><h4><code>visual-recap</code></h4><p class="when">after the work is done</p><p>roles, a real scenario, annotated screenshots, criteria with evidence</p><div class="foot"><span class="tag accent">what was built</span></div></div>
     <div><span class="ico">↔️</span><h4><code>visual-deviation</code></h4><p class="when">you want only the differences</p><p>where the build departs from the spec: promised vs built, why, keep / fix / decide</p><div class="foot"><span class="tag accent">accepted ones go into the final spec</span></div></div>
     <div><span class="ico">🧪</span><h4><code>visual-qa</code></h4><p class="when">work goes to a tester</p><p>where to test, scenarios as user clicks, the expected screen for each, a results sheet</p><div class="foot"><span class="tag accent">for the tester</span></div></div>
+    <div><span class="ico">🛡️</span><h4><code>visual-guardrails</code></h4><p class="when">before a spec'd feature is merged</p><p>criterion → guardrail matrix: is each one guarded on the gate, and would the guardrail fail if the behaviour broke</p><div class="foot"><span class="tag accent">judged by an agent that did not write the code</span></div></div>
+    <div><span class="ico">🔎</span><h4><code>agent-review</code></h4><p class="when">a change is ready for review</p><p>a separate reviewer reads the diff: bugs, edge cases, scope beyond the spec, each with file:line and a severity</p><div class="foot"><span class="tag accent">you read this, not the diff</span></div></div>
     <div><span class="ico">⚖️</span><h4><code>plan-judge</code></h4><p class="when">2+ plans for one task</p><p>compared against the real code: adopt, merge or send back</p><div class="foot"><span class="tag accent">several plans → 1</span></div></div>
     <div><span class="ico">🖼️</span><h4><code>visual-readme</code></h4><p class="when">when you ask for it</p><p>a README told in pictures like these, light and dark, redrawn from one source page</p><div class="foot"><span class="tag note">you start it</span></div></div>
   </div>
   <div class="group">⚙️ Ways of working</div>
-  <div class="cards">
+  <div class="cards" style="--cols:4">
+    <div><span class="ico">📏</span><h4><code>task-triage</code></h4><p class="when">a task starts</p><p>S (ticket + test), M (delta in the feature's living spec) or L (spec + plan), and which spec it belongs to</p><div class="foot"><span class="tag ok">you confirm in a word</span></div></div>
+    <div><span class="ico">🚦</span><h4><code>review-triage</code></h4><p class="when">a change is ready</p><p>ordinary path (spec, guardrails page, recap; an agent reads the diff) or careful (you read the diff too), from a short always-careful list</p><div class="foot"><span class="tag ok">no ladder of trust levels</span></div></div>
+    <div><span class="ico">🔗</span><h4><code>mr-chain</code></h4><p class="when">a feature too big for one MR</p><p>stacked merge requests, each on the previous one; fixes on the earliest branch, merged down</p><div class="foot"><span class="tag note">you start it</span></div></div>
     <div><span class="ico">🌙</span><h4><code>autopilot</code></h4><p class="when">you leave it alone with a task</p><p>no routine questions, every decision logged, ends with a recap</p><div class="foot"><span class="tag note">you start it</span></div></div>
     <div><span class="ico">🧭</span><h4><code>orchestrate</code></h4><p class="when">lots of reading, tests, mechanical edits</p><p>the main model decides; haiku and sonnet subagents do the volume, ≤ 3 at a time</p><div class="foot"><span class="tag note">you start it</span></div></div>
     <div><span class="ico">⛽</span><h4><code>limit-guard</code></h4><p class="when">long or parallel work on Pro/Max</p><p>reads real 5-hour and weekly usage, pauses at 90% / 95%</p><div class="foot"><span class="tag ok">runs inside the modes</span></div></div>
@@ -479,6 +490,7 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
   <p class="when">You don't need to remember this: the agent recommends in one line, and only you start the modes.</p>
   <div class="pick">
     <div class="if">A typo, a one-line fix, a question</div><div class="then muted">just done <small>+ status line</small></div>
+    <div class="if">A task starts and its size is not obvious</div><div class="then">task-triage <small>S, M or L</small></div>
     <div class="if">A feature whose details are still open</div><div class="then">visual-spec <small>what, why</small></div>
     <div class="if">Requirements clear, no code yet</div><div class="then">visual-plan <small>how</small></div>
     <div class="if">Claude and Codex each wrote a plan</div><div class="then">plan-judge <small>pick one</small></div>
@@ -487,6 +499,9 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
     <div class="if">A long or parallel run on a Pro/Max plan</div><div class="then ok">limit-guard <small>by itself</small></div>
     <div class="if">Work finished and checked</div><div class="then">visual-recap <small>what was built</small></div>
     <div class="if">Only want what differs from the spec</div><div class="then">visual-deviation <small>+ why</small></div>
+    <div class="if">Is the spec really guarded on the gate?</div><div class="then">visual-guardrails <small>before the merge</small></div>
+    <div class="if">A change is ready for review</div><div class="then">review-triage → agent-review <small>which path, then the diff</small></div>
+    <div class="if">A feature too big for one merge request</div><div class="then note">mr-chain <small>you start</small></div>
     <div class="if">It goes to a tester or to the client's acceptance</div><div class="then">visual-qa <small>what to click</small></div>
     <div class="if">The README is a wall of text</div><div class="then note">visual-readme <small>you start</small></div>
   </div>
