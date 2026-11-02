@@ -42,7 +42,8 @@ What to check: $ARGUMENTS
   page from its report. The page says who judged. The human then approves or rejects per
   criterion from the page and opens a test file only where the verdict is `weak` or `none`.
 - **One merge request.** The page is valid until the merge request closes; it is not kept up
-  to date afterwards, and it stays out of git.
+  to date afterwards, and it stays out of git. A page of an earlier merge request of the same
+  feature may still be on disk under the spec's slug: start over with `--force`.
 - **Read-only.** Change no code, tests or CI in the user's working tree. The only file you
   write is the page; the break probe below runs in a throwaway git worktree. Filling the gaps
   is separate work the user decides on afterwards.

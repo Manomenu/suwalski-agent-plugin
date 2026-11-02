@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Helper for suwagent visual documents (visual-spec, visual-plan, visual-recap, visual-deviation, visual-qa,
-visual-guardrails) and boards.
+visual-guardrails, agent-review) and boards.
 
     vdoc.py new KIND SLUG --title T [--lang pl]   create docs/visual/KIND/<date>-SLUG.html from the template
                                                   (KIND board: docs/visual/board/SLUG.html, a page of picture panels)

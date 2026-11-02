@@ -219,7 +219,8 @@ The working agreement is plain Markdown that a `SessionStart` hook adds to every
 | File | Part |
 | :- | :- |
 | [`working-with-user.md`](plugins/suwagent/hooks/context/working-with-user.md) | language, length, pictures over prose, no raw code, honest status (always on) |
-| [`visual-workflow.md`](plugins/suwagent/hooks/context/visual-workflow.md) | the method: triage, one living spec per feature, criteria as guardrails, contracts on boundaries, the gate, two review paths, brownfield order; when to offer each page, and which way of working to recommend |
+| [`visual-workflow.md`](plugins/suwagent/hooks/context/visual-workflow.md) | when to offer each page, which way of working to recommend, and a pointer to the method |
+| [`method.md`](plugins/suwagent/hooks/context/method.md) | the method, read by the agent when a task needs it (not printed at session start, which Claude Code caps at 10,000 characters): triage, one living spec per feature, criteria as guardrails, contracts on boundaries, the gate, two review paths, brownfield order, where each thing lives in a repository |
 | [`quick-recap.md`](plugins/suwagent/hooks/context/quick-recap.md) | the 🟢 🟡 🔴 status line |
 | [`mandatory-docs.md`](plugins/suwagent/hooks/context/mandatory-docs.md) | docs before code |
 

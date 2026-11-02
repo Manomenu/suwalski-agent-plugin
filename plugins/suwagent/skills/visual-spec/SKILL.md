@@ -96,7 +96,7 @@ Leave out a section that has nothing to say. Never write one that only says "N/A
 
 Mark what is not permanent so the reader knows: a `tag` "optional" on sections 4
 (non-goals), 8a and 8b, and a `tag` "temporary" on the Open questions (they disappear
-once answered; the answer goes into the text) and on any note about this task's delta.
+once answered; the answer goes into the text).
 
 ## Hand-off
 

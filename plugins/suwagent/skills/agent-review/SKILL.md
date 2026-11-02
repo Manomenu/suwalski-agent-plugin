@@ -40,6 +40,10 @@ tree when the branch has no commits of its own).
   loss), `should fix` (a real defect with a workaround), `nit` (clarity). No finding without a
   failure scenario; style alone is a nit at most.
 - **Read-only.** The reviewer changes nothing. Fixing is the author's next step.
+- **The spec's slug.** Create the page with the slug of the living spec the change belongs to
+  (`vdoc.py new review <spec-slug>`), so `links` finds the spec. A review page of an earlier
+  merge request of the same feature may still be on disk (the folder is gitignored): start
+  over with `--force`; a review is never carried from one merge request to the next.
 
 ## Sections, in order
 
