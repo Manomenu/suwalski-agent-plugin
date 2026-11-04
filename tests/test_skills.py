@@ -8,6 +8,12 @@ SKILLS = PLUGIN / "skills"
 FRONTMATTER = re.compile(r"\A---\n(.*?)\n---\n", re.S)
 
 
+def as_shell_path(path):
+    """The hook runs in sh, which on Windows (Git Bash) prints a C: drive path as /c/..."""
+    drive_path = re.match(r"([A-Za-z]):/(.*)", path.as_posix())
+    return f"/{drive_path[1].lower()}/{drive_path[2]}" if drive_path else path.as_posix()
+
+
 def frontmatter(path):
     m = FRONTMATTER.match(path.read_text(encoding="utf-8"))
     assert m, f"{path} has no frontmatter"
@@ -45,7 +51,7 @@ class Skills(unittest.TestCase):
         import subprocess
         out = subprocess.run(["sh", str(PLUGIN / "scripts" / "session-context.sh")], capture_output=True, text=True,
                              encoding="utf-8", env={"PATH": "/usr/bin:/bin"}, check=True).stdout
-        self.assertIn(str(PLUGIN / "hooks" / "context" / "method.md"), out)
+        self.assertIn(as_shell_path(PLUGIN / "hooks" / "context" / "method.md"), out)
 
 
 

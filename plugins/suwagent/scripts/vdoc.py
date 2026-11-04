@@ -60,7 +60,7 @@ FIREFOXES = ("firefox", "/Applications/Firefox.app/Contents/MacOS/firefox", r"C:
 EXPECTED = {
     "spec": ["tldr", "problem", "goals", "behaviour", "acceptance", "questions"],
     "plan": ["tldr", "approach", "files", "steps", "verification", "questions"],
-    "recap": ["tldr", "acceptance", "how", "files", "verification", "review"],
+    "recap": ["tldr", "how", "acceptance", "review"],
     "deviation": ["tldr", "deviations"],
     "qa": ["tldr", "environment", "scenarios", "results"],
     "guardrails": ["tldr", "gate", "coverage"],

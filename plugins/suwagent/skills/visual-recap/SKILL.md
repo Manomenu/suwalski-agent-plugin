@@ -1,6 +1,6 @@
 ---
 name: visual-recap
-description: Explain finished work (the current branch, a commit range, a PR, or uncommitted changes) as a visual recap HTML page at a high level, without code or diffs. It covers what now exists, how it works (elements and their roles, a walkthrough of a real scenario, before/after behaviour, diagrams), the acceptance criteria checked against the spec/plan with evidence, the guardrail written for each criterion and how it really guards it, deviations from the plan, verification results, and where a reviewer should look. Use after implementing a larger change, before review or merge, and when the user asks for a recap, a summary of changes, "co zrobiłeś", "podsumuj zmiany", "jak to zaimplementowałeś".
+description: Explain finished work (the current branch, a commit range, a PR, or uncommitted changes) to its reviewer as a visual recap HTML page at a high level, without code or diffs. It covers what now exists, how it works (elements and their roles, a walkthrough of a real scenario, and where they help class and sequence diagrams of the real types), the acceptance criteria with the check that guards each, deviations from the spec while they are undecided, and where a reviewer should look. Use after implementing a larger change, before review or merge, and when the user asks for a recap, a summary of changes, "co zrobiłeś", "podsumuj zmiany", "jak to zaimplementowałeś".
 when_to_use: Work on a multi-file change has just been finished or a branch is ready for review; or the user says "visual recap", "recap", "podsumowanie", "pokaż co się zmieniło", "wyjaśnij implementację", "review this branch/PR".
 argument-hint: "[branch | base...head | PR number | commit]"
 ---
@@ -60,6 +60,17 @@ commands from this conversation, or run the project's tests, type check and lint
 that's cheap. Never mark a criterion `pass` without evidence. If something wasn't verified,
 say so.
 
+## Who reads it
+
+The reader is the reviewer of the change. When a spec exists, the reader knows it: refer to
+its criteria by id and to the spec instead of repeating its requirements, but write every
+sentence so it is understood on its own. When there is no spec, the recap stands alone.
+Never assume the reader knows the plan: no "step 3 of the plan", no plan vocabulary the recap
+doesn't explain. Write in the language of the conversation.
+
+Where a picture explains something better than text or a table (a structure, a flow, how a
+check works), draw it; otherwise a sentence is enough.
+
 ## Sections, in order
 
 Leave out a section that has nothing to say. Skip the recap entirely (say so in one line) for
@@ -67,61 +78,48 @@ a tiny change that is clearer described in one sentence.
 
 1. **Header**, `doc-kind` "Recap", status `done` (or `draft` if work remains), with the branch
    and range in the meta line.
-2. `tldr`: what now exists and the verdict in 2-4 sentences, with a 🟢 (done and verified),
-   🟡 (done, something pending) or 🔴 (broken or blocked) at the start. `stats`: elements
-   added/changed, tests added, criteria met (e.g. 7/8).
-3. `acceptance`: if a spec or plan exists, every acceptance criterion as a `checks` item,
-   starting with the spec's id (`AC-<feature>-<n>`), with `data-status` and `evidence`. Without a spec, list what the change claims to do,
-   with evidence.
-3b. `guardrails`: **What keeps each criterion true**. `acceptance` says a criterion passes
-   today; this section says what will catch it if someone breaks it tomorrow. For every
-   criterion of `acceptance`, one row of a `table`: the criterion's id · the guardrail written
-   or relied on for it (kind: unit, integration, e2e, contract test, lint or type rule,
-   schema check; test name or rule id) · **its path**: the repository-relative path to the
-   file that holds it, with the line (`tests/export/test_csv.py:42`), so the reader can open
-   it; for a lint, type or schema rule, the path to the rule or its config · **how it guards**, in plain words: what it sets
-   up, what observable result it asserts (the value, message, status, screen state or limit
-   the criterion names), and which concrete break would turn it red · the gate job that runs
-   it · how that was established (`probed`: you broke the behaviour and watched it fail, or
-   `read`: judged from its assertions). A test that only touches the code path, mocks away
-   the part the criterion is about, or isn't run on the gate is not a guardrail: say so in
-   the row, and mark the criterion's `acceptance` item `partial` or list it under
-   `followups`. A criterion with no guardrail gets a `none` row, never a silent gap. When a
-   criterion's guarding is not obvious from one sentence, follow the table with a short
-   walkthrough of that guardrail. For a full audit with break probes, point to
-   `/suwagent:visual-guardrails`.
-4. `how`: **How it works**, the heart of the recap:
-   - a Mermaid diagram of the structure or flow after the change, or a before/after pair in
-     `cols` when the structure itself changed; a `sequenceDiagram` for a new request path;
-     a `stateDiagram-v2` for new states;
-   - **elements and their roles**: one card per new or substantially changed element, with
-     its responsibility, inputs/outputs and what it talks to, in plain words;
-   - a **walkthrough** of one or two real scenarios ("what happens when…") through those
-     elements, including what happens on the main failure path.
-5. `ui`: only if rendered UI changed. **Prefer real screenshots with numbered marks** (the
-   "Screenshot with numbered marks" block) over diagrams here: they show the reader where on
-   the screen each change is. Shoot the running app with `vdoc.py shot` (or a browser tool
-   of this session): the entry point, the changed interaction and the resulting state, and
-   the before state too when you can still reach it (the base branch, or a deployed
-   version). Frame every changed element, number it, and explain it in the legend. Fall back
-   to before/after wireframes, grounded in the components and labels in the code, only when
-   the app can't be run here, and then mark them as reconstructed from code.
-6. `data`: only if a schema, API or file format changed. The new shape as a table or an
-   `erDiagram`, and what stays compatible.
-6b. `decisions`: only when the work ran under autopilot. **Decisions made without you**: a
-   `table` of every decision from the decision log (question, choice, why, how hard to
-   undo), the hard-to-undo ones first.
-7. `deviations`: only if the work departed from the plan: planned vs done in `cols` or a
-   table, each with why.
-8. `files`: the `files` map, grouped by area (`li.dir`), with `data-change`, a one-line
-   `why` and `stat` from `--stat`. For a large change, put it in `<details>`.
-9. `verification`: the commands run and their results (a `callout ok`, or `risk` for
-   failures), plus a short excerpt of the output in `<details>` if it helps.
-10. `review`: **Where to look carefully**. The 2-5 places where a bug would hide: tricky
-    logic, concurrency, security, a migration, a shortcut taken. Describe each in words
-    (`file:line` as a reference, not a code excerpt) and say why it is risky.
-11. `followups`: known gaps, TODOs left in the code, and suggested next steps.
-12. `questions`: only if a decision is genuinely needed from the user.
+2. `tldr`: what now exists and the verdict in 1-3 sentences, with a 🟢 (done and verified),
+   🟡 (done, something pending) or 🔴 (broken or blocked) at the start. If something was not
+   run or does not pass, say it here in one sentence.
+3. `how`: **How it works**: the new or changed elements and their roles, and a walkthrough of
+   one real scenario through them, including the main failure path. Recommended when they
+   carry meaning for this change, never drawn for their own sake:
+   - a Mermaid `classDiagram` of the real types from the diff (their names as in the code)
+     and how they use each other;
+   - a `sequenceDiagram` of one real call through those types;
+   - a `stateDiagram-v2` for new states, a before/after pair in `cols` when the structure
+     itself changed.
+4. `acceptance`: if a spec exists, every acceptance criterion as a `checks` item, starting
+   with its id (`AC-<feature>-<n>`), with `data-status` and `evidence`: the test or check that
+   guards it, with its repository-relative path and line (`tests/export/test_csv.py:42`).
+   Explain how that check keeps the criterion true: what it sets up, what it asserts, and what
+   break turns it red. A criterion with no check that guards it says so. Without a spec, list
+   what the change claims to do, with evidence.
+5. `deviations`: **only while undecided**. Each place the work departs from the spec: what
+   the spec says, what was built, and a recommendation (keep it and update the spec, or fix
+   the code). The section is temporary: once the user decides, an accepted deviation goes
+   into the spec and a rejected one into the code, and the section is removed.
+6. `review`: **Where to look carefully**. The 2-4 places where a bug would hide: tricky logic,
+   concurrency, security, a migration, a shortcut taken. Describe each in words (`file:line`
+   as a reference, not a code excerpt) and say why it is risky.
+
+Only when the user asks for them: `stats` (counts of elements, tests, criteria) and `files`
+(the `files` map grouped by area).
+
+## UI changes
+
+When rendered UI changed, add a `ui` section after `how`. **Prefer real screenshots with
+numbered marks** (the "Screenshot with numbered marks" block): shoot the running app with
+`vdoc.py shot` (or a browser tool of this session), the before state too when you can still
+reach it, frame and number every changed element, and explain it in the legend. Fall back to
+before/after wireframes, grounded in the code, only when the app can't be run here, and then
+mark them as reconstructed from code.
+
+## Autopilot
+
+When the work ran under autopilot, add a `decisions` section before `review`: a `table` of
+every decision from the decision log (question, choice, why, how hard to undo), the
+hard-to-undo ones first.
 
 ## Hand-off
 
