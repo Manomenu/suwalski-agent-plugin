@@ -20,6 +20,10 @@ Roles: `tldr`, `problem`, `goals`, `scenarios`, `behaviour`, `ui`, `data`, `acce
 `approach`, `architecture`, `files`, `code`, `steps`, `verification`, `risks`, `changes`,
 `deviations`, `review`, `followups`, `questions`. Use any other role you need.
 
+On a review-spec page, `vdoc.py spec-delta --into` opens each part with a band, a section with
+`class="part"` and `data-part="new|changed|removed"`. It is colored by its kind, so a reader
+scrolling the page can tell a new spec from a changed one.
+
 ## TL;DR
 
 ```html

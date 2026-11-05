@@ -438,7 +438,7 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
       <p class="when">or <b>deviation</b>: only what differs</p>
       <div class="foot"><span class="btn ok">✅ Approve</span></div></div>
     <div class="alt"><span class="tag note">review-triage</span><h4>Review</h4><p class="when">two paths</p>
-      <ul><li>you: spec + guardrails page</li><li><b>agent-review</b>: the diff</li><li>careful path: you too</li></ul>
+      <ul><li>reviewer: <b>review-spec</b> + guardrails page</li><li><b>agent-review</b>: the diff</li><li>careful path: the diff too</li></ul>
       <div class="foot"><span class="tag ok">merge</span></div></div>
     <div><span class="tag accent">visual-qa</span><h4>Test</h4><p class="when">for the tester</p>
       <ul><li>environment</li><li>what to click</li><li>expected screens</li></ul>
@@ -452,7 +452,7 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
   </div>
   <div class="strip">
     <span class="lbl">In git, recommended</span>
-    <span class="tag warn">.gitignore</span> plan, recap, deviation, QA, guardrails, review <code>docs/visual/{plan,recap,deviation,qa,guardrails,review}/</code> ·
+    <span class="tag warn">.gitignore</span> plan, recap, deviation, QA, guardrails, review, review-spec <code>docs/visual/{plan,recap,deviation,qa,guardrails,review,review-spec}/</code> ·
     <span class="tag ok">commit</span> final spec, with the accepted deviations written in
   </div>
   <div class="term">🟢 <b>CSV export ready</b>, 14 tests pass
@@ -469,9 +469,9 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
     <div><span class="ico">↔️</span><h4><code>visual-deviation</code></h4><p class="when">you want only the differences</p><p>where the build departs from the spec: promised vs built, why, keep / fix / decide</p><div class="foot"><span class="tag accent">accepted ones go into the final spec</span></div></div>
     <div><span class="ico">🧪</span><h4><code>visual-qa</code></h4><p class="when">work goes to a tester</p><p>where to test, scenarios as user clicks, the expected screen for each, a results sheet</p><div class="foot"><span class="tag accent">for the tester</span></div></div>
     <div><span class="ico">🛡️</span><h4><code>visual-guardrails</code></h4><p class="when">before a spec'd feature is merged</p><p>criterion → guardrail matrix: is each one guarded on the gate, and would the guardrail fail if the behaviour broke</p><div class="foot"><span class="tag accent">judged by an agent that did not write the code</span></div></div>
+    <div><span class="ico">📌</span><h4><code>visual-review-spec</code></h4><p class="when">a changed spec goes to a reviewer</p><p>one frozen page per task: a new spec whole, an edited one as the change, one link for the merge request</p><div class="foot"><span class="tag accent">what this task changed</span></div></div>
     <div><span class="ico">🔎</span><h4><code>agent-review</code></h4><p class="when">a change is ready for review</p><p>a separate reviewer reads the diff: bugs, edge cases, scope beyond the spec, each with file:line and a severity</p><div class="foot"><span class="tag accent">you read this, not the diff</span></div></div>
     <div><span class="ico">⚖️</span><h4><code>plan-judge</code></h4><p class="when">2+ plans for one task</p><p>compared against the real code: adopt, merge or send back</p><div class="foot"><span class="tag accent">several plans → 1</span></div></div>
-    <div><span class="ico">🖼️</span><h4><code>visual-readme</code></h4><p class="when">when you ask for it</p><p>a README told in pictures like these, light and dark, redrawn from one source page</p><div class="foot"><span class="tag note">you start it</span></div></div>
   </div>
   <div class="group">⚙️ Ways of working</div>
   <div class="cards" style="--cols:4">
@@ -482,6 +482,7 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
     <div><span class="ico">🧭</span><h4><code>orchestrate</code></h4><p class="when">lots of reading, tests, mechanical edits</p><p>the main model decides; haiku and sonnet subagents do the volume, ≤ 3 at a time</p><div class="foot"><span class="tag note">you start it</span></div></div>
     <div><span class="ico">⛽</span><h4><code>limit-guard</code></h4><p class="when">long or parallel work on Pro/Max</p><p>reads real 5-hour and weekly usage, pauses at 90% / 95%</p><div class="foot"><span class="tag ok">runs inside the modes</span></div></div>
     <div><span class="ico">📚</span><h4><code>mandatory-docs</code></h4><p class="when">code that uses an external API</p><p>official docs of the installed version, read first and named</p><div class="foot"><span class="tag ok">automatic</span></div></div>
+    <div><span class="ico">🖼️</span><h4><code>visual-readme</code></h4><p class="when">when you ask for it</p><p>a README told in pictures like these, light and dark, redrawn from one source page</p><div class="foot"><span class="tag note">you start it</span></div></div>
   </div>
 </section>
 
@@ -500,6 +501,7 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
     <div class="if">Work finished and checked</div><div class="then">visual-recap <small>what was built</small></div>
     <div class="if">Only want what differs from the spec</div><div class="then">visual-deviation <small>+ why</small></div>
     <div class="if">Is the spec really guarded on the gate?</div><div class="then">visual-guardrails <small>before the merge</small></div>
+    <div class="if">A changed spec goes to a reviewer</div><div class="then">visual-review-spec <small>the link for the MR</small></div>
     <div class="if">A change is ready for review</div><div class="then">review-triage → agent-review <small>which path, then the diff</small></div>
     <div class="if">A feature too big for one merge request</div><div class="then note">mr-chain <small>you start</small></div>
     <div class="if">It goes to a tester or to the client's acceptance</div><div class="then">visual-qa <small>what to click</small></div>

@@ -1,6 +1,6 @@
 ---
 name: review-triage
-description: Tell a reviewer which of the two review paths a finished change takes and what to read. Checks the change (the branch, a merge request or the working tree) against the project's always-careful list (login and permissions, payments, data migrations, code without characterization tests, and whatever the project's AGENTS.md adds), and answers in chat: the path, the reason, and the reading list: the spec, the guardrails page and the recap on the ordinary path, plus the diff, and where in it, on the careful path. Use when a change is ready for review or the user asks what to look at.
+description: Tell a reviewer which of the two review paths a finished change takes and what to read. Checks the change (the branch, a merge request or the working tree) against the project's always-careful list (login and permissions, payments, data migrations, code without characterization tests, and whatever the project's AGENTS.md adds), and answers in chat: the path, the reason, and the reading list: the review-spec page (or the spec), the guardrails page and the recap on the ordinary path, plus the diff, and where in it, on the careful path. Use when a change is ready for review or the user asks what to look at.
 when_to_use: A branch or merge request is ready for review, or the user asks "co mam przejrzeć", "którą ścieżką", "review-triage", "czy muszę czytać diff".
 argument-hint: "[branch | base...head | MR number | empty for the working tree]"
 ---
@@ -12,7 +12,7 @@ judges guardrails by reading test code. The difference is the diff.
 
 | Path | Human reads | Diff read by | When |
 | :- | :- | :- | :- |
-| **ordinary** | the spec (or its delta), the guardrails page, the recap | a reviewing agent in its own session (`/suwagent:agent-review`) | everything not on the list |
+| **ordinary** | the review-spec page (the spec when the task changed none), the guardrails page, the recap | a reviewing agent in its own session (`/suwagent:agent-review`) | everything not on the list |
 | **careful** | the same, plus the diff, in the places this skill names | the human and the reviewing agent | the change touches the always-careful list |
 
 ## The always-careful list
@@ -34,7 +34,9 @@ Read-only. Change nothing.
    touched legacy module with no recordings in the characterization folder: careful.
 3. Answer in chat, in the user's language:
    - **Path** and the one reason (the list item it hit, or "nothing from the list").
-   - **Read**: the spec or delta, the guardrails page (if it is missing, say to run
+   - **Read**: the review-spec page (if the task added or edited a spec and it is missing, say
+     to run `/suwagent:visual-review-spec` first; the living spec is not a review link, because it
+     also holds what other tasks added), the guardrails page (if it is missing, say to run
      `/suwagent:visual-guardrails` first), the recap or deviation page.
    - On the careful path, **where in the diff**: the files and functions that touched the
      list item, so the human reads those, not everything.

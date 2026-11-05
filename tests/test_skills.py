@@ -38,13 +38,13 @@ class Skills(unittest.TestCase):
 
     def test_session_context_names_every_page_kind_and_the_method_skills(self):
         hot = (PLUGIN / "hooks" / "context" / "visual-workflow.md").read_text(encoding="utf-8")
-        self.assertIn("docs/visual/<spec|plan|recap|deviation|qa|guardrails|review>/", hot)
-        for kind in ("plan", "recap", "deviation", "qa", "guardrails", "review"):
+        self.assertIn("docs/visual/<spec|plan|recap|deviation|qa|guardrails|review|review-spec>/", hot)
+        for kind in ("plan", "recap", "deviation", "qa", "guardrails", "review", "review-spec"):
             self.assertIn(f"docs/visual/{kind}/", hot)
-        for skill in ("task-triage", "review-triage", "agent-review", "visual-guardrails"):
+        for skill in ("task-triage", "review-triage", "agent-review", "visual-guardrails", "visual-review-spec"):
             self.assertIn(f"/suwagent:{skill}", hot)
         method = (PLUGIN / "hooks" / "context" / "method.md").read_text(encoding="utf-8")
-        for phrase in ("living spec per feature", "one-way", "characterization tests", "always-careful", "docs/adr/"):
+        for phrase in ("living spec per feature", "one-way", "characterization tests", "always-careful", "docs/adr/", "visual-review-spec"):
             self.assertIn(phrase, method)
 
     def test_the_hook_names_the_method_file_by_its_absolute_path(self):

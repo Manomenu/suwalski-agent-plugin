@@ -30,11 +30,11 @@ Requirements: `git` and `python3` (standard library only).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/visual/board/img/readme/flow-dark.png">
-  <img alt="One larger task: Size with task-triage (S: ticket and test, M: delta in the spec, L: spec and plan; you confirm in a word) → Spec (one living spec per feature: what and why, criteria with ids, decisions, contract; approve) → Plan (how, approve) → Build (only after approval, docs first, optionally autopilot or orchestrate) → Recap (what was built, criteria checked, the guardrails page: does each criterion have a check that fails), or visual-deviation (only what differs) → Review (two paths: you read the spec and the guardrails page, agent-review reads the diff; on the careful path you read it too) → Test with visual-qa. On every page: comment, answer questions, Approve or Request changes, Copy feedback for the agent. In git: plan, recap, deviation, QA, guardrails and review pages in .gitignore, only the final spec committed. Answers end with a status line: 🟢 done, 🟡 pending, 🔴 waiting for you." src="docs/visual/board/img/readme/flow-light.png" width="100%">
+  <img alt="One larger task: Size with task-triage (S: ticket and test, M: delta in the spec, L: spec and plan; you confirm in a word) → Spec (one living spec per feature: what and why, criteria with ids, decisions, contract; approve) → Plan (how, approve) → Build (only after approval, docs first, optionally autopilot or orchestrate) → Recap (what was built, criteria checked, the guardrails page: does each criterion have a check that fails), or visual-deviation (only what differs) → Review (two paths: the reviewer reads the review-spec page and the guardrails page, agent-review reads the diff; on the careful path the reviewer reads it too) → Test with visual-qa. On every page: comment, answer questions, Approve or Request changes, Copy feedback for the agent. In git: plan, recap, deviation, QA, guardrails, review and review-spec pages in .gitignore, only the final spec committed. Answers end with a status line: 🟢 done, 🟡 pending, 🔴 waiting for you." src="docs/visual/board/img/readme/flow-light.png" width="100%">
 </picture>
 
 You don't have to remember any command: the agent offers each page in one line when a task is big
-enough. Every page is a self-contained HTML file in `docs/visual/<spec|plan|recap|deviation|qa|guardrails|review>/`, and by
+enough. Every page is a self-contained HTML file in `docs/visual/<spec|plan|recap|deviation|qa|guardrails|review|review-spec>/`, and by
 default also a private claude.ai artifact you can open and comment on from any device.
 
 Three skills carry the method around the pages. `/suwagent:task-triage` sizes a task before anything
@@ -42,6 +42,12 @@ else (S: a ticket and a test, M: a delta in the feature's living spec, L: a spec
 the spec it belongs to. `/suwagent:review-triage` tells a reviewer which of two paths a finished change
 takes: ordinary (read the spec, the guardrails page and the recap; a separate agent reads the diff) or
 careful (read the diff too), decided by a short always-careful list, not by a ladder of trust levels.
+`/suwagent:visual-review-spec` is what a teammate gets instead of a link to the living spec, which also
+holds whatever other tasks added and never says what this task touched. One frozen page per task, named
+after the task and computed from the merge-base by `vdoc.py spec-delta`: a new spec whole, an edited one as
+the change (criteria added, changed, dropped, new pictures, an explanation), each in its own marked part,
+so one link goes into the merge request. Review feedback changes the living spec, and the page is generated again.
+
 `/suwagent:agent-review` is that separate reviewer: a subagent with a clean context reads the diff
 against the spec and writes `docs/visual/review/`, findings with `file:line` and a severity, scope
 beyond the spec included, and never re-judges the concept.
@@ -120,7 +126,7 @@ What it cannot see: whether a guardrail would really fail when the behaviour bre
 `/suwagent:visual-guardrails` checks before a merge.
 
 **What goes into git.** Recommended: only the final spec is committed; plans, recaps, deviation,
-QA and guardrails pages are working pages of one task and go in `.gitignore`. When the task is finished, the spec
+QA, guardrails, review and review-spec pages are working pages of one task and go in `.gitignore`. When the task is finished, the spec
 is rewritten as if it had assumed the accepted deviations from the start, so the committed spec
 describes what was built, with no history of how it got there.
 
@@ -132,9 +138,10 @@ docs/visual/deviation/
 docs/visual/qa/
 docs/visual/guardrails/
 docs/visual/review/
+docs/visual/review-spec/
 ```
 
-The agent offers to add these lines when it writes a plan, recap, QA, guardrails or review page in a repository that doesn't
+The agent offers to add these lines when it writes a plan, recap, QA, guardrails, review or review-spec page in a repository that doesn't
 ignore them yet.
 
 This is what one looks like — [the recap of this repository](docs/visual/recap/2026-10-25-suwagent-plugin.html), in Polish:
@@ -148,12 +155,12 @@ This is what one looks like — [the recap of this repository](docs/visual/recap
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/visual/board/img/readme/skills-dark.png">
-  <img alt="Visual documents: visual-spec (what and why), visual-plan (how), visual-recap (what was built), visual-deviation (only the differences from the spec), visual-qa (a test guide for the tester), visual-guardrails (criterion → guardrail matrix, judged by an agent that did not write the code), agent-review (a separate reviewer reads the diff; you read this page, not the diff), plan-judge (several plans into one), visual-readme (you start it). Ways of working: task-triage (S, M or L, you confirm in a word), review-triage (ordinary or careful path, no ladder of trust levels), mr-chain (you start it; stacked merge requests), autopilot (you start it), orchestrate (you start it; the main model decides, cheaper subagents do the volume), limit-guard (pauses near the plan's limits), mandatory-docs (automatic; official docs of the installed version)." src="docs/visual/board/img/readme/skills-light.png" width="100%">
+  <img alt="Visual documents: visual-spec (what and why), visual-plan (how), visual-recap (what was built), visual-deviation (only the differences from the spec), visual-qa (a test guide for the tester), visual-guardrails (criterion → guardrail matrix, judged by an agent that did not write the code), visual-review-spec (one frozen page per task: what it did to the living specs, the link for the merge request), agent-review (a separate reviewer reads the diff; you read this page, not the diff), plan-judge (several plans into one). Ways of working: task-triage (S, M or L, you confirm in a word), review-triage (ordinary or careful path, no ladder of trust levels), mr-chain (you start it; stacked merge requests), autopilot (you start it), orchestrate (you start it; the main model decides, cheaper subagents do the volume), limit-guard (pauses near the plan's limits), mandatory-docs (automatic; official docs of the installed version), visual-readme (you start it)." src="docs/visual/board/img/readme/skills-light.png" width="100%">
 </picture>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/visual/board/img/readme/choose-dark.png">
-  <img alt="Which one, when: a typo or question → just done; a task starts and its size is not obvious → task-triage; details still open → visual-spec; requirements clear → visual-plan; two plans → plan-judge; 'do it without me' → autopilot; mostly reading, tests, mechanical edits → orchestrate; a long run on Pro/Max → limit-guard; work finished → visual-recap; only what differs from the spec → visual-deviation; is the spec really guarded on the gate → visual-guardrails; a change is ready for review → review-triage, then agent-review; a feature too big for one merge request → mr-chain; the README is a wall of text → visual-readme." src="docs/visual/board/img/readme/choose-light.png" width="100%">
+  <img alt="Which one, when: a typo or question → just done; a task starts and its size is not obvious → task-triage; details still open → visual-spec; requirements clear → visual-plan; two plans → plan-judge; 'do it without me' → autopilot; mostly reading, tests, mechanical edits → orchestrate; a long run on Pro/Max → limit-guard; work finished → visual-recap; only what differs from the spec → visual-deviation; is the spec really guarded on the gate → visual-guardrails; a spec changed and it goes to a reviewer → visual-review-spec; a change is ready for review → review-triage, then agent-review; a feature too big for one merge request → mr-chain; the README is a wall of text → visual-readme." src="docs/visual/board/img/readme/choose-light.png" width="100%">
 </picture>
 
 All skills are invoked as `/suwagent:<name>`; `/suwagent:efficient-frontier` is an alias of
@@ -279,7 +286,7 @@ After editing the plugin in a running session, run `/reload-plugins`.
 .claude-plugin/marketplace.json     the catalog: lists the plugins in this repository
 plugins/suwagent/
   .claude-plugin/plugin.json        manifest: name, description, userConfig
-  skills/visual-{spec,plan,recap,deviation,qa,guardrails}/  the visual document skills (SKILL.md each)
+  skills/visual-{spec,plan,recap,deviation,qa,guardrails,review-spec}/  the visual document skills (SKILL.md each)
   skills/visual-readme/             the README told in pictures, from a board page
   skills/mandatory-docs/            docs-before-code procedure
   skills/autopilot/ orchestrate/ plan-judge/ limit-guard/   ways of working
@@ -289,7 +296,7 @@ plugins/suwagent/
   shared/template.html              the page: CSS + JS that render every block
   shared/authoring.md               rules shared by the visual skills
   shared/components.md              the block catalog (HTML snippets)
-  scripts/vdoc.py                   new / check / open / links / register / refresh / shot / render
+  scripts/vdoc.py                   new / check / open / links / register / refresh / spec-delta / shot / render
   scripts/limits.py                 status line tap and usage check for limit-guard
   scripts/session-context.sh        prints the working agreement, part by part
   hooks/hooks.json                  SessionStart → scripts/session-context.sh

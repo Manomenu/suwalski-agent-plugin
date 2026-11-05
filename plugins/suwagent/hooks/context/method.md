@@ -22,6 +22,17 @@ The gate is the only proof: one script, --quick in the hook after every agent tu
 ## 6. Two review paths
 Review has two paths; on both the human reads the spec and the guardrails page, never the test code. /suwagent:review-triage picks: ordinary (spec, guardrails page, recap; a separate agent reads the diff through /suwagent:agent-review) or careful (the human also reads the diff) when the change touches the always-careful list: login and permissions, payments, data migrations, code without characterization tests. Guardrails and review pages are written by an agent that did not write the code, are valid until the merge request closes, and stay out of git.
 
+**What a reviewer reads of the spec.** A living spec is a bad review link in a team: it holds everything other tasks added since, and it never says what this task touched. So a task that added or edited a spec gets one /suwagent:visual-review-spec page, frozen for that task, and that page's link goes into the merge request or ticket, not the spec's:
+
+| The task | The page shows |
+| :- | :- |
+| created a spec | that spec, whole, as a copy |
+| edited a spec | only the change: what and why in plain words, criteria added, changed and dropped, new diagrams and images |
+| did both, or touched several specs | all on the one page, each in its own visibly marked part, so there is one link to paste |
+| changed no spec (size S) | no page |
+
+The living spec stays the source: review feedback changes the spec, then the page is generated again. The comparison starts at the merge-base, so what other tasks landed never shows. The page is named after the task, never the spec, because two tasks can edit one spec.
+
 ## 7. Brownfield first, then specs
 Before an agent touches legacy code it gets AGENTS.md as a map (about 100 lines, links deeper), CONTEXT.md in the modules about to be touched (purpose, traps, where to start; written by an agent, corrected by someone who knows the code), characterization tests recorded around that code before any change (they record today's behaviour without judging it; the agent records, never changes a tracked recording; a failing one is fixed in the code) and the gate script. Only then specs, only for what changes. New things grow as separate projects in the same solution, one per group of features, with a boundary enforced by an architecture test or analyzer, not as folders in existing projects and not as microservices; legacy reaches a module only through an adapter. Greenfield starts from the owner's template.
 
@@ -34,4 +45,4 @@ Before an agent touches legacy code it gets AGENTS.md as a map (about 100 lines,
 | docs/adr/ | decisions that span features; never edited, superseded by a new file | on demand |
 | the gate (check script, tests, lint, hooks) | the rules that are enforced | after every turn (quick) and before push / in CI (full) |
 | CONTEXT.md in a legacy module | purpose, traps, where to start | when the task enters the module |
-| plans, recaps, guardrails and review pages | working pages of one task, gitignored | never after the merge |
+| plans, recaps, guardrails, review-spec and review pages | working pages of one task, gitignored | never after the merge |

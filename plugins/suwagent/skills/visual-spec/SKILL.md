@@ -110,3 +110,7 @@ The spec is the one page of the task that is committed, and it is committed as t
 spec**: rewritten so that it reads as if it had assumed the deviations the user accepted (see
 `/suwagent:visual-deviation`) from the start, with no history of what changed. Its acceptance
 criteria then describe what was built and verified.
+
+Send a reviewer `/suwagent:visual-review-spec`, not a link to this page: a living spec moves as
+other tasks land, and it never says what this task touched. Publishing this page to the same
+artifact from another task moves that link too.

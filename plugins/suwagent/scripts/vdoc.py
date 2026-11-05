@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Helper for suwagent visual documents (visual-spec, visual-plan, visual-recap, visual-deviation, visual-qa,
-visual-guardrails, agent-review) and boards.
+visual-guardrails, visual-review-spec, agent-review) and boards.
 
     vdoc.py new KIND SLUG --title T [--lang pl]   create docs/visual/KIND/<date>-SLUG.html from the template
                                                   (KIND board: docs/visual/board/SLUG.html, a page of picture panels)
@@ -11,6 +11,8 @@ visual-guardrails, agent-review) and boards.
     vdoc.py refresh PATH                          give an older page the current template's CSS and JS, content kept
     vdoc.py ids SPEC [--feature F]                give each acceptance criterion of a spec its id AC-F-<n>, never reused
     vdoc.py criteria --config criteria.json [ID]  trace each criterion of a project's specs to the guardrails naming its id
+    vdoc.py spec-delta [--base REF] [--into PAGE]  what this task changed in the living specs, from the merge-base;
+                                                  --into fills a review-spec page with it
     vdoc.py shot URL|PATH OUT.png [--size WxH]    screenshot a page with an installed headless browser
          [--only ID] [--theme T] [--scale N] [--crop]   one section of a suwagent page, themed, sharp, trimmed
     vdoc.py render PATH [OUTDIR] [--picture]      every <section id> of a page as <id>-light.png and <id>-dark.png
@@ -20,6 +22,7 @@ Standard library only, so it runs wherever python3 does.
 
 import argparse
 import datetime
+import hashlib
 import html
 import json
 import re
@@ -34,8 +37,8 @@ from array import array
 from pathlib import Path
 
 TEMPLATE = Path(__file__).resolve().parent.parent / "shared" / "template.html"
-KINDS = ("spec", "plan", "recap", "deviation", "qa", "guardrails", "review")
-LABELS = {"qa": "QA"}  # nav link text where capitalize() would read wrong
+KINDS = ("spec", "plan", "recap", "deviation", "qa", "guardrails", "review", "review-spec")
+LABELS = {"qa": "QA", "review-spec": "Review spec"}  # nav link text where capitalize() would read wrong
 BOARD = "board"
 REGISTRY = "claude-artifacts.md"
 CONTENT_RE = re.compile(r"(<!-- CONTENT START -->)(.*?)(<!-- CONTENT END -->)", re.S)
@@ -48,6 +51,37 @@ IMG_RE = re.compile(r'<img\b[^>]*\bsrc="([^"]+)"')
 AC_RE = re.compile(r"\bAC-[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*-\d+\b")
 ACCEPTANCE_RE = re.compile(r'(<section\b[^>]*data-role="acceptance"[^>]*>)(.*?)(</section>)', re.S)
 LI_RE = re.compile(r"(<li\b[^>]*>)(.*?)(</li>)", re.S)
+SECTION_RE = re.compile(r"<section\b([^>]*)>(.*?)</section>", re.S)
+IMG_TAG_RE = re.compile(r"<img\b[^>]*>")
+# A part of a review-spec page the author still has to write; `check` fails while one is left.
+WRITE_MARK = "<!-- WRITE"
+BASE_REFS = ("origin/HEAD", "origin/main", "origin/master", "main", "master")
+DELTA_TEXT = {
+    "en": {
+        "kind": "Review spec", "base": "Base", "head": "Head", "branch": "Branch", "uncommitted": "uncommitted changes",
+        "tldr": "TL;DR", "write_tldr": "2-4 sentences: what this task does to the specs and what the reviewer must judge",
+        "new": "🆕 New spec: {}", "new_note": "The whole spec as it stands on this branch. It did not exist before this task.",
+        "changed": "✏️ Changed spec: {}", "changed_note": "Only what this task changes; the rest of the spec stays as committed at the base.",
+        "removed": "🗑️ Removed spec: {}", "removed_note": "This task removes the whole spec.",
+        "what": "What changed and why: {}", "write_what": "in plain words: which behaviour changes, why, and what stays as it was",
+        "write_removed": "why the spec goes, and where its behaviour went",
+        "criteria": "Criteria: {}", "id": "Criterion", "change": "Change", "was": "Was", "now": "Now",
+        "added": "added", "reworded": "changed", "dropped": "dropped",
+        "pictures": "New diagrams and images: {}",
+    },
+    "pl": {
+        "kind": "Review spec", "base": "Baza", "head": "Stan", "branch": "Branch", "uncommitted": "niezacommitowane zmiany",
+        "tldr": "TL;DR", "write_tldr": "2-4 zdania: co ten task zmienia w speckach i co recenzent ma ocenić",
+        "new": "🆕 Nowa specyfikacja: {}", "new_note": "Cała specyfikacja w stanie z tego brancha. Przed tym taskiem jej nie było.",
+        "changed": "✏️ Zmieniona specyfikacja: {}", "changed_note": "Tylko to, co zmienia ten task; reszta specyfikacji jest taka, jak w zacommitowanej bazie.",
+        "removed": "🗑️ Usunięta specyfikacja: {}", "removed_note": "Ten task usuwa całą specyfikację.",
+        "what": "Co się zmieniło i dlaczego: {}", "write_what": "prostymi słowami: które zachowanie się zmienia, dlaczego i co zostaje bez zmian",
+        "write_removed": "dlaczego specyfikacja znika i dokąd przeszło jej zachowanie",
+        "criteria": "Kryteria: {}", "id": "Kryterium", "change": "Zmiana", "was": "Było", "now": "Jest",
+        "added": "nowe", "reworded": "zmienione", "dropped": "usunięte",
+        "pictures": "Nowe schematy i obrazy: {}",
+    },
+}
 CHROMES = ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "chrome", "microsoft-edge", "msedge",
            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
            "/Applications/Chromium.app/Contents/MacOS/Chromium",
@@ -65,6 +99,7 @@ EXPECTED = {
     "qa": ["tldr", "environment", "scenarios", "results"],
     "guardrails": ["tldr", "gate", "coverage"],
     "review": ["tldr", "findings"],
+    "review-spec": ["tldr"],
 }
 
 
@@ -76,7 +111,7 @@ def kind_of(path):
     """The document kind is the name of the folder it sits in: docs/visual/<kind>/<file>.html."""
     kind = path.resolve().parent.name
     if kind not in KINDS:
-        sys.exit(f"{path} is not in a docs/visual/<spec|plan|recap|deviation|qa|guardrails|review>/ folder")
+        sys.exit(f"{path} is not in a docs/visual/<{'|'.join(KINDS)}>/ folder")
     return kind
 
 
@@ -132,6 +167,9 @@ def cmd_new(a):
         print("next: put one <section id=\"…\"> per picture between <!-- CONTENT START --> and <!-- CONTENT END -->,"
               " then `vdoc.py render` it")
         return
+    if a.kind == "review-spec":
+        print(f"next: `vdoc.py spec-delta --into {dest.as_posix()}` writes the body")
+        return
     print("next: replace the empty line between <!-- CONTENT START --> and <!-- CONTENT END --> with the document body")
     if existing:
         print("siblings for the header nav: run `vdoc.py links` on the new file")
@@ -158,8 +196,8 @@ def criteria(text):
     return None if not m else [(li[1], li[2]) for li in LI_RE.finditer(m[2])]
 
 
-def plain(inner):
-    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", inner)).strip()[:60]
+def plain(inner, limit=60):
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", inner)).strip()[:limit]
 
 
 def used_ids(folder, feature):
@@ -322,6 +360,252 @@ def cmd_criteria(a):
     sys.exit(1 if problems else 0)
 
 
+def git_out(cwd, *args):
+    """A git command's stdout, or None when it fails or git is missing."""
+    try:
+        done = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, encoding="utf-8", errors="replace", check=False)
+    except OSError:
+        return None
+    return done.stdout if done.returncode == 0 else None
+
+
+def fork_point(cwd, ref=None):
+    """(ref, merge-base with HEAD): where this branch left its base. A remote ref comes first because a local master
+    can lag behind what the branch already merged, and the other tasks' changes would then look like this task's."""
+    for candidate in [ref] if ref else BASE_REFS:
+        commit = git_out(cwd, "merge-base", "HEAD", candidate)
+        if commit:
+            return candidate, commit.strip()
+    return None, None
+
+
+def spec_body(text):
+    return (CONTENT_RE.search(text) or [None, None, text])[2]
+
+
+def spec_sections(text):
+    """A spec's sections by role, as {key: (attributes, inner HTML)}. The page frame and header don't count as its content."""
+    found = {}
+    for i, m in enumerate(SECTION_RE.finditer(spec_body(text))):
+        at = attrs(m[1])
+        key = at.get("data-role") or at.get("id") or f"section-{i + 1}"
+        found[key if key not in found else f"{key}-{i + 1}"] = (m[1], m[2])
+    return found
+
+
+def spec_criteria(text):
+    found = {}
+    for _, inner in criteria(text) or []:
+        cid = AC_RE.search(inner)
+        if cid:
+            found[cid[0]] = plain(inner, None).replace(cid[0], "", 1).strip()
+    return found
+
+
+def squeezed(inner):
+    return re.sub(r"\s+", " ", inner).strip()
+
+
+def page_title(text, fallback):
+    return (re.search(r"<title>(.*?)</title>", text, re.S) or [None, fallback])[1].strip()
+
+
+def spec_delta(folder, base):
+    """What separates the specs in `folder` (as they are on disk) from the same folder at the commit `base`."""
+    top = git_out(folder.parent, "rev-parse", "--show-toplevel")
+    if top is None:
+        sys.exit(f"{folder} is not in a git repository")
+    rel = folder.resolve().relative_to(Path(top.strip()).resolve()).as_posix()
+    listed = git_out(top.strip(), "ls-tree", "-r", "--name-only", base, "--", f"{rel}/") or ""
+    at_base = {Path(p).name for p in listed.splitlines() if Path(p).parent.as_posix() == rel and p.endswith(".html")}
+    on_disk = {p.name for p in folder.glob("*.html")}
+    delta = []
+    for name in sorted(on_disk | at_base):
+        slug = re.sub(r"^\d{4}-\d{2}-\d{2}-", "", Path(name).stem)
+        now = (folder / name).read_text(encoding="utf-8") if name in on_disk else ""
+        was = git_out(top.strip(), "show", f"{base}:{rel}/{name}") if name in at_base else ""
+        entry = {"name": name, "path": f"{rel}/{name}", "slug": slug, "title": page_title(now or was, slug), "text": now}
+        if name not in at_base:
+            delta.append({**entry, "status": "new"})
+            continue
+        was_crit = spec_criteria(was)
+        if name not in on_disk:
+            delta.append({**entry, "status": "removed", "dropped": sorted(was_crit.items())})
+            continue
+        was_sec, now_sec = spec_sections(was), spec_sections(now)
+        changed = [k for k in now_sec if k in was_sec and squeezed(now_sec[k][1]) != squeezed(was_sec[k][1])]
+        if not (changed or now_sec.keys() ^ was_sec.keys()):
+            continue
+        now_crit = spec_criteria(now)
+        old_raw = {squeezed(r[3]) for r in RAW_RE.finditer(spec_body(was)) if r[1] == "mermaid"}
+        old_src = set(IMG_RE.findall(spec_body(was)))
+        delta.append({
+            **entry, "status": "changed",
+            "sections": {"added": [k for k in now_sec if k not in was_sec], "changed": changed,
+                         "removed": [k for k in was_sec if k not in now_sec]},
+            "added": [(c, t) for c, t in now_crit.items() if c not in was_crit],
+            "reworded": [(c, was_crit[c], t) for c, t in now_crit.items() if c in was_crit and t != was_crit[c]],
+            "dropped": [(c, t) for c, t in was_crit.items() if c not in now_crit],
+            "diagrams": [r[0] for r in RAW_RE.finditer(spec_body(now)) if r[1] == "mermaid" and squeezed(r[3]) not in old_raw],
+            "images": [t for t in IMG_TAG_RE.findall(spec_body(now)) if IMG_RE.search(t) and IMG_RE.search(t)[1] not in old_src],
+        })
+    order = {"new": 0, "changed": 1, "removed": 2}
+    return sorted(delta, key=lambda e: order[e["status"]])
+
+
+def delta_fingerprint(delta):
+    """Changes when a spec's reviewed content changes, so `check` can tell that a review-spec page went stale."""
+    parts = []
+    for e in delta:
+        sections = spec_sections(e["text"])
+        parts.append(f"{e['status']} {e['path']} " + " ".join(f"{k}={squeezed(v[1])}" for k, v in sections.items()))
+    return hashlib.sha256("\n".join(parts).encode("utf-8")).hexdigest()[:16]
+
+
+def delta_lines(e):
+    yield f"{e['status'].upper():<8} {e['path']}  {html.unescape(e['title'])}"
+    if e["status"] == "changed":
+        for c, t in e["added"]:
+            yield f"  + {c}  {html.unescape(t)}"
+        for c, was, now in e["reworded"]:
+            yield f"  ~ {c}\n      was: {html.unescape(was)}\n      now: {html.unescape(now)}"
+        for c, t in e["dropped"]:
+            yield f"  - {c}  {html.unescape(t)}"
+        for label, keys in e["sections"].items():
+            if keys:
+                yield f"  sections {label}: {', '.join(keys)}"
+        if e["diagrams"]:
+            yield f"  new diagrams: {len(e['diagrams'])}"
+        if e["images"]:
+            yield f"  new images: {', '.join(IMG_RE.search(t)[1] for t in e['images'])}"
+
+
+def part_band(e, t):
+    status = e["status"]
+    return (f'<section class="part" data-part="{status}" data-role="part" id="{e["slug"]}-part">\n'
+            f'  <h2>{t[status].format(e["title"])}</h2>\n  <p><code>{e["path"]}</code>: {t[status + "_note"]}</p>\n</section>')
+
+
+def criteria_table(e, t):
+    rows = [f'<tr><td><code>{c}</code></td><td><span class="tag ok">{t["added"]}</span></td><td></td><td>{x}</td></tr>' for c, x in e.get("added", [])]
+    rows += [f'<tr><td><code>{c}</code></td><td><span class="tag warn">{t["reworded"]}</span></td><td>{was}</td><td>{now}</td></tr>' for c, was, now in e.get("reworded", [])]
+    rows += [f'<tr><td><code>{c}</code></td><td><span class="tag bad">{t["dropped"]}</span></td><td>{x}</td><td></td></tr>' for c, x in e.get("dropped", [])]
+    if not rows:
+        return ""
+    head = f'<tr><th>{t["id"]}</th><th>{t["change"]}</th><th>{t["was"]}</th><th>{t["now"]}</th></tr>'
+    return (f'<section data-role="criteria-delta" id="{e["slug"]}-criteria">\n  <h2>{t["criteria"].format(e["title"])}</h2>\n'
+            f"  <table><thead>{head}</thead><tbody>\n  " + "\n  ".join(rows) + "\n  </tbody></table>\n</section>")
+
+
+def copied_sections(e):
+    """A new spec's sections word for word. Only the ids change, so the sections of several specs can't collide on one page."""
+    out = []
+    for key, (raw, inner) in spec_sections(e["text"]).items():
+        rest = re.sub(r'\s*(?<![\w-])id="[^"]*"', "", raw)
+        out.append(f'<section id="{e["slug"]}-{key}"{rest}>{inner}</section>')
+    return out
+
+
+def copy_images(sources, page):
+    """The images a page takes from a spec have to sit next to the page, under the same relative path."""
+    spec_folder = page.parent.parent / "spec"
+    for src in sources:
+        source, target = spec_folder / src, page.parent / src
+        if "://" not in src and not src.startswith("data:") and source.is_file():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, target)
+
+
+def review_spec_body(delta, t, ref, commit, head, dirty, branch, fingerprint, kept):
+    def written(section_id, mark):
+        return kept.get(section_id) or f"\n  <h2>{mark[0]}</h2>\n  <!-- WRITE: {mark[1]} -->\n"
+
+    meta = ['<span><b>Status:</b> <span class="status draft">draft</span></span>',
+            f'<span><b>{t["base"]}:</b> <code>{ref}</code> @ <code>{commit[:8]}</code></span>',
+            f'<span><b>{t["head"]}:</b> <code>{head[:8]}</code>{" + " + t["uncommitted"] if dirty else ""}</span>']
+    if branch:
+        meta.append(f'<span><b>{t["branch"]}:</b> <code>{branch}</code></span>')
+    out = [f'<header class="doc-head" data-base="{ref}" data-spec-fingerprint="{fingerprint}">\n'
+           f'  <span class="doc-kind">{t["kind"]}</span>\n  <h1>TITLE_OF_PAGE</h1>\n'
+           '  <div class="doc-meta">\n    ' + "\n    ".join(meta) + "\n  </div>\n</header>",
+           f'<section data-role="tldr" id="tldr">{written("tldr", (t["tldr"], t["write_tldr"]))}</section>']
+    for e in delta:
+        out.append(part_band(e, t))
+        if e["status"] == "new":
+            out += copied_sections(e)
+            continue
+        what = f'{e["slug"]}-what'
+        mark = (t["what"].format(e["title"]), t["write_removed"] if e["status"] == "removed" else t["write_what"])
+        out.append(f'<section data-role="what-changed" id="{what}">{written(what, mark)}</section>')
+        table = criteria_table(e, t)
+        if table:
+            out.append(table)
+        pictures = e.get("diagrams", []) + [f'<figure class="shot"><div class="shot-img">{i}</div></figure>' for i in e.get("images", [])]
+        if pictures:
+            out.append(f'<section data-role="pictures" id="{e["slug"]}-pictures">\n  <h2>{t["pictures"].format(e["title"])}</h2>\n  '
+                       + "\n  ".join(pictures) + "\n</section>")
+    return "\n\n".join(out)
+
+
+def cmd_spec_delta(a):
+    page = Path(a.into) if a.into else None
+    if page and kind_of(page) != "review-spec":
+        sys.exit(f"{page} is not a review-spec page; create one with `vdoc.py new review-spec <task-slug>`")
+    folder = page.parent.parent / "spec" if page else Path(a.root) / "spec"
+    git_dir = folder.parent
+    if not git_dir.is_dir():
+        sys.exit(f"{git_dir} does not exist: run this from the repository root, or pass --root")
+    ref, commit = fork_point(git_dir, a.base)
+    if not commit:
+        sys.exit(f"no merge-base with {a.base or ' or '.join(BASE_REFS)}: pass the branch this one started from as --base")
+    delta = spec_delta(folder, commit)
+    if not delta:
+        message = f"no spec changed since {ref} @ {commit[:8]}: there is nothing for a review-spec page to show"
+        if page:
+            sys.exit(message)
+        print(message)
+        return
+    print(f"base: {ref} @ {commit[:8]} (merge-base)")
+    for e in delta:
+        print("\n".join(delta_lines(e)))
+    if not page:
+        return
+    text = page.read_text(encoding="utf-8")
+    current = CONTENT_RE.search(text)
+    if not current:
+        sys.exit(f"{page}: CONTENT START/END markers are missing; recreate it with `vdoc.py new`")
+    old = {attrs(m[1]).get("id"): m[2] for m in SECTION_RE.finditer(current[2])}
+    kept = {k: v for k, v in old.items() if (k == "tldr" or (k or "").endswith("-what")) and WRITE_MARK not in v}
+    lang = (re.search(r'data-lang="(\w+)"', text) or [None, "en"])[1]
+    head = (git_out(git_dir, "rev-parse", "HEAD") or "").strip()
+    dirty = bool((git_out(git_dir, "status", "--porcelain", "--", "spec") or "").strip())
+    branch = (git_out(git_dir, "branch", "--show-current") or "").strip()
+    body = review_spec_body(delta, DELTA_TEXT.get(lang, DELTA_TEXT["en"]), ref, commit, head, dirty, branch, delta_fingerprint(delta), kept)
+    body = body.replace("TITLE_OF_PAGE", page_title(text, page.stem), 1)
+    for e in delta:
+        if e["status"] == "new":
+            copy_images(IMG_RE.findall(spec_body(e["text"])), page)
+        elif e["status"] == "changed":
+            copy_images([IMG_RE.search(t)[1] for t in e["images"]], page)
+    page.write_text(CONTENT_RE.sub(lambda m: f"{m[1]}\n{body}\n{m[3]}", text, count=1), encoding="utf-8")
+    print(f"filled {page}" + (f"; kept the text you wrote in: {', '.join(sorted(kept))}. Check that it still holds" if kept else ""))
+    if WRITE_MARK in body:
+        print(f"next: replace every {WRITE_MARK} …--> with your own text, then `vdoc.py check {page.as_posix()}`")
+
+
+def review_spec_problems(path, body):
+    """(errors, warnings) of a review-spec page: parts left unwritten, and specs changed since the page was generated."""
+    errors = [f"{body.count(WRITE_MARK)} part(s) still to write: replace each {WRITE_MARK} …--> with your text"] if WRITE_MARK in body else []
+    head = re.search(r'data-base="([^"]+)" data-spec-fingerprint="([^"]+)"', body)
+    if not head:
+        return errors + ["the page was not generated: run `vdoc.py spec-delta --into` on it"], []
+    folder = path.resolve().parent.parent / "spec"
+    _, commit = fork_point(folder.parent, head[1])
+    if commit and delta_fingerprint(spec_delta(folder, commit)) != head[2]:
+        return errors, [f"a spec changed since this page was generated, so the reviewer would read an old state: run `vdoc.py spec-delta --base {head[1]} --into {path.as_posix()}` and publish again"]
+    return errors, []
+
+
 def cmd_check(a):
     path = Path(a.path)
     text = path.read_text(encoding="utf-8")
@@ -341,7 +625,7 @@ def cmd_check(a):
             errors.append("the content area is empty")
     if '<script type="module">' not in text or "feedbackText" not in text:
         errors.append("the template's script block is missing or damaged; recreate the page with `vdoc.py new`")
-    kind = (re.search(r'data-kind="(\w+)"', text) or [None, None])[1]
+    kind = (re.search(r'data-kind="([\w-]+)"', text) or [None, None])[1]
     for raw in RAW_RE.finditer(body):
         at = attrs(raw[2])
         label = f"x-{raw[1]} {at.get('data-file') or ''}".strip()
@@ -383,6 +667,9 @@ def cmd_check(a):
             images.append(src)
     if kind == "spec":
         errors += spec_problems(path, body)
+    if kind == "review-spec":
+        found, stale = review_spec_problems(path, body)
+        errors, warns = errors + found, warns + stale
     if re.search(r"<(?:html|head|body|style)[\s>]", body, re.I):
         errors.append("the content area contains <html>, <head>, <body> or <style>; use the template's classes")
     for e in errors:
@@ -620,6 +907,11 @@ def main():
     c.add_argument("--config", default="criteria.json", help="the project's kinds of guardrail, relative to --root")
     c.add_argument("--root", default=".", help="the repository to check")
     c.set_defaults(fn=cmd_criteria)
+    d = sub.add_parser("spec-delta")
+    d.add_argument("--base", help="the branch this one started from; default: origin/HEAD, origin/main, origin/master, main, master")
+    d.add_argument("--root", default="docs/visual", help="the folder that holds spec/; ignored with --into, which uses the page's own")
+    d.add_argument("--into", metavar="PAGE", help="fill this review-spec page; text already written in it is kept")
+    d.set_defaults(fn=cmd_spec_delta)
     r = sub.add_parser("register")
     r.add_argument("path")
     r.add_argument("url")

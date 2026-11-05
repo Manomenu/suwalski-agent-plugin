@@ -83,6 +83,11 @@ main { min-width: 0; }
 /* sections */
 main > section { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 4px 26px 18px; margin-bottom: 22px; box-shadow: var(--shadow); position: relative; }
 main > section > h2:first-child { margin-top: 18px; padding-right: 110px; }
+/* the band that opens one part of a review-spec page: a new spec, a changed spec, a removed spec */
+main > section.part { border-left: 6px solid var(--accent); margin-top: 38px; }
+main > section.part[data-part="new"] { border-left-color: var(--ok); background: var(--ok-soft); }
+main > section.part[data-part="changed"] { border-left-color: var(--warn); background: var(--warn-soft); }
+main > section.part[data-part="removed"] { border-left-color: var(--bad); background: var(--bad-soft); }
 @media (max-width: 600px) { main > section, .doc-head { padding-left: 16px; padding-right: 16px; } }
 
 .tldr { font-size: 1.04rem; border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 14px 18px; border-radius: 0 var(--radius) var(--radius) 0; margin: 16px 0 6px; }
