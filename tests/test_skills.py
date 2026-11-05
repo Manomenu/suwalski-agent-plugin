@@ -33,7 +33,7 @@ class Skills(unittest.TestCase):
                 self.assertGreater(len(fields.get("description", "")), 80)
 
     def test_the_method_skills_exist(self):
-        for name in ("task-triage", "review-triage", "agent-review", "visual-guardrails", "visual-spec"):
+        for name in ("task-triage", "criteria-triage", "review-triage", "agent-review", "visual-guardrails", "visual-spec"):
             self.assertTrue((SKILLS / name / "SKILL.md").exists(), name)
 
     def test_session_context_names_every_page_kind_and_the_method_skills(self):
@@ -41,10 +41,10 @@ class Skills(unittest.TestCase):
         self.assertIn("docs/visual/<spec|plan|recap|deviation|qa|guardrails|review|review-spec>/", hot)
         for kind in ("plan", "recap", "deviation", "qa", "guardrails", "review", "review-spec"):
             self.assertIn(f"docs/visual/{kind}/", hot)
-        for skill in ("task-triage", "review-triage", "agent-review", "visual-guardrails", "visual-review-spec"):
+        for skill in ("task-triage", "criteria-triage", "review-triage", "agent-review", "visual-guardrails", "visual-review-spec"):
             self.assertIn(f"/suwagent:{skill}", hot)
         method = (PLUGIN / "hooks" / "context" / "method.md").read_text(encoding="utf-8")
-        for phrase in ("living spec per feature", "one-way", "characterization tests", "always-careful", "docs/adr/", "visual-review-spec"):
+        for phrase in ("living spec per feature", "criteria-triage", "one-way", "characterization tests", "always-careful", "docs/adr/", "visual-review-spec"):
             self.assertIn(phrase, method)
 
     def test_the_hook_names_the_method_file_by_its_absolute_path(self):

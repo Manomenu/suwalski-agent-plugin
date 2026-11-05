@@ -18,6 +18,11 @@ exists, a task is a **delta** in it: criteria added, changed or dropped, edited 
 no changelog and no "changed from" notes; the chat message names the delta, git keeps the
 history. A new spec is written only for a new feature (`/suwagent:task-triage` tells which).
 
+One task can do both: `/suwagent:criteria-triage` routes each criterion to a new spec, to an
+existing spec, or nowhere, and finds existing criteria to edit or remove. Unless this task already
+has a confirmed routing, run it before writing any criteria, then write exactly what it settled: a
+page per new spec, a delta in each existing spec, and nothing for what it sent nowhere.
+
 Before writing, read these two files. They hold the rules shared by all three visual skills
 and the HTML blocks:
 
@@ -34,8 +39,8 @@ What to specify: $ARGUMENTS (if empty, use the change being discussed in the con
 
 ## Rules
 
-- **Read-only.** Make no source changes while specifying. The only file you write is the
-  spec page.
+- **Read-only.** Make no source changes while specifying. The only files you write are the
+  spec pages the routing names.
 - **Research first.** Read the code involved so the "current state" is real: today's
   behaviour, screens, data and limits, with paths. Delegate wide exploration to a subagent
   if it's large.

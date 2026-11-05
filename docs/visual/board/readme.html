@@ -425,7 +425,7 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
       <ul><li>S: ticket + test</li><li>M: delta in spec</li><li>L: spec + plan</li></ul>
       <div class="foot"><span class="btn ok">✅ one word</span></div></div>
     <div><span class="tag accent">visual-spec</span><h4>Spec</h4><p class="when">one living spec per feature</p>
-      <ul><li>what and why</li><li>criteria with ids</li><li>decisions</li></ul>
+      <ul><li><b>criteria-triage</b>: where each criterion goes</li><li>what and why</li><li>criteria with ids</li><li>decisions</li></ul>
       <div class="foot"><span class="btn ok">✅ Approve</span></div></div>
     <div><span class="tag accent">visual-plan</span><h4>Plan</h4><p class="when">how</p>
       <ul><li>decisions</li><li>diagram</li><li>file map</li><li>steps</li></ul>
@@ -474,8 +474,9 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
     <div><span class="ico">⚖️</span><h4><code>plan-judge</code></h4><p class="when">2+ plans for one task</p><p>compared against the real code: adopt, merge or send back</p><div class="foot"><span class="tag accent">several plans → 1</span></div></div>
   </div>
   <div class="group">⚙️ Ways of working</div>
-  <div class="cards" style="--cols:4">
+  <div class="cards" style="--cols:3">
     <div><span class="ico">📏</span><h4><code>task-triage</code></h4><p class="when">a task starts</p><p>S (ticket + test), M (delta in the feature's living spec) or L (spec + plan), and which spec it belongs to</p><div class="foot"><span class="tag ok">you confirm in a word</span></div></div>
+    <div><span class="ico">🧩</span><h4><code>criteria-triage</code></h4><p class="when">before the criteria are written</p><p>each criterion on its own: new spec, an existing spec, edit or remove an existing one, or nowhere</p><div class="foot"><span class="tag ok">you confirm it</span></div></div>
     <div><span class="ico">🚦</span><h4><code>review-triage</code></h4><p class="when">a change is ready</p><p>ordinary path (spec, guardrails page, recap; an agent reads the diff) or careful (you read the diff too), from a short always-careful list</p><div class="foot"><span class="tag ok">no ladder of trust levels</span></div></div>
     <div><span class="ico">🔗</span><h4><code>mr-chain</code></h4><p class="when">a feature too big for one MR</p><p>stacked merge requests, each on the previous one; fixes on the earliest branch, merged down</p><div class="foot"><span class="tag note">you start it</span></div></div>
     <div><span class="ico">🌙</span><h4><code>autopilot</code></h4><p class="when">you leave it alone with a task</p><p>no routine questions, every decision logged, ends with a recap</p><div class="foot"><span class="tag note">you start it</span></div></div>
@@ -492,6 +493,7 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
   <div class="pick">
     <div class="if">A typo, a one-line fix, a question</div><div class="then muted">just done <small>+ status line</small></div>
     <div class="if">A task starts and its size is not obvious</div><div class="then">task-triage <small>S, M or L</small></div>
+    <div class="if">Which spec does each criterion belong in?</div><div class="then">criteria-triage <small>new, existing or nowhere</small></div>
     <div class="if">A feature whose details are still open</div><div class="then">visual-spec <small>what, why</small></div>
     <div class="if">Requirements clear, no code yet</div><div class="then">visual-plan <small>how</small></div>
     <div class="if">Claude and Codex each wrote a plan</div><div class="then">plan-judge <small>pick one</small></div>

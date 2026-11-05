@@ -42,8 +42,9 @@ In chat, short, in the user's language:
 - **Tier** with one sentence of reason, tied to the threshold question.
 - **Spec**: the living spec this belongs to (title and path), or "new feature", or "none (S)".
 - **Criteria**: the ids the change may add, change or drop, when the spec exists.
-- **Next step**: for S the ticket and the test to touch; for M the delta to write in the spec;
-  for L `/suwagent:visual-spec`. When several tasks are pasted, one row each in a table.
+- **Next step**: for S the ticket and the test to touch; for M and L `/suwagent:criteria-triage`,
+  which routes each criterion, then the delta or `/suwagent:visual-spec`. When several tasks are
+  pasted, one row each in a table.
 
 Then wait for the user's word. "ok", "S", "M", "L" or a correction. Do not start the next
 step on your own. When the user changes the tier, take their tier without arguing; say in
@@ -52,7 +53,7 @@ one line what that means for the next step.
 ## Edge cases
 
 - The task touches two features: name both specs; the delta goes into each, or the task
-  is split. Say which you recommend.
+  is split. Say which you recommend. Which criterion goes where is `/suwagent:criteria-triage`.
 - No specs in the repository yet: tier by the threshold question alone, and say that an M
   becomes L (the first spec of the feature).
 - A "small" change to code with no characterization tests in a brownfield project: still S
