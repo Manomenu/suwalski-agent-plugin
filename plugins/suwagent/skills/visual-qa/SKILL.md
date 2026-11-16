@@ -84,8 +84,8 @@ Aim for a page that takes 5 minutes to read; the testing itself can take longer.
 
 1. **Header**, `doc-kind` "QA", status `draft` until the user approves it for the tester,
    then `approved`. In the meta line: the environment, the version or branch, and the date.
-2. `tldr`: what changed for the user in 2-3 sentences, then `stats`: scenarios, roughly
-   how long testing takes, accounts needed.
+2. `tldr`: what changed for the user in 2-3 sentences, with how many scenarios there are,
+   roughly how long testing takes and which accounts are needed.
 3. `environment`: **Where to test**: the address, how to check the version, the accounts or
    roles (where the credentials are), the test data to prepare and how, the browsers or
    devices, and anything to switch on (a feature flag, a setting).

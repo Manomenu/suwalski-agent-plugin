@@ -16,7 +16,7 @@ comment button from it.
 </section>
 ```
 
-Roles: `tldr`, `problem`, `goals`, `scenarios`, `behaviour`, `ui`, `data`, `acceptance`,
+Roles: `tldr`, `problem`, `scenarios`, `behaviour`, `ui`, `data`, `acceptance`,
 `approach`, `architecture`, `files`, `code`, `steps`, `verification`, `risks`, `changes`,
 `deviations`, `review`, `followups`, `questions`. Use any other role you need.
 
@@ -30,16 +30,12 @@ scrolling the page can tell a new spec from a changed one.
 <section data-role="tldr">
   <h2>TL;DR</h2>
   <div class="tldr"><p>Dodajemy przycisk <b>Eksportuj CSV</b> na liście raportów…</p></div>
-  <div class="stats">
-    <div><b>6</b><span>plików</span></div>
-    <div><b>4</b><span>kroki</span></div>
-    <div><b>2</b><span>otwarte pytania</span></div>
-  </div>
 </section>
 ```
 
-`stats` is optional: use it for counts that tell the size of the work (files, steps,
-endpoints, tests, +/− lines).
+No `stats` row under the TL;DR: a row of counts gives the reader nothing to act on and pushes
+the content down. A count that matters goes into a sentence of the TL;DR. `stats` belongs in a
+`hero` of a board, or anywhere the user asks for counts.
 
 ## Callouts
 

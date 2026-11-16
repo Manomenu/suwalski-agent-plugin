@@ -140,8 +140,8 @@ Keep it to 3-5 minutes of reading. Leave out a section that has nothing to say.
    exist).
 2. `tldr`: 2-3 sentences with 🟢 (every criterion guarded), 🟡 (gaps, but none on a criterion
    whose failure would hurt users or data) or 🔴 (a key criterion unguarded, or a guardrail
-   red now) at the start. `stats`: criteria guarded (e.g. 7/11), weak or off the gate, none,
-   manual only.
+   red now) at the start. The sentences give the counts that matter (e.g. 7 of 11 criteria
+   guarded, 2 weak, 2 with none).
 3. `gate`: what the gate is, in one small Mermaid `flowchart` (trigger → jobs → commands →
    runners), with required jobs marked, and a `callout risk` for anything that weakens it
    (jobs allowed to fail, tests excluded by config, no CI).

@@ -92,7 +92,7 @@ FIREFOXES = ("firefox", "/Applications/Firefox.app/Contents/MacOS/firefox", r"C:
 
 # Sections each kind is expected to have, matched against <section data-role="...">.
 EXPECTED = {
-    "spec": ["tldr", "problem", "goals", "behaviour", "acceptance", "questions"],
+    "spec": ["tldr", "problem", "behaviour", "acceptance", "questions"],
     "plan": ["tldr", "approach", "files", "steps", "verification", "questions"],
     "recap": ["tldr", "how", "acceptance", "review"],
     "deviation": ["tldr", "deviations"],

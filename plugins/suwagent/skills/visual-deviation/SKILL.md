@@ -33,7 +33,7 @@ What to compare: $ARGUMENTS
 - **The baseline is the spec**, then the plan. Find them in `docs/visual/spec/` and
   `docs/visual/plan/`, matched by the conversation or the slug, and create the page with the
   **same slug**. A spec or plan given as a path, an artifact link or text in the conversation
-  works too. Read the spec's goals, behaviour, scenarios, UI, data and acceptance criteria,
+  works too. Read the spec's behaviour, scenarios, UI, data, decisions and acceptance criteria,
   and the plan's approach, decisions, file map and steps.
 - **No spec and no plan: stop.** Say in one line that there is nothing to compare against,
   and suggest `/suwagent:visual-recap` instead. Never reconstruct a spec from the code and
@@ -81,8 +81,8 @@ the count (e.g. "12/12 criteria as specified") and the evidence, and offer a ful
    links `vdoc.py links` prints (the spec and plan).
 2. `tldr`: 2-3 sentences with 🟢 (none that matter, or all of them recommended `keep`), 🟡
    (some need the user's decision) or 🔴 (an acceptance criterion fails or a promise to users
-   is broken) at the start. `stats`: criteria as specified (e.g. 9/12), deviations, how many
-   need a decision.
+   is broken) at the start. The sentences give the counts that matter (e.g. 9 of 12 criteria
+   as specified, 3 deviations, 1 needs a decision).
 3. `deviations`: a summary `table` first (# · item of the spec or plan · kind · impact ·
    recommendation, with `tag`s for kind and recommendation), worst first. Then, per
    deviation, an `<h3>` with its number and name, a `cols` of **Spec/Plan** vs **Built** (the

@@ -138,8 +138,10 @@ Whichever way it comes:
   know. Someone who reads only the TL;DR should be able to say yes, no, or "wait".
 - **Concrete before abstract.** Open with a real example (an actual request, a real screen,
   a real record) before architecture or tables.
-- **Ground everything in the codebase.** Read the real files first. Name real paths, symbols,
-  tables and endpoints. Mark anything inferred rather than read as a `callout assumption`.
+- **Ground everything in reality.** Read the real files first. A spec is grounded in real
+  behaviour and real data (an actual request, record or screen), never in paths or symbols:
+  it says what and why. A plan, a recap and the other pages name real paths, symbols, tables
+  and endpoints. Mark anything inferred rather than read as a `callout assumption`.
 - **One picture per real relationship.** Use a Mermaid diagram for flows, states, sequences
   and architecture, and for UI a screenshot with numbered marks when the app runs (a
   wireframe when it doesn't or doesn't exist yet). Don't draw a diagram that a sentence explains

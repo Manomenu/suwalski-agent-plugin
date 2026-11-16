@@ -60,8 +60,7 @@ Leave out a section that has nothing to say.
 
 1. **Header**, `doc-kind` "Plan", status `draft`, with `Zakres`/scope (≈ files, steps) in the
    meta line.
-2. `tldr`: the approach in 2-4 sentences, plus `stats`: new files, modified files, steps, open
-   questions.
+2. `tldr`: the approach in 2-4 sentences.
 3. `approach`: the key decisions (`callout decision`), the options weighed (`cols`), and the
    scope cut (in / deferred).
 4. `architecture`: a Mermaid diagram of the parts and how data or control moves after the

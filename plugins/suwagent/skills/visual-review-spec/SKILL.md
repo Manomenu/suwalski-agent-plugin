@@ -69,7 +69,7 @@ Add `--base <parent>` to the `spec-delta` calls on a stacked merge request.
 | Part | Written by | Holds |
 | :- | :- | :- |
 | Header | tool | base and head commits, the branch, so a reader knows the exact state shown |
-| `tldr` | you | 2-4 sentences: what the task does to the specs, what the reviewer must judge. `stats` when counts help (new specs, changed specs, criteria) |
+| `tldr` | you | 2-4 sentences: what the task does to the specs, what the reviewer must judge |
 | 🆕 New spec | tool | the band, then the whole spec, word for word. A task with only this part is simply a copy of the spec |
 | ✏️ Changed spec | tool and you | the band; `what-changed`, yours; a table of criteria added, changed (was and now) and dropped; new diagrams and images |
 | 🗑️ Removed spec | tool and you | the band; why it goes and where its behaviour went, yours; the criteria that go |
