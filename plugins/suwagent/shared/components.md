@@ -256,7 +256,9 @@ keeps the code working after each one.
 ```
 
 In a spec, the items have no status: they are the contract, and each starts with its id
-`AC-<feature>-<n>`, which `vdoc.py ids` assigns. A recap, deviation, QA or guardrails page
+`AC-<feature>-<n>`, which `vdoc.py ids` assigns. On a spec page the template adds, in the
+browser only, a button per criterion and one for all of them that copy a prompt asking an LLM
+how the guardrails of those ids check them; never write such buttons into the file. A recap, deviation, QA or guardrails page
 quotes the same id for the same criterion. In a recap, give each one a
 status and evidence (a test name, a command and its output, a file:line).
 

@@ -154,6 +154,10 @@ ul.checks li[data-status="fail"]::before { content: "✗"; color: var(--bad); }
 ul.checks li[data-status="partial"]::before { content: "◐"; color: var(--warn); }
 ul.checks li[data-status="skipped"]::before { content: "–"; color: var(--muted); }
 ul.checks .evidence { display: block; font-size: .84rem; color: var(--muted); }
+/* spec: copy a prompt asking an LLM how the tests of a criterion guard it */
+.ac-explain { font: inherit; font-size: .74rem; margin-left: .4em; padding: .05em .6em; vertical-align: .1em; background: var(--card); color: var(--muted); border: 1px solid var(--line); border-radius: 99px; cursor: pointer; }
+.ac-explain:hover { color: var(--accent); border-color: var(--accent); }
+.ac-explain.all { margin: 10px 0 0; font-size: .82rem; padding: .3em .9em; }
 
 /* tabs */
 .tabs { margin: 14px 0; }
@@ -355,7 +359,7 @@ pre.out { font: 12px/1.5 var(--mono); background: var(--code-bg); border: 1px so
 .copy-fallback { position: fixed; inset: 10% 10%; z-index: 30; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px; }
 .copy-fallback textarea { flex: 1; font-family: var(--mono); }
 @media (max-width: 760px) { .feedback-bar .inner { padding: 8px 16px; grid-template-columns: auto 1fr auto auto; grid-template-areas: "verdict copy clear theme" "text text text text"; } .feedback-bar .copy { justify-self: end; } }
-@media print { .feedback-bar, .sec-comment-btn, .toc { display: none !important; } .layout { display: block; } main > section { break-inside: avoid-page; box-shadow: none; } }
+@media print { .feedback-bar, .sec-comment-btn, .ac-explain, .toc { display: none !important; } .layout { display: block; } main > section { break-inside: avoid-page; box-shadow: none; } }
 </style>
 </head>
 <body>
@@ -382,7 +386,19 @@ const T = {
         count: n => `${n} comment(s)/answer(s)`, fbTitle: "Feedback on", verdictOk: "APPROVED — go ahead.",
         verdictChange: "CHANGES REQUESTED — update the document before going further.", answers: "Answers to open questions",
         comments: "Comments on sections", general: "General feedback", recPick: "(recommended)", fallback: "Copy this text (Ctrl+C) and paste it into the chat:", close: "Close",
-        confirmClear: "Click again to clear" },
+        confirmClear: "Click again to clear",
+        acOne: "🔍 How is it tested?", acOneTip: "Copy a prompt for an LLM: explain how the tests of this criterion check it",
+        acAll: "🔍 Copy a prompt: how are all criteria tested?", acCopied: "Prompt copied. Paste it into an LLM that sees the repository.",
+        acAsk: ids => `Explain at the level of ideas, not code, how the guardrails (tests, lint rules, configs) assigned to ${ids} check that the project keeps ${ids.includes(",") ? "these acceptance criteria" : "this acceptance criterion"}. I want to judge whether these tests are sensible and solid, or check little.`,
+        acSpec: "Spec", acCrit: "Criteria",
+        acSteps: ids => [
+          `Find every guardrail naming ${ids}: if the project has \`just criteria\`, run \`just criteria <id>\` for each id; otherwise search the repository for the id.`,
+          "For each guardrail, in plain words: what situation it sets up, what it does, what it asserts, and which way of breaking the criterion it would catch.",
+          "Then judge it: which realistic ways of breaking the criterion would pass every guardrail unnoticed? Does any test only walk the path without asserting the result, mock away the very thing it should check, assert something trivial, or not run on the gate?",
+          "Verdict per criterion: solid / partial / weak, one sentence why, and the single check that would close the biggest gap.",
+        ],
+        acMany: "Answer one short section per criterion, then a table: criterion | guardrails | verdict | biggest gap.",
+        acNoEdit: "Do not change any code or files: this is an explanation for a human reviewer." },
   pl: { decision: "Decyzja", risk: "Ryzyko", warn: "Uwaga", note: "Notatka", ok: "Zweryfikowane", assumption: "Założenie",
         chosen: " ✓ wybrane", recommended: "rekomendowane", donewhen: "Gotowe, gdy: ", contents: "Spis treści",
         comment: "💬 Skomentuj", commented: "💬 Skomentowane", commentPh: "Twój komentarz do tej sekcji dla agenta…",
@@ -392,7 +408,19 @@ const T = {
         count: n => `komentarze/odpowiedzi: ${n}`, fbTitle: "Feedback do", verdictOk: "ZATWIERDZAM — działaj dalej.",
         verdictChange: "POPRAWKI — popraw dokument, zanim pójdziesz dalej.", answers: "Odpowiedzi na otwarte pytania",
         comments: "Komentarze do sekcji", general: "Uwagi ogólne", recPick: "(rekomendowane)", fallback: "Skopiuj ten tekst (Ctrl+C) i wklej agentowi:", close: "Zamknij",
-        confirmClear: "Kliknij ponownie, aby wyczyścić" },
+        confirmClear: "Kliknij ponownie, aby wyczyścić",
+        acOne: "🔍 Jak to jest testowane?", acOneTip: "Kopiuj prompt dla LLM-a: wyjaśnij, jak testy tego kryterium je sprawdzają",
+        acAll: "🔍 Kopiuj prompt: jak testowane są wszystkie kryteria?", acCopied: "Prompt skopiowany. Wklej go LLM-owi, który widzi repozytorium.",
+        acAsk: ids => `Wyjaśnij koncepcyjnie, na poziomie idei, nie kodu, w jaki sposób guardraile (testy, reguły lintera, konfiguracja) przypisane do ${ids} sprawdzają, że projekt ${ids.includes(",") ? "przestrzega tych kryteriów akceptacji" : "przestrzega tego kryterium akceptacji"}. Chcę ocenić, czy te testy są sensowne i solidne, czy sprawdzają niewiele.`,
+        acSpec: "Specyfikacja", acCrit: "Kryteria",
+        acSteps: ids => [
+          `Znajdź wszystkie guardraile, które nazywają ${ids}: jeśli projekt ma \`just criteria\`, uruchom \`just criteria <id>\` dla każdego id; w przeciwnym razie przeszukaj repozytorium po id.`,
+          "Dla każdego guardraila prostymi słowami: jaką sytuację przygotowuje, co robi, co asercją sprawdza i jaki sposób złamania kryterium by wyłapał.",
+          "Potem oceń: jakie realistyczne sposoby złamania kryterium przeszłyby niezauważone przez wszystkie guardraile? Czy któryś test tylko przechodzi ścieżkę bez sprawdzenia wyniku, mockuje dokładnie to, co powinien sprawdzić, sprawdza coś trywialnego albo nie jest uruchamiany na gate?",
+          "Werdykt dla każdego kryterium: solidnie / częściowo / słabo, jedno zdanie dlaczego i jeden test, który zamknąłby największą lukę.",
+        ],
+        acMany: "Odpowiedz krótką sekcją na każde kryterium, a na końcu tabelą: kryterium | guardraile | werdykt | największa luka.",
+        acNoEdit: "Nie zmieniaj kodu ani plików: to wyjaśnienie dla człowieka, który ocenia testy." },
 };
 const S = T[lang] || T.en;
 for (const k of ["decision", "risk", "warn", "note", "ok", "assumption", "chosen", "recommended", "donewhen"]) {
@@ -534,14 +562,39 @@ function feedbackText() {
   return out.join("\n").trim() + "\n";
 }
 const toast = msg => { const x = el("div", { class: "toast" }); x.textContent = msg; document.body.append(x); setTimeout(() => x.remove(), 2600); };
-bar.querySelector(".copy").onclick = async () => {
-  const text = feedbackText();
-  try { await navigator.clipboard.writeText(text); toast(S.copied); }
+const copyText = async (text, done) => {
+  try { await navigator.clipboard.writeText(text); toast(done); }
   catch {
     const box = el("div", { class: "copy-fallback" }); box.innerHTML = `<b>${esc(S.fallback)}</b><textarea readonly></textarea><button type="button">${esc(S.close)}</button>`;
     box.querySelector("textarea").value = text; box.querySelector("button").onclick = () => box.remove(); document.body.append(box); box.querySelector("textarea").select();
   }
 };
+bar.querySelector(".copy").onclick = () => copyText(feedbackText(), S.copied);
+
+/* spec criteria: buttons that copy a prompt asking an LLM how the guardrails of a criterion check it. Added here, never
+   written into the file, so vdoc.py ids / criteria (and `just criteria`) still read exactly one id per <li> */
+const acRe = /\bAC-[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*-\d+\b/;
+const acItems = root.dataset.kind !== "spec" ? [] : [...document.querySelectorAll('main section[data-role="acceptance"] li')]
+  .map(li => {
+    const id = li.textContent.match(acRe)?.[0]; if (!id) return null;
+    const c = li.cloneNode(true); c.querySelectorAll(".evidence").forEach(x => x.remove());
+    return { li, id, text: c.textContent.replace(id, "").replace(/\s+/g, " ").trim() };
+  }).filter(Boolean);
+const acPrompt = items => {
+  const ids = items.map(x => x.id).join(", ");
+  return [S.acAsk(ids), "", `${S.acSpec}: "${document.title}" (${source})`, `${S.acCrit}:`, ...items.map(x => `- ${x.id}: ${x.text}`), "",
+    ...S.acSteps(ids).map((s, i) => `${i + 1}. ${s}`), ...(items.length > 1 ? ["", S.acMany] : []), "", S.acNoEdit].join("\n") + "\n";
+};
+acItems.forEach(x => {
+  const b = el("button", { class: "ac-explain", type: "button", title: S.acOneTip }); b.textContent = S.acOne;
+  b.onclick = () => copyText(acPrompt([x]), S.acCopied);
+  x.li.insertBefore(b, x.li.querySelector(".evidence"));
+});
+if (acItems.length > 1) {
+  const b = el("button", { class: "ac-explain all", type: "button" }); b.textContent = S.acAll;
+  b.onclick = () => copyText(acPrompt(acItems), S.acCopied);
+  acItems.at(-1).li.closest("ul, ol").after(b);
+}
 /* a second click confirms: confirm() is refused inside claude.ai artifacts */
 const clearBtn = bar.querySelector(".clear");
 clearBtn.onclick = () => {
@@ -566,7 +619,7 @@ if (["light", "dark"].includes(hp.get("theme"))) root.dataset.theme = hp.get("th
 if (Number(hp.get("zoom")) > 0) root.style.zoom = hp.get("zoom");
 const only = hp.get("only") && (document.getElementById(hp.get("only")) || document.querySelector(`main > section[data-role="${CSS.escape(hp.get("only"))}"]`));
 if (only) {
-  only.querySelectorAll(".sec-comment-btn, .sec-comment").forEach(x => x.remove());
+  only.querySelectorAll(".sec-comment-btn, .sec-comment, .ac-explain").forEach(x => x.remove());
   /* a <main>, so a section keeps its `main > section` card look */
   const frame = el("main", { class: "vdoc-frame" }); frame.append(only); document.body.replaceChildren(frame);
 }
