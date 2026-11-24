@@ -41,9 +41,15 @@ What to specify: $ARGUMENTS (if empty, use the change being discussed in the con
 
 - **Read-only.** Make no source changes while specifying. The only files you write are the
   spec pages the routing names.
-- **Research first.** Read the code involved so what the spec says about today is true:
+- **Research first.** Read the code involved so you know what the change departs from:
   today's behaviour, screens, data and limits. The paths and symbols you find belong in the
   plan, not on this page. Delegate wide exploration to a subagent if it's large.
+- **Describe what is settled, not what it replaces.** Every section says how the feature
+  behaves once the spec holds, in the present tense, as if it had always been so. No
+  "today", "currently", "as before", "no longer", "now also": a sentence about the state
+  before the change is true for one task and false the day it ships, so the spec starts to
+  rot at merge. Where the old behaviour matters to the why, it goes into **Rejected
+  approaches** (section 7b) as one option that was weighed and not kept, with its reason.
 - **Ask little, up front.** Ask a clarifying question in chat only when the answer changes the
   whole shape of the spec (up to 3, batched). Everything else goes in as a recommended
   default in the Open questions form.
@@ -68,9 +74,10 @@ Leave out a section that has nothing to say. Never write one that only says "N/A
 
 1. **Header** (see authoring.md), `doc-kind` "Spec", status `draft`.
 2. `tldr`: 2-4 sentences: the change, who it's for, and why now.
-3. `problem`: what happens today and the pain it causes, told from the side of the user or
-   the API caller, with a real example (a real request, a real record, a real screen), never
-   with paths or symbols. A small diagram of the current flow, if it's a flow.
+3. `problem`: the need the feature answers, told from the side of the user or the API caller,
+   with a real example (a real request, a real record, a real screen), never with paths or
+   symbols. Write it as a lasting reason (who needs what, and what must hold for them), not as
+   a picture of the system before the change: that picture goes to Rejected approaches.
 4. `scenarios`: 2-5 concrete scenarios. Each names a real user and real data, then gives the
    steps and the outcome. The first scenario is the main happy path.
 5. `behaviour`: rules and flow. A Mermaid `flowchart` or `stateDiagram-v2` when there are
@@ -89,7 +96,11 @@ Leave out a section that has nothing to say. Never write one that only says "N/A
    by a breaking change is found when the change is made (the owner's CI diff, tickets),
    not kept in the spec.
 7b. `decisions`: only when something was chosen between options. One sentence per decision:
-   what was chosen and why not otherwise. Something a reader would reasonably expect but that
+   what was chosen and why not otherwise. Close it with **Rejected approaches**: a `cols`
+   block of `rejected` items, one per option not taken, each with a real example of how it
+   fails and the reason. The behaviour before the change is one of them when it explains the
+   why ("Routes only at the root: behind a proxy that keeps <code>/bot</code>, every call is
+   404"), told as an option, not as "today". Something a reader would reasonably expect but that
    is left out is a decision too: say what is out and why. A decision that concerns several features goes
    to `docs/adr/` as its own file, and the spec links to it instead of repeating it. A
    decision is never edited; a change of mind is a new sentence or file that says what it
